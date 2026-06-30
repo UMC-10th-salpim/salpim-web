@@ -25,7 +25,7 @@ const Tab = ({ tabs, activeKey, onChange, className = '' }: TabProps) => {
             onClick={() => onChange(tab.key)}
             className={`flex-1 border-b-2 px-4 py-3 text-sm font-medium transition-colors ${
               isActive
-                ? 'border-blue-500 text-blue-500'
+                ? 'border-brand-500 text-brand-500'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
