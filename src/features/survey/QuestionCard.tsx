@@ -13,7 +13,6 @@ interface QuestionCardProps {
   value: string | string[];
   onChange: (value: string | string[]) => void;
   multiple?: boolean;
-  description?: string;
   className?: string;
 }
 
@@ -23,7 +22,6 @@ const QuestionCard = ({
   value,
   onChange,
   multiple = false,
-  description,
   className = '',
 }: QuestionCardProps) => {
   const isSelected = (optionValue: string) =>
@@ -45,7 +43,6 @@ const QuestionCard = ({
   return (
     <Card className={`bg-brand-50 ${className}`}>
       <h2 className="text-lg font-bold leading-7 text-gray-900">{question}</h2>
-      {description && <p className="mt-1 text-sm text-gray-500">{description}</p>}
 
       <div className="mt-4 flex flex-col gap-3">
         {options.map((option) => {

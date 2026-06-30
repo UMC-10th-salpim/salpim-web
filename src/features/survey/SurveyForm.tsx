@@ -6,7 +6,6 @@ export interface SurveyQuestion {
   question: string;
   options: QuestionOption[];
   multiple?: boolean;
-  description?: string;
 }
 
 export type SurveyAnswers = Record<string, string | string[]>;
@@ -90,7 +89,6 @@ const SurveyForm = ({ questions = defaultQuestions, userName = 'OO', onComplete 
 
       <QuestionCard
         question={questionText}
-        description={current.description}
         options={current.options}
         value={currentValue}
         onChange={handleChange}
