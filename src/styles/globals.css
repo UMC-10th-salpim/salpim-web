@@ -1,1 +1,13 @@
 @import 'tailwindcss';
+
+/* 살핌 디자인 시스템 - 브랜드 컬러 (오렌지/크림 테마) */
+@theme {
+  --color-brand-50: #fff7ec;
+  --color-brand-100: #fce4c7;
+  --color-brand-200: #f6cfa3;
+  --color-brand-300: #f4bd80;
+  --color-brand-400: #f6a85c;
+  --color-brand-500: #f2913c;
+  --color-brand-600: #e07c28;
+  --color-brand-700: #c56a1f;
+}
