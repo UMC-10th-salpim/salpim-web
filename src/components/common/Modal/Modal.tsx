@@ -55,7 +55,7 @@ const Modal = ({
           {onConfirm && (
             <button
               type="button"
-              className="flex-1 rounded-xl border border-brand-500 bg-brand-500 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-brand-600"
+              className="flex-1 rounded-xl border border-blue-500 bg-blue-500 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-blue-600"
               onClick={onConfirm}
             >
               {confirmText}

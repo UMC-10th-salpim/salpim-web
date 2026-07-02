@@ -65,7 +65,7 @@ const NavigationIcon = ({ name, active }: { name: IconName; active: boolean }) =
   }
 
   return (
-    <svg {...commonProps} fill={active ? '#fce4c7' : 'none'}>
+    <svg {...commonProps} fill={active ? '#bfdbfe' : 'none'}>
       <path d="M3 11.5 12 3l9 8.5" />
       <path d="M5 10.5V20h14v-9.5" />
       <path d="M9 20v-6h6v6" />
@@ -88,7 +88,7 @@ const BottomNavigation = ({ items = defaultItems, className = '' }: BottomNaviga
   return (
     <nav
       aria-label="하단 내비게이션"
-      className={`fixed bottom-0 left-0 right-0 z-40 border-t border-gray-200 bg-white pb-[env(safe-area-inset-bottom)] ${className}`}
+      className={`fixed bottom-0 left-0 right-0 z-40 border-t border-gray-900 bg-white pb-[env(safe-area-inset-bottom)] ${className}`}
     >
       <div className="mx-auto grid h-16 max-w-screen-sm grid-cols-4">
         {items.map((item) => {
@@ -99,7 +99,7 @@ const BottomNavigation = ({ items = defaultItems, className = '' }: BottomNaviga
               key={item.path}
               to={item.path}
               className={`flex min-w-0 flex-col items-center justify-center gap-0.5 text-[13px] font-medium leading-none transition-colors ${
-                active ? 'text-brand-500' : 'text-gray-400 hover:text-brand-500'
+                active ? 'text-blue-500' : 'text-gray-900 hover:text-blue-500'
               }`}
               aria-current={active ? 'page' : undefined}
             >
