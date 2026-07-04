@@ -1,7 +1,106 @@
-const BenefitDetail = () => {
+import Button from "@/components/common/Button/Button";
+import Chip from "@/components/common/Chip/Chip";
+
+interface BenefitDetailProps {
+  isOnline : boolean;
+  category: string;
+  title: string;
+  icon: string;
+  deadline: string;
+  ageLimit: string;
+  eligibility: string;
+  benefitContent: string;
+  targetPerson: string;
+  facilityName?: string;
+  facilityDistance?: string;
+  facilityHours?: string;
+}
+
+const BenefitDetail = ({isOnline, category, title, deadline, ageLimit, eligibility, benefitContent, targetPerson, facilityName, facilityDistance, facilityHours}:BenefitDetailProps) => {
+  console.log('온라인 신청 가능: ', isOnline);
+  console.log('혜택 정보: ', {category, title});
+
   return (
-    <div>
-      {/* TODO: BenefitDetail */}
+    <div className="flex flex-col p-4 gap-4">
+
+      {/* 상단 카드 형식 */}
+      <div className="bg-[#FBE3BF] rounded-2xl p-4 flex flex-col gap-2">
+        <Chip label={category}/>
+        <span className="text-lg font-bold text-[#613212]">{title}</span>
+        <div className="flex gap-2">
+          <span className="bg-[#FF8A3D] text-white text-xs px-3 py-1 rounded-full">{deadline}</span>
+          <span className="bg-[#FF8A3D] text-white text-xs px-3 py-1 rounded-full">{ageLimit}</span>
+        </div>
+      </div>
+
+      {/* 설명 박스 */}
+      <div className="bg-[#FBE3BF] rounded-2xl p-4 flex items-center gap-3">
+        <img src="/characters/salpimi.png"/>
+        <div className="flex flex-col gap-1">
+          <span className="text-sm font-bold text-[#613212]">병원 갈 때 드는 돈을 나라에서 일부 도와주는 제도예요!</span>
+          <span className="text-xs text-[#FF8A3D]">살피미가 쉽게 설명해줘요</span>
+        </div>
+      </div>
+
+      {/* 누가,무엇을, 어떤것 */}
+      <div className="flex flex-col gap-3">
+        <div>
+          <span className="font-bold text-[#613212]">누가 받을까?</span>
+          <div className="border border-[#FF8A3D] rounded-xl p-3 mt-1 text-center text-sm">{eligibility}</div>
+        </div>
+
+        <div>
+          <span className="font-bold text-[#613212]">무엇을 받을 수 있을까?</span>
+          <div className="border border-[#FF8A3D] rounded-xl p-3 mt-1 text-center text-sm">{benefitContent}</div>
+        </div>
+
+        <div>
+          <span className="font-bold text-[#613212]">어떤 사람이 받으면 좋을까?</span>
+          <div className="border border-[#FF8A3D] rounded-xl p-3 mt-1 text-center text-sm">{targetPerson}</div>
+        </div>
+      </div>
+
+      {/*온라인 신청만*/}
+      {isOnline && (
+        <div className="bg-[#FBE3BF] rounded-2xl p-4 flex items-center gap-3">
+          <img src="/characters/salpimi.png" className="w-13 h-13"/>
+          <span className="text-sm font-bold text-[#613212]">이 혜택은 인터넷에서 신청해야해요! 공식 사이트에서 신청해 주세요.</span>
+        </div>
+      )}
+
+      {/*가까운 기관 안내*/}
+      {!isOnline && (
+        <div className="bg-[#FBE3BF] rounded-2xl p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src="/icons/housing.png"/>
+            <div className="flex flex-col">
+              <span className="font-bold text-[#613212]">{facilityName}</span>
+              <span className="text-xs text-gray-500">{facilityDistance} {facilityHours}</span>
+            </div>
+        </div>
+        {/* 해당 지도로 연결해야함*/}
+        <span className="text-[#FF8A3D] text-sm">지도{'>'}</span>
+      </div>
+      )}
+
+      {/*카카오톡 공유*/}
+      <div className="bg-[#FBE3BF] rounded-2xl p-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <img src="/icons/kakaotalk.png" className="w-8 h-8"/>
+          <span className="font-bold text-[#613212]">카카오톡으로 공유</span>
+        </div>
+        <span className="text-[#613212]">{'>'}</span>
+      </div>
+
+      {/*하단 버튼 2가지로 나눠서*/}
+      {isOnline ? (
+        <div className="flex gap-2">
+          <Button rounded="full" className="flex-1 h-12">홈페이지</Button>
+          <Button rounded="full" className="flex-1">신청 도우미</Button>
+        </div>
+      ) : (
+        <Button rounded="full" className="h-12">신청도우미</Button>
+      )}
     </div>
   );
 };
