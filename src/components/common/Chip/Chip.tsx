@@ -1,8 +1,26 @@
-const Chip = () => {
+import type { ButtonHTMLAttributes } from 'react';
+
+interface ChipProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  label: string;
+  selected?: boolean;
+}
+
+const Chip = ({ label, selected = false, className = '', ...props }: ChipProps) => {
+  const baseStyle =
+    'inline-flex items-center justify-center rounded-full border px-4 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50';
+  const selectedStyle = selected
+    ? 'border-brand-500 bg-brand-500 text-white'
+    : 'border-gray-300 bg-white text-gray-700 hover:border-brand-300 hover:bg-brand-50';
+
   return (
-    <div>
-      {/* TODO: Chip */}
-    </div>
+    <button
+      type="button"
+      aria-pressed={selected}
+      className={`${baseStyle} ${selectedStyle} ${className}`}
+      {...props}
+    >
+      {label}
+    </button>
   );
 };
 
