@@ -12,20 +12,18 @@ import MyPage from '@/pages/MyPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 
 const router = createBrowserRouter([
+  { path: '/', element: <LoginPage /> },
   {
-    path: '/',
     element: <Layout />,
     children: [
-      { index: true, element: <RecommendationPage /> },
-      { path: 'recommendation', element: <RecommendationPage /> },
-      { path: 'benefits', element: <BenefitPage /> },
-      { path: 'benefits/:id', element: <BenefitDetailPage /> },
-      { path: 'map', element: <MapPage /> },
-      { path: 'facility/:id', element: <FacilityDetailPage /> },
-      { path: 'mypage', element: <MyPage /> },
+      { path: '/recommendation', element: <RecommendationPage /> },
+      { path: '/benefits', element: <BenefitPage /> },
+      { path: '/benefits/:id', element: <BenefitDetailPage /> },
+      { path: '/map', element: <MapPage /> },
+      { path: '/facility/:id', element: <FacilityDetailPage /> },
+      { path: '/mypage', element: <MyPage /> },
     ],
   },
-  { path: '/login', element: <LoginPage /> },
   { path: '/onboarding', element: <OnboardingPage /> },
   { path: '/survey', element: <SurveyPage /> },
   { path: '*', element: <NotFoundPage /> },

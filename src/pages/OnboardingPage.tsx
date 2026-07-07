@@ -94,7 +94,7 @@ const OnboardingPage = () => {
   const isLast = step === slides.length - 1;
 
   // TODO: 온보딩 완료 후 이동 경로 확정 (회원가입/기본 정보 입력 흐름)
-  const finish = () => navigate('/login');
+  const finish = () => navigate('/');
   const handleNext = () => (isLast ? finish() : setStep((prev) => prev + 1));
 
   return (

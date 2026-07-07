@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Button from '@/components/common/Button/Button';
 import Input from '@/components/common/Input/Input';
 
-const buttonSize = 'py-4 text-base font-semibold';
+const buttonSize = 'py-4 text-lg font-bold';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ const LoginPage = () => {
         </div>
 
         {/* TODO: 로그인 API 연동 후 이동 경로 확정 */}
-        <Button className={`mt-auto ${buttonSize}`} onClick={() => navigate('/')}>
+        <Button className={`mt-auto ${buttonSize}`} onClick={() => navigate('/recommendation')}>
           시작하기
         </Button>
       </div>
@@ -48,7 +48,7 @@ const LoginPage = () => {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-brand-50 px-6 pb-8 pt-10">
-      <p className="text-center text-sm leading-6 text-gray-500">
+      <p className="text-center text-lg font-bold leading-7 text-gray-800">
         노인 맞춤형
         <br />
         인터넷 환경 속 생활 지원 서비스
