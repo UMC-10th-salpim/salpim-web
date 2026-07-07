@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import Button from '@/components/common/Button/Button';
 
 interface IntroSlide {
+  character: string;
   title: ReactNode;
   description: ReactNode;
   extra?: ReactNode;
@@ -11,8 +12,27 @@ interface IntroSlide {
 
 const highlight = 'text-brand-500';
 
+const ChatBubble = ({ children }: { children: ReactNode }) => (
+  <div className="flex items-end gap-2">
+    <img src="/assets/Salpimi/Talk.png" alt="" className="h-9 w-9 shrink-0" />
+    <div className="rounded-2xl rounded-bl-sm bg-white px-4 py-3 text-left text-sm text-gray-700 shadow-sm">
+      {children}
+    </div>
+  </div>
+);
+
+const MapPill = ({ label, className }: { label: string; className: string }) => (
+  <span
+    className={`absolute flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-medium text-gray-700 shadow-sm ${className}`}
+  >
+    <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
+    {label}
+  </span>
+);
+
 const slides: IntroSlide[] = [
   {
+    character: '/assets/Salpimi/Dog.png',
     title: (
       <>
         <span className={highlight}>살핌</span>에 오신 걸 환영해요!
@@ -31,6 +51,7 @@ const slides: IntroSlide[] = [
     ),
   },
   {
+    character: '/assets/Salpimi/Love.png',
     title: (
       <>
         살피미가 항상
@@ -46,15 +67,21 @@ const slides: IntroSlide[] = [
       </>
     ),
     extra: (
-      <div className="mt-6 w-full rounded-2xl bg-white p-4 shadow-sm">
-        <p className="text-sm text-gray-700">안녕하세요 OO님! 어떤 도움이 필요하세요?</p>
-        <span className="mt-3 inline-block rounded-full bg-brand-500 px-4 py-1.5 text-sm font-medium text-white">
-          의료 지원이 필요해요
-        </span>
+      <div className="mt-6 w-full space-y-3">
+        <ChatBubble>안녕하세요 OO님! 어떤 도움이 필요하세요?</ChatBubble>
+        <div className="flex justify-end">
+          <img
+            src="/assets/Icon/Choice/Hospital/Default.png"
+            alt="의료 지원이 필요해요"
+            className="h-9"
+          />
+        </div>
+        <ChatBubble>건강·병원비가 걱정되시나요?</ChatBubble>
       </div>
     ),
   },
   {
+    character: '/assets/Salpimi/Search.png',
     title: (
       <>
         집 주변 노인 시설들을
@@ -72,15 +99,12 @@ const slides: IntroSlide[] = [
       </>
     ),
     extra: (
-      <div className="mt-6 flex w-full flex-wrap gap-2 rounded-2xl bg-white p-4 shadow-sm">
-        {['00병원', '00복지관', '우리집', '00약국'].map((place) => (
-          <span
-            key={place}
-            className="rounded-full border border-brand-200 px-3 py-1 text-xs font-medium text-gray-700"
-          >
-            📍 {place}
-          </span>
-        ))}
+      <div className="relative mt-6 h-52 w-full overflow-hidden rounded-2xl bg-gray-100">
+        <MapPill label="00병원" className="left-3 top-4" />
+        <MapPill label="00복지관" className="right-4 top-3" />
+        <MapPill label="00약국" className="left-24 top-24" />
+        <MapPill label="동주민센터" className="bottom-5 right-5" />
+        <img src="/assets/Location.png" alt="우리집" className="absolute bottom-7 left-5 h-11" />
       </div>
     ),
   },
@@ -111,23 +135,23 @@ const OnboardingPage = () => {
         ))}
       </div>
 
-      <div className="mt-10 flex flex-1 flex-col items-center text-center">
-        <img src="/characters/salpimi.png" alt="살피미" className="w-44" />
+      <div className="mt-8 flex flex-1 flex-col items-center text-center">
+        <img src={current.character} alt="살피미" className="w-36" />
         <h1 className="mt-6 text-2xl font-bold leading-9 text-gray-900">{current.title}</h1>
         <p className="mt-4 text-base leading-7 text-gray-500">{current.description}</p>
         {current.extra}
       </div>
 
       {isLast ? (
-        <Button className="py-4 text-base font-semibold" onClick={finish}>
+        <Button className="py-4 text-lg font-bold" onClick={finish}>
           시작하기
         </Button>
       ) : (
         <div className="flex gap-3">
-          <Button className="py-4 text-base font-semibold" onClick={finish}>
+          <Button className="py-4 text-lg font-bold" onClick={finish}>
             건너뛰기
           </Button>
-          <Button className="py-4 text-base font-semibold" onClick={handleNext}>
+          <Button className="py-4 text-lg font-bold" onClick={handleNext}>
             다음
           </Button>
         </div>
