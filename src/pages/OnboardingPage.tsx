@@ -8,6 +8,7 @@ interface IntroSlide {
   title: ReactNode;
   description: ReactNode;
   extra?: ReactNode;
+  map?: boolean;
 }
 
 const highlight = 'text-brand-500';
@@ -73,6 +74,7 @@ const slides: IntroSlide[] = [
   },
   {
     character: '/assets/Salpimi/Search.png',
+    map: true,
     title: (
       <>
         집 주변 노인 시설들을
@@ -89,15 +91,10 @@ const slides: IntroSlide[] = [
         전화 연결까지 바로 할 수 있어요.
       </>
     ),
-    extra: (
-      <img
-        src="/assets/Salpimi Map.png"
-        alt="주변 노인 시설 지도"
-        className="mt-6 w-full rounded-2xl"
-      />
-    ),
   },
 ];
+
+const buttonStyle = 'py-4 text-lg font-bold';
 
 const OnboardingPage = () => {
   const navigate = useNavigate();
@@ -111,9 +108,9 @@ const OnboardingPage = () => {
   const handleNext = () => (isLast ? finish() : setStep((prev) => prev + 1));
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-brand-50 px-6 pb-8 pt-6">
+    <div className="mx-auto flex h-dvh max-w-md flex-col overflow-hidden bg-brand-50">
       {/* 진행 표시 */}
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex shrink-0 items-center justify-center gap-2 px-6 pt-6">
         {slides.map((_, index) => (
           <span
             key={index}
@@ -124,26 +121,45 @@ const OnboardingPage = () => {
         ))}
       </div>
 
-      <div className="mt-8 flex flex-1 flex-col items-center text-center">
-        <img src={current.character} alt="살피미" className="w-36" />
-        <h1 className="mt-6 text-2xl font-bold leading-9 text-gray-900">{current.title}</h1>
-        <p className="mt-4 text-base leading-7 text-gray-500">{current.description}</p>
-        {current.extra}
-      </div>
-
-      {isLast ? (
-        <Button className="py-4 text-lg font-bold" onClick={finish}>
-          시작하기
-        </Button>
+      {current.map ? (
+        // 지도 슬라이드: 상단 텍스트(고정) + 지도가 남은 공간을 채우고 버튼이 지도 위에 오버레이
+        <>
+          <div className="flex shrink-0 flex-col items-center px-6 pt-6 text-center">
+            <img src={current.character} alt="살피미" className="w-32" />
+            <h1 className="mt-5 text-2xl font-bold leading-9 text-gray-900">{current.title}</h1>
+            <p className="mt-3 text-base leading-7 text-gray-500">{current.description}</p>
+          </div>
+          <div className="relative mt-5 min-h-0 flex-1">
+            <img
+              src="/assets/Salpimi Map.png"
+              alt="주변 노인 시설 지도"
+              className="h-full w-full object-cover object-top"
+            />
+            <div className="absolute inset-x-6 bottom-6">
+              <Button className={buttonStyle} onClick={finish}>
+                시작하기
+              </Button>
+            </div>
+          </div>
+        </>
       ) : (
-        <div className="flex gap-3">
-          <Button className="py-4 text-lg font-bold" onClick={finish}>
-            건너뛰기
-          </Button>
-          <Button className="py-4 text-lg font-bold" onClick={handleNext}>
-            다음
-          </Button>
-        </div>
+        // 일반 슬라이드: 내용(넘치면 스크롤) + 하단 고정 버튼
+        <>
+          <div className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto px-6 pt-8 text-center">
+            <img src={current.character} alt="살피미" className="w-36 shrink-0" />
+            <h1 className="mt-6 text-2xl font-bold leading-9 text-gray-900">{current.title}</h1>
+            <p className="mt-4 text-base leading-7 text-gray-500">{current.description}</p>
+            {current.extra}
+          </div>
+          <div className="flex shrink-0 gap-3 px-6 pb-8 pt-4">
+            <Button className={buttonStyle} onClick={finish}>
+              건너뛰기
+            </Button>
+            <Button className={buttonStyle} onClick={handleNext}>
+              다음
+            </Button>
+          </div>
+        </>
       )}
     </div>
   );
