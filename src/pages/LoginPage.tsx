@@ -1,7 +1,74 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Button from '@/components/common/Button/Button';
+import Input from '@/components/common/Input/Input';
+
+const buttonSize = 'py-4 text-base font-semibold';
+
 const LoginPage = () => {
+  const navigate = useNavigate();
+  const [step, setStep] = useState<'landing' | 'login'>('landing');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+
+  if (step === 'login') {
+    return (
+      <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-brand-50 px-6 pb-8 pt-10">
+        <img src="/characters/salpimi.png" alt="살피미" className="mx-auto w-40" />
+        <h1 className="mt-4 text-center text-xl font-bold leading-8 text-gray-900">
+          번호를 입력하면
+          <br />
+          시작할 수 있어요!
+        </h1>
+
+        <div className="mt-10 flex flex-col gap-5">
+          <Input
+            label="전화번호"
+            type="tel"
+            value={phone}
+            onChange={(event) => setPhone(event.target.value)}
+            placeholder="전화번호를 입력해 주세요"
+          />
+          <Input
+            label="비밀번호"
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="비밀번호를 입력해 주세요"
+          />
+        </div>
+
+        {/* TODO: 로그인 API 연동 후 이동 경로 확정 */}
+        <Button className={`mt-auto ${buttonSize}`} onClick={() => navigate('/')}>
+          시작하기
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      {/* TODO: LoginPage */}
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-brand-50 px-6 pb-8 pt-10">
+      <p className="text-center text-sm leading-6 text-gray-500">
+        노인 맞춤형
+        <br />
+        인터넷 환경 속 생활 지원 서비스
+      </p>
+      <h1 className="mt-3 text-center text-4xl font-extrabold text-brand-500">살핌</h1>
+      <img src="/characters/salpimi.png" alt="살피미" className="mx-auto mt-4 w-52" />
+
+      <div className="mt-auto flex flex-col gap-3">
+        <Button className={buttonSize} onClick={() => setStep('login')}>
+          시작하기
+        </Button>
+        {/* TODO: 카카오 로그인 SDK 연동 */}
+        <Button className={`${buttonSize} gap-2`} onClick={() => navigate('/onboarding')}>
+          <img src="/icons/kakaotalk.png" alt="" className="h-5 w-5" />
+          카카오로 시작하기
+        </Button>
+        <Button className={buttonSize} onClick={() => navigate('/onboarding')}>
+          회원가입
+        </Button>
+      </div>
     </div>
   );
 };
