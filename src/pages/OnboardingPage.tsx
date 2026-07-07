@@ -21,15 +21,6 @@ const ChatBubble = ({ children }: { children: ReactNode }) => (
   </div>
 );
 
-const MapPill = ({ label, className }: { label: string; className: string }) => (
-  <span
-    className={`absolute flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-medium text-gray-700 shadow-sm ${className}`}
-  >
-    <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
-    {label}
-  </span>
-);
-
 const slides: IntroSlide[] = [
   {
     character: '/assets/Salpimi/Dog.png',
@@ -99,13 +90,11 @@ const slides: IntroSlide[] = [
       </>
     ),
     extra: (
-      <div className="relative mt-6 h-52 w-full overflow-hidden rounded-2xl bg-gray-100">
-        <MapPill label="00병원" className="left-3 top-4" />
-        <MapPill label="00복지관" className="right-4 top-3" />
-        <MapPill label="00약국" className="left-24 top-24" />
-        <MapPill label="동주민센터" className="bottom-5 right-5" />
-        <img src="/assets/Location.png" alt="우리집" className="absolute bottom-7 left-5 h-11" />
-      </div>
+      <img
+        src="/assets/Salpimi Map.png"
+        alt="주변 노인 시설 지도"
+        className="mt-6 w-full rounded-2xl"
+      />
     ),
   },
 ];
