@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import LoginPage from '@/pages/LoginPage';
 import OnboardingPage from '@/pages/OnboardingPage';
+import OAuthKakaoPage from '@/pages/OAuthKakaoPage';
 import SurveyPage from '@/pages/SurveyPage';
 import RecommendationPage from '@/pages/RecommendationPage';
 import BenefitPage from '@/pages/BenefitPage';
@@ -25,6 +26,7 @@ const router = createBrowserRouter([
     ],
   },
   { path: '/onboarding', element: <OnboardingPage /> },
+  { path: '/oauth/kakao', element: <OAuthKakaoPage /> },
   { path: '/survey', element: <SurveyPage /> },
   { path: '*', element: <NotFoundPage /> },
 ]);

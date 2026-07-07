@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '@/components/common/Button/Button';
 import Input from '@/components/common/Input/Input';
+import { getKakaoAuthorizeUrl } from '@/apis/auth';
 
 const buttonSize = 'py-4 text-lg font-bold';
 
@@ -68,8 +69,13 @@ const LoginPage = () => {
         <Button className={buttonSize} onClick={() => setStep('login')}>
           시작하기
         </Button>
-        {/* TODO: 카카오 로그인 SDK 연동 */}
-        <Button className={`${buttonSize} gap-2`} onClick={() => navigate('/onboarding')}>
+        {/* 카카오 OAuth 2.0 인가 페이지로 이동 → /oauth/kakao 콜백에서 처리 */}
+        <Button
+          className={`${buttonSize} gap-2`}
+          onClick={() => {
+            window.location.href = getKakaoAuthorizeUrl();
+          }}
+        >
           <img src="/icons/kakaotalk.png" alt="" className="h-5 w-5" />
           카카오로 시작하기
         </Button>
