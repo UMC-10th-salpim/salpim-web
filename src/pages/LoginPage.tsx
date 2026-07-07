@@ -5,6 +5,14 @@ import Input from '@/components/common/Input/Input';
 
 const buttonSize = 'py-4 text-lg font-bold';
 
+// 숫자만 남기고 010-1234-5678 형태로 자동 하이픈
+const formatPhone = (value: string) => {
+  const digits = value.replace(/\D/g, '').slice(0, 11);
+  if (digits.length < 4) return digits;
+  if (digits.length < 8) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
+};
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState<'landing' | 'login'>('landing');
@@ -26,7 +34,7 @@ const LoginPage = () => {
             label="전화번호"
             type="tel"
             value={phone}
-            onChange={(event) => setPhone(event.target.value)}
+            onChange={(event) => setPhone(formatPhone(event.target.value))}
             placeholder="전화번호를 입력해 주세요"
           />
           <Input
@@ -48,7 +56,7 @@ const LoginPage = () => {
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-brand-50 px-6 pb-8 pt-10">
-      <p className="text-center text-lg font-bold leading-7 text-gray-800">
+      <p className="text-center text-lg font-bold leading-7 text-[#613212]">
         노인 맞춤형
         <br />
         인터넷 환경 속 생활 지원 서비스
