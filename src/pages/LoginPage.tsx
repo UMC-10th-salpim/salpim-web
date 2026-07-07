@@ -53,8 +53,8 @@ const LoginPage = () => {
         <br />
         인터넷 환경 속 생활 지원 서비스
       </p>
-      <h1 className="mt-3 text-center text-4xl font-extrabold text-brand-500">살핌</h1>
-      <img src="/characters/salpimi.png" alt="살피미" className="mx-auto mt-4 w-52" />
+      <img src="/assets/Logo/Name.png" alt="살핌" className="mx-auto mt-4 w-40" />
+      <img src="/assets/Logo/Icon.png" alt="" className="mx-auto mt-6 w-64" />
 
       <div className="mt-auto flex flex-col gap-3">
         <Button className={buttonSize} onClick={() => setStep('login')}>
