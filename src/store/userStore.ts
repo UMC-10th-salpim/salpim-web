@@ -1,13 +1,18 @@
 import { create } from 'zustand';
+import type { AuthUser } from '@/apis/auth';
 
-// TODO: 사용자 상태 타입 정의
 interface UserState {
-  // TODO: 사용자 정보 필드 추가
+  user: AuthUser | null;
+  accessToken: string | null;
+  setAuth: (user: AuthUser, accessToken: string) => void;
+  logout: () => void;
 }
 
-// TODO: 사용자 스토어 구현
-const useUserStore = create<UserState>()(() => ({
-  // TODO: 초기 상태 정의
+const useUserStore = create<UserState>()((set) => ({
+  user: null,
+  accessToken: null,
+  setAuth: (user, accessToken) => set({ user, accessToken }),
+  logout: () => set({ user: null, accessToken: null }),
 }));
 
 export default useUserStore;
