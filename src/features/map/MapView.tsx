@@ -1,34 +1,25 @@
+import FacilityIcon from './FacilityIcon';
 import type { Facility } from './types';
 
 interface MapViewProps {
   facilities: Facility[];
-  selectedFacilityId?: string;
-  userLocationLabel?: string;
+  selectedFacilityId?: string | null;
   onSelectFacility?: (facility: Facility) => void;
 }
 
-const getMarkerPosition = (facility: Facility, index: number) => {
-  if (facility.lat !== undefined && facility.lng !== undefined) {
-    const left = 16 + Math.abs(facility.lng * 13) % 68;
-    const top = 18 + Math.abs(facility.lat * 17) % 58;
+const LocationPin = () => (
+  <svg width="28" height="36" viewBox="0 0 24 32" aria-hidden>
+    <path
+      d="M12 0C5.4 0 0 5.4 0 12c0 9 12 20 12 20s12-11 12-20C24 5.4 18.6 0 12 0Z"
+      fill="#FF5A3C"
+    />
+    <circle cx="12" cy="12" r="5" fill="white" />
+  </svg>
+);
 
-    return { left: `${left}%`, top: `${top}%` };
-  }
-
-  return {
-    left: `${18 + (index * 23) % 64}%`,
-    top: `${20 + (index * 17) % 56}%`,
-  };
-};
-
-const MapView = ({
-  facilities,
-  selectedFacilityId,
-  userLocationLabel = '내 주변',
-  onSelectFacility,
-}: MapViewProps) => {
+const MapView = ({ facilities, selectedFacilityId, onSelectFacility }: MapViewProps) => {
   return (
-    <section className="relative h-[360px] overflow-hidden bg-[#F4F7F5]" aria-label="주변시설 지도">
+    <section className="relative flex-1 overflow-hidden bg-[#F4F7F5]" aria-label="주변 혜택 시설 지도">
       <div className="absolute inset-0">
         <div className="absolute left-0 top-1/4 h-px w-full bg-white" />
         <div className="absolute left-0 top-2/4 h-px w-full bg-white" />
@@ -40,30 +31,34 @@ const MapView = ({
         <div className="absolute left-[-8%] top-[32%] h-12 w-[120%] rotate-6 bg-[#DBE8DF]" />
       </div>
 
-      <div className="absolute left-4 top-4 rounded-full bg-white px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm">
-        {userLocationLabel}
+      <div className="absolute left-[38%] top-[30%] z-10 -translate-x-1/2 -translate-y-full">
+        <LocationPin />
       </div>
 
-      <div className="absolute left-1/2 top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1">
-        <div className="h-4 w-4 rounded-full border-2 border-white bg-blue-500 shadow-md" />
-        <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-gray-700 shadow-sm">현재 위치</span>
-      </div>
-
-      {facilities.map((facility, index) => {
+      {facilities.map((facility) => {
         const selected = facility.id === selectedFacilityId;
+        const { left, top } = facility.markerPosition;
 
         return (
           <button
             key={facility.id}
             type="button"
             onClick={() => onSelectFacility?.(facility)}
-            className={`absolute z-20 -translate-x-1/2 -translate-y-full rounded-full px-3 py-2 text-xs font-semibold shadow-md transition-transform hover:scale-105 ${
-              selected ? 'bg-[#FF8A3D] text-white' : 'bg-white text-gray-900'
-            }`}
-            style={getMarkerPosition(facility, index)}
+            className="absolute z-20 flex -translate-x-1/2 -translate-y-full flex-col items-center gap-1"
+            style={{ left: `${left}%`, top: `${top}%` }}
             aria-pressed={selected}
           >
-            {facility.name}
+            <FacilityIcon
+              category={facility.mainCategory}
+              className={selected ? 'ring-2 ring-white ring-offset-2 ring-offset-[#FF8A3D]' : ''}
+            />
+            <span
+              className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold shadow-md transition-colors ${
+                selected ? 'bg-[#FF8A3D] text-white' : 'bg-white text-gray-900'
+              }`}
+            >
+              {facility.name}
+            </span>
           </button>
         );
       })}
