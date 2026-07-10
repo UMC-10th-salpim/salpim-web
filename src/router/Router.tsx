@@ -23,12 +23,12 @@ const router = createBrowserRouter([
       { path: 'map', element: <MapPage /> },
       { path: 'facility/:id', element: <FacilityDetailPage /> },
       { path: 'mypage', element: <MyPage /> },
+      { path: 'login', element: <LoginPage /> },
+      { path: 'onboarding', element: <OnboardingPage /> },
+      { path: 'survey', element: <SurveyPage /> },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
-  { path: '/login', element: <LoginPage /> },
-  { path: '/onboarding', element: <OnboardingPage /> },
-  { path: '/survey', element: <SurveyPage /> },
-  { path: '*', element: <NotFoundPage /> },
 ]);
 
 const Router = () => {

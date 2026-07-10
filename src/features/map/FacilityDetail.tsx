@@ -1,97 +1,81 @@
-import Card from '@/components/common/Card/Card';
-import Chip from '@/components/common/Chip/Chip';
+import BenefitCard from '@/features/benefit/BenefitCard';
+import { MOCK_BENEFITS } from '@/apis/benefit';
+import FacilityIcon from './FacilityIcon';
+import { ClockIcon, HomeIcon, PinIcon } from './InfoIcons';
 import type { Facility } from './types';
 
 interface FacilityDetailProps {
   facility: Facility;
-  onBack?: () => void;
 }
 
-const FacilityDetail = ({ facility, onBack }: FacilityDetailProps) => {
+const FacilityDetail = ({ facility }: FacilityDetailProps) => {
+  const relatedBenefits = MOCK_BENEFITS.filter((benefit) => benefit.facilityName === facility.name);
+
   return (
     <article className="flex flex-col gap-4 bg-gray-50 px-4 py-5">
-      {onBack && (
-        <button
-          type="button"
-          onClick={onBack}
-          className="w-fit text-sm font-semibold text-[#FF8A3D]"
-        >
-          이전으로
-        </button>
-      )}
-
-      <Card className="flex flex-col gap-4">
-        <div>
-          <div className="mb-3 flex flex-wrap gap-2">
-            <Chip label={facility.category} selected />
-            {facility.distance && (
-              <span className="rounded-full bg-orange-50 px-3 py-1.5 text-sm font-semibold text-[#FF8A3D]">
-                {facility.distance}
-              </span>
-            )}
+      <div className="rounded-2xl border border-gray-200 bg-white p-4">
+        <div className="flex items-center gap-3">
+          <FacilityIcon category={facility.mainCategory} className="h-11 w-11" />
+          <div>
+            <h1 className="text-lg font-bold text-gray-900">{facility.name}</h1>
+            <p className="text-sm text-gray-500">{facility.address}</p>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">{facility.name}</h1>
-          <p className="mt-2 text-sm leading-6 text-gray-600">{facility.address}</p>
         </div>
 
-        {facility.description && (
-          <p className="rounded-xl bg-gray-50 p-4 text-sm leading-6 text-gray-700">{facility.description}</p>
+        <div className="mt-4 flex flex-col gap-2 text-sm text-gray-600">
+          <p className="flex items-center gap-1.5">
+            <PinIcon />
+            {facility.address} {facility.detailAddress}
+          </p>
+          <p className="flex items-center gap-1.5">
+            <ClockIcon />
+            {facility.operatingHours}
+          </p>
+          <p className="flex items-center gap-1.5">
+            <HomeIcon />
+            우리 집에서 {facility.distanceFromHome}
+          </p>
+        </div>
+
+        {facility.phone && (
+          <a
+            href={`tel:${facility.phone}`}
+            className="mt-4 block rounded-xl bg-[#FF8A3D] py-3 text-center text-sm font-semibold text-white"
+          >
+            전화하기
+          </a>
         )}
-      </Card>
+      </div>
 
-      <Card>
-        <h2 className="text-base font-semibold text-gray-900">기본 정보</h2>
-        <dl className="mt-4 flex flex-col gap-3 text-sm">
-          <div className="flex gap-4">
-            <dt className="w-20 shrink-0 font-medium text-gray-500">주소</dt>
-            <dd className="text-gray-800">{facility.address}</dd>
-          </div>
+      <section>
+        <h2 className="mb-3 text-base font-bold text-gray-900">이 시설에서 신청할 수 있는 혜택</h2>
 
-          {facility.phone && (
-            <div className="flex gap-4">
-              <dt className="w-20 shrink-0 font-medium text-gray-500">전화번호</dt>
-              <dd>
-                <a className="font-semibold text-[#FF8A3D]" href={`tel:${facility.phone}`}>
-                  {facility.phone}
-                </a>
-              </dd>
-            </div>
-          )}
-
-          {facility.operatingHours && (
-            <div className="flex gap-4">
-              <dt className="w-20 shrink-0 font-medium text-gray-500">운영시간</dt>
-              <dd className="text-gray-800">{facility.operatingHours}</dd>
-            </div>
-          )}
-        </dl>
-      </Card>
-
-      {facility.services && facility.services.length > 0 && (
-        <Card>
-          <h2 className="text-base font-semibold text-gray-900">제공 서비스</h2>
-          <ul className="mt-4 flex flex-col gap-2">
-            {facility.services.map((service) => (
-              <li key={service} className="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-700">
-                {service}
-              </li>
-            ))}
-          </ul>
-        </Card>
-      )}
-
-      {facility.tags && facility.tags.length > 0 && (
-        <Card>
-          <h2 className="text-base font-semibold text-gray-900">관련 태그</h2>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {facility.tags.map((tag) => (
-              <span key={tag} className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-600">
-                {tag}
-              </span>
+        {relatedBenefits.length > 0 ? (
+          <div className="flex flex-col gap-3">
+            {relatedBenefits.map((benefit) => (
+              <BenefitCard
+                key={benefit.id}
+                id={benefit.id}
+                category={benefit.category}
+                icon={benefit.icon}
+                title={benefit.title}
+                className="rounded-2xl"
+              />
             ))}
           </div>
-        </Card>
-      )}
+        ) : (
+          <p className="rounded-2xl border border-gray-200 bg-white p-4 text-sm text-gray-500">
+            현재 이 시설에서 신청할 수 있는 혜택 정보가 없습니다.
+          </p>
+        )}
+      </section>
+
+      <div className="flex items-center gap-3 rounded-2xl bg-[#FBE3BF] p-4">
+        <img src="/characters/salpimi.png" alt="" className="h-12 w-12" />
+        <p className="text-sm font-bold text-[#613212]">
+          해당 혜택은 {facility.name}에서 신청할 수 있어요! 방문 전 전화로 확인을 추천해요.
+        </p>
+      </div>
     </article>
   );
 };

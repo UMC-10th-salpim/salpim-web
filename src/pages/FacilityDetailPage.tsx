@@ -1,4 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
+import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
+import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
 import FacilityDetail from '@/features/map/FacilityDetail';
 import { mockFacilities } from '@/features/map/mockFacilities';
 
@@ -24,8 +26,10 @@ const FacilityDetailPage = () => {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 pb-24">
-      <FacilityDetail facility={facility} onBack={() => navigate('/map')} />
+    <main className="min-h-screen bg-gray-50 pb-20">
+      <HeaderBar title="시설 자세히 보기" />
+      <FacilityDetail facility={facility} />
+      <BottomNavigation />
     </main>
   );
 };
