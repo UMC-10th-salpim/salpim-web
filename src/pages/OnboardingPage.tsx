@@ -11,7 +11,7 @@ interface IntroSlide {
   map?: boolean;
 }
 
-const highlight = 'text-brand-500';
+const highlight = 'text-brand-500 font-bold';
 
 const ChatBubble = ({ children }: { children: ReactNode }) => (
   <div className="flex items-end gap-2">
@@ -103,8 +103,8 @@ const OnboardingPage = () => {
   const current = slides[step];
   const isLast = step === slides.length - 1;
 
-  // TODO: 온보딩 완료 후 이동 경로 확정 (회원가입/기본 정보 입력 흐름)
-  const finish = () => navigate('/');
+  // 인트로 종료 → 회원가입(정보 입력) 흐름으로 이동
+  const finish = () => navigate('/signup');
   const handleNext = () => (isLast ? finish() : setStep((prev) => prev + 1));
 
   return (
@@ -127,7 +127,7 @@ const OnboardingPage = () => {
           <div className="flex shrink-0 flex-col items-center px-6 pt-6 text-center">
             <img src={current.character} alt="살피미" className="w-32" />
             <h1 className="mt-5 text-2xl font-bold leading-9 text-gray-900">{current.title}</h1>
-            <p className="mt-3 text-base leading-7 text-gray-500">{current.description}</p>
+            <p className="mt-3 text-xl leading-8 text-gray-700">{current.description}</p>
           </div>
           <div className="relative mt-5 min-h-0 flex-1">
             <img
@@ -143,13 +143,15 @@ const OnboardingPage = () => {
           </div>
         </>
       ) : (
-        // 일반 슬라이드: 내용(넘치면 스크롤) + 하단 고정 버튼
+        // 일반 슬라이드: 내용은 남는 공간에서 세로 중앙 정렬(길면 스크롤) + 하단 고정 버튼
         <>
-          <div className="flex min-h-0 flex-1 flex-col items-center overflow-y-auto px-6 pt-8 text-center">
-            <img src={current.character} alt="살피미" className="w-36 shrink-0" />
-            <h1 className="mt-6 text-2xl font-bold leading-9 text-gray-900">{current.title}</h1>
-            <p className="mt-4 text-base leading-7 text-gray-500">{current.description}</p>
-            {current.extra}
+          <div className="min-h-0 flex-1 overflow-y-auto px-6">
+            <div className="flex min-h-full flex-col items-center justify-center py-8 text-center">
+              <img src={current.character} alt="살피미" className="w-36 shrink-0" />
+              <h1 className="mt-6 text-2xl font-bold leading-9 text-gray-900">{current.title}</h1>
+              <p className="mt-4 text-xl leading-8 text-gray-700">{current.description}</p>
+              {current.extra}
+            </div>
           </div>
           <div className="flex shrink-0 gap-3 px-6 pb-8 pt-4">
             <Button className={buttonStyle} onClick={finish}>
