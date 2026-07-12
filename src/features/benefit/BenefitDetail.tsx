@@ -81,22 +81,31 @@ const BenefitDetail = ({isOnline, category, title, deadline, ageLimit, eligibili
       )}
 
       {/*가까운 기관 안내*/}
-      {!isOnline && (
-        <div className="bg-[#FBE3BF] rounded-2xl p-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src="/icons/building.png"/>
-            <div className="flex flex-col">
-              <span className="font-bold text-[#613212]">{facilityName}</span>
-              <span className="text-xs text-gray-500">{facilityDistance} {facilityHours}</span>
-            </div>
+      <div className="flex flex-col gap-2">
+        <span className="font-bold text-[#613212]">가까운 기관에서 도움받기</span>
+        {!isOnline && (
+          <div className="bg-[#FBE3BF] rounded-2xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src="/icons/building.png"/>
+              <div className="flex flex-col">
+                <span className="font-bold text-[#613212]">{facilityName}</span>
+                <span className="text-xs text-gray-500">{facilityDistance} {facilityHours}</span>
+              </div>
+          </div>
+          {/* 해당 지도로 연결해야함*/}
+          <div 
+            className="flex items-center gap-1 cursor-pointer"
+            onClick={()=>navigate('/map')}
+          >
+            <span className="text-[#FF8A3D] text-sm">지도</span>
+            <img src="/icons/path.png"/>
+          </div>
         </div>
-        {/* 해당 지도로 연결해야함*/}
-        <span className="text-[#FF8A3D] text-sm">지도</span>
+        )}
       </div>
-      )}
 
       {/*카카오톡 공유*/}
-      <div>
+      <div className="flex flex-col gap-1">
         <span className="p-2 font-bold text-[#613212]"> 가족에게 공유하기 </span>
         <div className="bg-[#FBE3BF] rounded-3xl p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
