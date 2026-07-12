@@ -12,9 +12,10 @@ export interface Benefit {
   eligibility: string; // 신청자격
   benefitContent: string; // 혜택 내용
   targetPerson: string; // 어떤 사람이 받으면 좋을까?
+  url?: string;
   // 오프라인만
   facilityName?: string; // OO 주민센터
-  facilityDistane?: string; // 주민센터 거리
+  facilityDistance?: string; // 주민센터 거리
   facilityHours?: string; // 운영시간
 }
 export const CATEGORY_ICONS : Record<string, string> = {
@@ -37,7 +38,8 @@ export const MOCK_BENEFITS: Benefit[] = [
     ageLimit: '만 65세 이상',
     eligibility: '기초 생활 수급자 또는 차상위계층 어르신',
     benefitContent: '병원 진료비의 50% 지원',
-    targetPerson: '병원비가 부담스러운 어르신'
+    targetPerson: '병원비가 부담스러운 어르신',
+    url: 'https://www.bokjiro.go.kr/ssis-tbu/index.do',
 },
   { 
     id: 2, 
@@ -51,7 +53,7 @@ export const MOCK_BENEFITS: Benefit[] = [
     benefitContent: '의료비 실비 지원',
     targetPerson: '의료비 지원이 부족한 어르신',
     facilityName: 'OO 주민센터',
-    facilityDistane: '0.6km',
+    facilityDistance: '0.6km',
     facilityHours: '09:00~18:00',
 },
   {
@@ -66,7 +68,7 @@ export const MOCK_BENEFITS: Benefit[] = [
     benefitContent: '주 2회 방문 돌봄 서비스 지원',
     targetPerson: '혼자 생활하며 돌봄이 필요한 어르신',
     facilityName: 'OO 주민센터',
-    facilityDistane: '0.6km',
+    facilityDistance: '0.6km',
     facilityHours: '09:00~18:00',
 },
   {
@@ -80,5 +82,6 @@ export const MOCK_BENEFITS: Benefit[] = [
     eligibility: '저소득 어르신',
     benefitContent: '의료비 바우처 지금',
     targetPerson: '의료 혜택이 필요한 어르신',
+    url: 'https://www.bokjiro.go.kr/ssis-tbu/index.do',
 },
 ];

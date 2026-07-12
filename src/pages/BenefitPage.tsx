@@ -57,7 +57,7 @@ const BenefitPage = () => {
           
           <Button
             className="h-10" rounded="full" 
-            onClick={() => navigate('/search')}
+            onClick={() => navigate('/benefits/search')}
           >
             다시 찾기
           </Button>
