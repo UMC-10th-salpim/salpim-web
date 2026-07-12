@@ -17,12 +17,20 @@ export interface Benefit {
   facilityDistane?: string; // 주민센터 거리
   facilityHours?: string; // 운영시간
 }
+export const CATEGORY_ICONS : Record<string, string> = {
+  medical: '/icons/benefit/hospital.png', // 의료 지원
+  living: '/icons/benefit/money.png', // 생활비
+  housing: '/icons/benefit/house.png', // 주거 지원
+  care: '/icons/benefit/handshake.png', // 돌봄
+  culture: '/icons/benefit/mask.png', // 문화 활동
+  job: '/icons/benefit/work.png', // 일자리
+}
 
 export const MOCK_BENEFITS: Benefit[] = [
   { 
     id: 1, 
     category: '지원금', 
-    icon: '/icons/housing.png', 
+    icon: '/icons/benefit/house.png', 
     title: 'OO광역시 노인 의료비 지원 사업', 
     isOnline: true,
     deadline: '2026년 7월 25일 마감',
@@ -34,7 +42,7 @@ export const MOCK_BENEFITS: Benefit[] = [
   { 
     id: 2, 
     category: '지원금', 
-    icon: '/icons/housing.png', 
+    icon: '/icons/benefit/house.png', 
     title: 'XX광역시 노인 의료비 지원 사업', 
     isOnline: false,
     deadline: '2026년 7월 15일 마감',
@@ -49,7 +57,7 @@ export const MOCK_BENEFITS: Benefit[] = [
   {
     id: 4,
     category: '돌봄',
-    icon: '/icons/housing.png',
+    icon: '/icons/benefit/handshake.png', 
     title: 'OO시 노인 돌봄 지원 사업',
     isOnline: false,
     deadline: '2026년 8월 1일 마감',
@@ -64,7 +72,7 @@ export const MOCK_BENEFITS: Benefit[] = [
   {
     id: 3,
     category: '지원금', 
-    icon: '/icons/housing.png', 
+    icon: '/icons/benefit/house.png', 
     title: '**광역시 노인 의료비 지원 사업', 
     isOnline: true,
     deadline: '2026년 7월 5일',
