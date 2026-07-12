@@ -15,6 +15,7 @@ const BenefitDetailPage = () => {
       <HeaderBar title="혜택 자세히 보기"/>
       <BenefitDetail
         isOnline={benefit.isOnline}
+        id={benefit.id}
         category={benefit.category}
         title={benefit.title}
         icon={benefit.icon}

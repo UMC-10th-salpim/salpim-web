@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 interface BenefitDetailProps {
   isOnline : boolean;
+  id: number;
   category: string;
   title: string;
   icon: string;
@@ -19,7 +20,7 @@ interface BenefitDetailProps {
   facilityHours?: string;
 }
 
-const BenefitDetail = ({isOnline, category, title, deadline, ageLimit, eligibility, benefitContent, targetPerson, url, facilityName, facilityDistance, facilityHours}:BenefitDetailProps) => {
+const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, eligibility, benefitContent, targetPerson, url, facilityName, facilityDistance, facilityHours}:BenefitDetailProps) => {
   const navigate = useNavigate();
   const [isLiked, setIsLiked] = useState(false);
 
@@ -81,9 +82,10 @@ const BenefitDetail = ({isOnline, category, title, deadline, ageLimit, eligibili
       )}
 
       {/*가까운 기관 안내*/}
-      <div className="flex flex-col gap-2">
-        <span className="font-bold text-[#613212]">가까운 기관에서 도움받기</span>
-        {!isOnline && (
+      {!isOnline && (
+        <div className="flex flex-col gap-2">
+          <span className="font-bold text-[#613212]">가까운 기관에서 도움받기</span>
+        
           <div className="bg-[#FBE3BF] rounded-2xl p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <img src="/icons/building.png"/>
@@ -101,8 +103,8 @@ const BenefitDetail = ({isOnline, category, title, deadline, ageLimit, eligibili
             <img src="/icons/path.png"/>
           </div>
         </div>
-        )}
       </div>
+      )}
 
       {/*카카오톡 공유*/}
       <div className="flex flex-col gap-1">
@@ -121,10 +123,10 @@ const BenefitDetail = ({isOnline, category, title, deadline, ageLimit, eligibili
         <div className="flex gap-2">
           <Button rounded="full" className="flex-1 h-12"
             onClick={()=> url && window.open(url, '_blank')}>홈페이지</Button>
-          <Button rounded="full" className="flex-1" onClick={()=>navigate('/helper')}>신청 도우미</Button>
+          <Button rounded="full" className="flex-1" onClick={()=>navigate(`/helper/${id}`)}>신청 도우미</Button>
         </div>
       ) : (
-        <Button rounded="full" className="h-12" onClick={()=>navigate('/helper')}>신청도우미</Button>
+        <Button rounded="full" className="h-12" onClick={()=>navigate(`/helper/${id}`)}>신청도우미</Button>
       )}
     </div>
   );
