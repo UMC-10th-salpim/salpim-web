@@ -81,9 +81,7 @@ const RecommendationPage = () => {
         <span className="text-2xl font-bold text-brand-600">살핌</span>
         <button
           type="button"
-          onClick={() => {
-            // TODO: 찜한 혜택 목록 페이지로 이동 (라우트 확정 후 navigate 연결)
-          }}
+          onClick={() => navigate('/mypage/liked')}
           aria-label="찜한 혜택"
           className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-brand-100 active:scale-95"
         >

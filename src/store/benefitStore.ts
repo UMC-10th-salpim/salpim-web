@@ -1,13 +1,20 @@
 import { create } from 'zustand';
 
-// TODO: 혜택 상태 타입 정의
 interface BenefitState {
-  // TODO: 혜택 필드 추가
+  likedIds: number[];
+  isLiked: (id: number) => boolean;
+  toggleLike: (id: number) => void;
 }
 
-// TODO: 혜택 스토어 구현
-const useBenefitStore = create<BenefitState>()(() => ({
-  // TODO: 초기 상태 정의
+const useBenefitStore = create<BenefitState>()((set, get) => ({
+  likedIds: [],
+  isLiked: (id) => get().likedIds.includes(id),
+  toggleLike: (id) =>
+    set((state) => ({
+      likedIds: state.likedIds.includes(id)
+        ? state.likedIds.filter((likedId) => likedId !== id)
+        : [...state.likedIds, id],
+    })),
 }));
 
 export default useBenefitStore;

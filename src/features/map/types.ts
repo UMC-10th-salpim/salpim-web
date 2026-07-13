@@ -16,11 +16,6 @@ export const FACILITY_MAIN_CATEGORIES: FacilityMainCategory[] = FACILITY_CATEGOR
   (group) => group.main
 );
 
-export interface MarkerPosition {
-  left: number;
-  top: number;
-}
-
 export interface Facility {
   id: string;
   name: string;
@@ -30,8 +25,13 @@ export interface Facility {
   detailAddress?: string;
   lat: number;
   lng: number;
-  markerPosition: MarkerPosition;
   distanceFromHome: string;
   phone?: string;
-  operatingHours: string;
+  // 카카오 로컬 API는 운영시간 정보를 제공하지 않아 실데이터 사용 시 값이 없을 수 있음
+  operatingHours?: string;
+}
+
+export interface MapCenter {
+  lat: number;
+  lng: number;
 }

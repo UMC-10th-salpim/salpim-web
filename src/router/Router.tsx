@@ -12,6 +12,12 @@ import BenefitDetailPage from '@/pages/BenefitDetailPage';
 import MapPage from '@/pages/MapPage';
 import FacilityDetailPage from '@/pages/FacilityDetailPage';
 import MyPage from '@/pages/MyPage';
+import LikedBenefitsPage from '@/pages/LikedBenefitsPage';
+import EditProfilePage from '@/pages/EditProfilePage';
+import FontSizePage from '@/pages/FontSizePage';
+import InquiryPage from '@/pages/InquiryPage';
+import PasswordChangePage from '@/pages/PasswordChangePage';
+import PasswordFindPage from '@/pages/PasswordFindPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import HelperPage from '@/pages/HelperPage';
 
@@ -28,6 +34,12 @@ const router = createBrowserRouter([
       { path: 'map', element: <MapPage /> },
       { path: 'facility/:id', element: <FacilityDetailPage /> },
       { path: 'mypage', element: <MyPage /> },
+      { path: 'mypage/liked', element: <LikedBenefitsPage /> },
+      { path: 'mypage/edit', element: <EditProfilePage /> },
+      { path: 'mypage/font-size', element: <FontSizePage /> },
+      { path: 'mypage/inquiry', element: <InquiryPage /> },
+      { path: 'mypage/password', element: <PasswordChangePage /> },
+      { path: 'mypage/password/find', element: <PasswordFindPage /> },
       { path: 'login', element: <LoginPage /> },
       { path: 'onboarding', element: <OnboardingPage /> },
       { path: 'signup', element: <SignUpPage /> },

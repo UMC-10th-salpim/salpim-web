@@ -1,7 +1,9 @@
+import { CustomOverlayMap, Map, useKakaoLoader } from 'react-kakao-maps-sdk';
 import FacilityIcon from './FacilityIcon';
-import type { Facility } from './types';
+import type { Facility, MapCenter } from './types';
 
 interface MapViewProps {
+  center: MapCenter;
   facilities: Facility[];
   selectedFacilityId?: string | null;
   onSelectFacility?: (facility: Facility) => void;
@@ -17,54 +19,66 @@ const LocationPin = () => (
   </svg>
 );
 
-const MapView = ({ facilities, selectedFacilityId, onSelectFacility }: MapViewProps) => {
+const MapView = ({ center, facilities, selectedFacilityId, onSelectFacility }: MapViewProps) => {
+  const [loading, error] = useKakaoLoader({
+    appkey: import.meta.env.VITE_KAKAO_MAP_KEY,
+    url: 'https://dapi.kakao.com/v2/maps/sdk.js',
+  });
+
+  if (error) {
+    return (
+      <section className="flex flex-1 items-center justify-center bg-gray-50 px-6 text-center text-sm text-gray-500">
+        지도를 불러오지 못했습니다. 카카오맵 키와 등록된 도메인을 확인해주세요.
+      </section>
+    );
+  }
+
+  if (loading) {
+    return (
+      <section className="flex flex-1 items-center justify-center bg-gray-50 text-sm text-gray-400">
+        지도를 불러오는 중...
+      </section>
+    );
+  }
+
   return (
-    <section className="relative flex-1 overflow-hidden bg-[#F4F7F5]" aria-label="주변 혜택 시설 지도">
-      <div className="absolute inset-0">
-        <div className="absolute left-0 top-1/4 h-px w-full bg-white" />
-        <div className="absolute left-0 top-2/4 h-px w-full bg-white" />
-        <div className="absolute left-0 top-3/4 h-px w-full bg-white" />
-        <div className="absolute left-1/4 top-0 h-full w-px bg-white" />
-        <div className="absolute left-2/4 top-0 h-full w-px bg-white" />
-        <div className="absolute left-3/4 top-0 h-full w-px bg-white" />
-        <div className="absolute left-[8%] top-[58%] h-16 w-[120%] -rotate-12 bg-[#E7DED0]" />
-        <div className="absolute left-[-8%] top-[32%] h-12 w-[120%] rotate-6 bg-[#DBE8DF]" />
-      </div>
+    <section className="relative flex-1 overflow-hidden" aria-label="주변 혜택 시설 지도">
+      <Map center={center} level={5} style={{ width: '100%', height: '100%' }}>
+        <CustomOverlayMap position={center} yAnchor={1}>
+          <LocationPin />
+        </CustomOverlayMap>
 
-      <div className="absolute left-[38%] top-[30%] z-10 -translate-x-1/2 -translate-y-full">
-        <LocationPin />
-      </div>
+        {facilities.map((facility) => {
+          const selected = facility.id === selectedFacilityId;
+          const position = { lat: facility.lat, lng: facility.lng };
 
-      {facilities.map((facility) => {
-        const selected = facility.id === selectedFacilityId;
-        const { left, top } = facility.markerPosition;
-
-        return (
-          <button
-            key={facility.id}
-            type="button"
-            onClick={() => onSelectFacility?.(facility)}
-            className="absolute z-20 flex -translate-x-1/2 -translate-y-full flex-col items-center gap-1"
-            style={{ left: `${left}%`, top: `${top}%` }}
-            aria-pressed={selected}
-          >
-            <FacilityIcon
-              category={facility.mainCategory}
-              className={selected ? 'ring-2 ring-white ring-offset-2 ring-offset-[#FF8A3D]' : ''}
-            />
-            <span
-              className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold shadow-md transition-colors ${
-                selected ? 'bg-[#FF8A3D] text-white' : 'bg-white text-gray-900'
-              }`}
-            >
-              {facility.name}
-            </span>
-          </button>
-        );
-      })}
+          return (
+            <CustomOverlayMap key={facility.id} position={position} yAnchor={1} zIndex={selected ? 20 : 10}>
+              <button
+                type="button"
+                onClick={() => onSelectFacility?.(facility)}
+                className="flex flex-col items-center gap-1"
+                aria-pressed={selected}
+              >
+                <FacilityIcon
+                  category={facility.mainCategory}
+                  className={selected ? 'ring-2 ring-[#FF8A3D]' : ''}
+                />
+                <span
+                  className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold shadow-md transition-colors ${
+                    selected ? 'bg-[#FF8A3D] text-white' : 'bg-white text-gray-900'
+                  }`}
+                >
+                  {facility.name}
+                </span>
+              </button>
+            </CustomOverlayMap>
+          );
+        })}
+      </Map>
 
       {facilities.length === 0 && (
-        <div className="absolute inset-x-6 top-1/2 z-20 -translate-y-1/2 rounded-2xl bg-white px-5 py-4 text-center text-sm text-gray-600 shadow-sm">
+        <div className="pointer-events-none absolute inset-x-6 top-1/2 z-20 -translate-y-1/2 rounded-2xl bg-white px-5 py-4 text-center text-sm text-gray-600 shadow-sm">
           선택한 카테고리에 해당하는 주변시설이 없습니다.
         </div>
       )}
