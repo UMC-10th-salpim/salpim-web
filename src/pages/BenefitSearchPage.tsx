@@ -71,7 +71,7 @@ const BenefitSearchPage = () => {
       <div className="flex flex-col gap-6 px-5 pt-2">
         {/* 추천 방식 토글 */}
         <div className="flex justify-center gap-3">
-          <button type="button" onClick={() => setMode('recommend')} className={modePill(mode === 'recommend')}>
+          <button type="button" onClick={() => navigate('/survey')} className={modePill(mode === 'recommend')}>
             살피미 추천
           </button>
           <button type="button" onClick={() => setMode('direct')} className={modePill(mode === 'direct')}>

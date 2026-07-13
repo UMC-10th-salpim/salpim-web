@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import QuestionCard, { type QuestionOption } from '@/features/survey/QuestionCard';
+import { useNavigate } from 'react-router-dom';
 
 export interface SurveyQuestion {
   id: string;
@@ -22,12 +23,12 @@ const defaultQuestions: SurveyQuestion[] = [
     question: '어떤 도움이 필요하세요?',
     multiple: true,
     options: [
-      { value: 'medical', label: '의료 지원이 필요해요', icon: '🩺' },
-      { value: 'living', label: '생활비가 부족해요', icon: '💰' },
-      { value: 'housing', label: '주거 지원이 필요해요', icon: '🏠' },
-      { value: 'care', label: '돌봄이 필요해요', icon: '🤝' },
-      { value: 'culture', label: '문화 활동을 하고 싶어요', icon: '🎨' },
-      { value: 'job', label: '일자리를 찾고 있어요', icon: '💼' },
+      { value: 'medical', label: '의료 지원이 필요해요', icon: '/icons/benefit/hospital.png' },
+      { value: 'living', label: '생활비가 부족해요', icon: '/icons/benefit/money.png' },
+      { value: 'housing', label: '주거 지원이 필요해요', icon: 'icons/benefit/house.png' },
+      { value: 'care', label: '돌봄이 필요해요', icon: '/icons/benefit/handshake.png' },
+      { value: 'culture', label: '문화 활동을 하고 싶어요', icon: 'icons/benefit/mask.png' },
+      { value: 'job', label: '일자리를 찾고 있어요', icon: '/icons/benefit/work.png' },
     ],
   },
   {
@@ -41,6 +42,7 @@ const defaultQuestions: SurveyQuestion[] = [
 ];
 
 const SurveyForm = ({ questions = defaultQuestions, userName = 'OO', onComplete }: SurveyFormProps) => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<SurveyAnswers>({});
 
@@ -61,6 +63,7 @@ const SurveyForm = ({ questions = defaultQuestions, userName = 'OO', onComplete 
   const handleNext = () => {
     if (isLast) {
       onComplete?.(answers);
+      navigate('/benefits')
       return;
     }
     setStep((prev) => prev + 1);
@@ -69,26 +72,38 @@ const SurveyForm = ({ questions = defaultQuestions, userName = 'OO', onComplete 
   const handlePrev = () => setStep((prev) => Math.max(0, prev - 1));
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-brand-50/40 px-5 pb-6 pt-4">
-      {/* 진행 표시 */}
-      <div className="mb-6 flex items-center justify-center gap-2">
-        {questions.map((question, index) => (
-          <span
-            key={question.id}
-            className={`h-2 rounded-full transition-all ${
-              index === step ? 'w-6 bg-brand-500' : 'w-2 bg-brand-200'
-            }`}
-          />
-        ))}
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-brand-50/40 px-5 pb-26 pt-4">
+      {/*탭*/}
+      <div className='flex justify-center gap-3 mb-6'>
+        <button className='rounded-full px-5 py-2 text-base font-bold bg-[#FF8A3D] text-white'>
+          살피미 추천
+        </button>
+        <button className="rounded-full px-5 py-2 text-base font-bold border border-[#FF8A3D] text-[#FF8A3D] bg-white"
+          onClick={() => navigate('/benefits/search')}
+        >
+          직접 찾기
+        </button>
       </div>
 
-      {/* 마스코트 */}
-      <div className="mb-4 flex justify-center text-5xl" aria-hidden>
-        🐶
+      {/* 진행 표시 */}
+      <div className='flex justify-center mb-4'>
+        <img 
+          src={step === 0 ? '/icons/bar/half.png' : '/icons/bar/full.png'}
+          alt="진행 상황"
+          className='w-full'
+        />
+      </div>
+
+      {/* 말풍선 */}
+      <div className="flex items-center gap-3 mb-4">
+        <img src='/characters/salpimi_Dog.png' className='w-20 h-20 shrink-0'/>
+        <div className="bg-white rounded-2xl rounded-bl-none px-4 py-3 shadow-sm">
+          <span className='text-base font-bold text-[#613212] whitespace-pre-line'>{questionText}</span>
+        </div>
       </div>
 
       <QuestionCard
-        question={questionText}
+        question=""
         options={current.options}
         value={currentValue}
         onChange={handleChange}
@@ -96,6 +111,7 @@ const SurveyForm = ({ questions = defaultQuestions, userName = 'OO', onComplete 
         className="whitespace-pre-line"
       />
 
+      {/*이전 다음*/}
       <div className="mt-auto flex gap-3 pt-6">
         {step > 0 && (
           <button
@@ -110,7 +126,7 @@ const SurveyForm = ({ questions = defaultQuestions, userName = 'OO', onComplete 
           type="button"
           onClick={handleNext}
           disabled={!answered}
-          className="flex-[2] rounded-xl bg-brand-500 py-3.5 font-semibold text-white transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-brand-200"
+          className="flex-[2] rounded-4xl bg-[#FF8A3D] py-3.5 font-semibold text-white transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-brand-200"
         >
           {isLast ? '완료' : '다음'}
         </button>
