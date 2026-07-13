@@ -22,10 +22,10 @@ const PasswordStep = ({ value, onChange, onNext }: PasswordStepProps) => {
     <>
       <div className="min-h-0 flex-1 overflow-y-auto">
        <div className="flex min-h-full flex-col justify-center py-2">
-        <h1 className="text-center text-2xl font-bold text-gray-900">
+        <h1 className="text-center text-3xl font-bold text-gray-900">
           비밀 번호를 설정해 주세요!
         </h1>
-        <p className="mb-8 mt-2 text-center text-base font-semibold text-brand-500">
+        <p className="mb-8 mt-2 text-center text-2xl font-semibold leading-8 text-brand-500">
           로그인할 때 사용할 비밀번호예요
         </p>
 

@@ -45,6 +45,7 @@ const SignUpPage = () => {
   };
 
   return (
+    <div className="h-dvh w-full bg-brand-50">
     <div className="mx-auto flex h-dvh max-w-md flex-col overflow-hidden bg-brand-50 px-6 pb-8 pt-6">
       {step < TOTAL_STEPS && <ProgressDots total={TOTAL_STEPS} current={step} />}
 
@@ -63,6 +64,7 @@ const SignUpPage = () => {
       )}
       {step === 4 && <TermsAgreement value={terms} onChange={setTerms} onSubmit={next} />}
       {step === 5 && <SummaryStep info={info} address={address} onStart={finish} />}
+    </div>
     </div>
   );
 };

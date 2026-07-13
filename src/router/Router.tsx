@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import LoginPage from '@/pages/LoginPage';
+import FontSizePage from '@/pages/FontSizePage';
 import OnboardingPage from '@/pages/OnboardingPage';
 import SignUpPage from '@/pages/SignUpPage';
 import OAuthKakaoPage from '@/pages/OAuthKakaoPage';
@@ -17,6 +18,7 @@ import HelperPage from '@/pages/HelperPage';
 
 const router = createBrowserRouter([
   { path: '/', element: <LoginPage /> },
+  { path: '/font-size', element: <FontSizePage /> },
   {
     element: <Layout />,
     children: [

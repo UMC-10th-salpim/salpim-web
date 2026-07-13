@@ -20,12 +20,12 @@ const SecurityQuestionStep = ({ value, onChange, onNext }: SecurityQuestionStepP
     <>
       <div className="min-h-0 flex-1 overflow-y-auto">
        <div className="flex min-h-full flex-col justify-center py-2">
-        <h1 className="text-center text-2xl font-bold leading-9 text-gray-900">
+        <h1 className="text-center text-3xl font-bold leading-10 text-gray-900">
           비밀번호를 잊었을 때를 위한
           <br />
           질문이에요!
         </h1>
-        <p className="mb-8 mt-2 text-center text-base font-semibold leading-6 text-brand-500">
+        <p className="mb-8 mt-2 text-center text-2xl font-semibold leading-8 text-brand-500">
           질문에 대한 답을 알면
           <br />
           비밀번호를 찾을 수 있어요.

@@ -10,8 +10,8 @@ interface SummaryStepProps {
 
 const Row = ({ label, value }: { label: string; value: string }) => (
   <div className="flex gap-4">
-    <span className="w-20 shrink-0 text-lg font-bold text-gray-800">{label}</span>
-    <span className="text-lg font-bold text-brand-500">{value}</span>
+    <span className="w-20 shrink-0 text-2xl font-bold text-gray-800">{label}</span>
+    <span className="text-2xl font-bold text-brand-500">{value}</span>
   </div>
 );
 

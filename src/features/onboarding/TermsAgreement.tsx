@@ -56,8 +56,8 @@ const TermsAgreement = ({ value, onChange, onSubmit }: TermsAgreementProps) => {
     <>
       <div className="min-h-0 flex-1 overflow-y-auto">
        <div className="flex min-h-full flex-col justify-center py-2">
-        <h1 className="text-center text-2xl font-bold text-gray-900">약관에 동의해 주세요</h1>
-        <p className="mb-8 mt-2 text-center text-base font-semibold leading-6 text-brand-500">
+        <h1 className="text-center text-3xl font-bold text-gray-900">약관에 동의해 주세요</h1>
+        <p className="mb-8 mt-2 text-center text-2xl font-semibold leading-8 text-brand-500">
           아래 내용을 확인하고
           <br />
           동의해 주세요
@@ -70,7 +70,7 @@ const TermsAgreement = ({ value, onChange, onSubmit }: TermsAgreementProps) => {
           className="flex w-full items-center gap-3 rounded-2xl border border-brand-200 bg-white px-5 py-4 text-left"
         >
           <CheckBox checked={allChecked} />
-          <span className="text-lg font-bold text-gray-900">전체 동의</span>
+          <span className="text-2xl font-bold text-gray-900">전체 동의</span>
         </button>
 
         {/* 개별 약관 */}
@@ -88,7 +88,7 @@ const TermsAgreement = ({ value, onChange, onSubmit }: TermsAgreementProps) => {
                 className="flex flex-1 items-center gap-3 text-left"
               >
                 <CheckBox checked={value[key]} />
-                <span className="flex-1 text-base font-medium leading-6 text-gray-800">
+                <span className="flex-1 text-2xl font-medium leading-6 text-gray-800">
                   <span className="font-bold">[필수]</span> {label}
                 </span>
               </button>

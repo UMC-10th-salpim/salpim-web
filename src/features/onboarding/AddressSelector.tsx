@@ -77,7 +77,7 @@ const AddressSelector = ({
     <>
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="flex min-h-full flex-col py-2">
-          <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">
+          <h1 className="mb-6 text-center text-3xl font-bold text-gray-900">
             우리집을 설정해 주세요!
           </h1>
 
@@ -95,7 +95,7 @@ const AddressSelector = ({
           <button
             type="button"
             onClick={onUseCurrentLocation}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-brand-300 bg-brand-50 py-4 text-base font-bold text-brand-600 transition-colors hover:bg-brand-100"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-brand-300 bg-brand-50 py-4 text-2xl font-bold text-brand-600 transition-colors hover:bg-brand-100"
           >
             <span aria-hidden>◎</span>
             현재 위치로 자동 설정
@@ -112,14 +112,14 @@ const AddressSelector = ({
               onKeyDown={(event) => {
                 if (event.key === 'Enter') runSearch(1);
               }}
-              placeholder="도로명 주소를 입력해 주세요"
-              className="min-w-0 flex-1 text-base text-gray-900 outline-none placeholder:text-gray-400"
+              placeholder="도로명 주소 입력"
+              className="min-w-0 flex-1 text-2xl text-gray-900 outline-none placeholder:text-gray-400"
               aria-label="도로명 주소 검색"
             />
             <button
               type="button"
               onClick={() => runSearch(1)}
-              className="shrink-0 text-base font-bold text-brand-500"
+              className="shrink-0 text-2xl font-bold text-brand-500"
             >
               검색
             </button>
@@ -129,7 +129,7 @@ const AddressSelector = ({
           {status === 'loading' && (
             <div className="mt-3 flex flex-col items-center gap-4 rounded-2xl border border-brand-200 bg-white py-14">
               <span className="h-10 w-10 animate-spin rounded-full border-4 border-brand-100 border-t-brand-500" />
-              <span className="text-base font-bold text-gray-700">검색 중입니다...</span>
+              <span className="text-2xl font-bold text-gray-700">검색 중입니다...</span>
             </div>
           )}
 
@@ -175,7 +175,7 @@ const AddressSelector = ({
           {status === 'empty' && (
             <div className="mt-3 flex flex-col items-center gap-2 rounded-2xl border border-brand-200 bg-white py-12 text-center">
               <SearchIcon className="mb-1 h-9 w-9 text-brand-500" />
-              <p className="text-base font-bold text-gray-800">검색 결과가 없습니다.</p>
+              <p className="text-2xl font-bold text-gray-800">검색 결과가 없습니다.</p>
               <p className="text-sm leading-6 text-gray-400">
                 도로명 또는 건물명을
                 <br />
@@ -188,7 +188,7 @@ const AddressSelector = ({
           {status === 'error' && (
             <div className="mt-3 flex flex-col items-center gap-2 rounded-2xl border border-brand-200 bg-white py-12 text-center">
               <SearchIcon className="mb-1 h-9 w-9 text-brand-500" />
-              <p className="text-base font-bold text-gray-800">검색에 실패했어요.</p>
+              <p className="text-2xl font-bold text-gray-800">검색에 실패했어요.</p>
               <p className="text-sm leading-6 text-gray-400">
                 잠시 후 다시 시도해 주세요
               </p>
