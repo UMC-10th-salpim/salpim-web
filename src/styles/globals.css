@@ -24,3 +24,7 @@
 .animate-slide-up {
   animation: slide-up 0.25s ease-out;
 }
+
+body {
+  background-color: #FAF8F3;
+}

@@ -13,6 +13,7 @@ import MapPage from '@/pages/MapPage';
 import FacilityDetailPage from '@/pages/FacilityDetailPage';
 import MyPage from '@/pages/MyPage';
 import NotFoundPage from '@/pages/NotFoundPage';
+import HelperPage from '@/pages/HelperPage';
 
 const router = createBrowserRouter([
   { path: '/', element: <LoginPage /> },
@@ -32,6 +33,7 @@ const router = createBrowserRouter([
       { path: 'signup', element: <SignUpPage /> },
       { path: 'oauth/kakao', element: <OAuthKakaoPage /> },
       { path: 'survey', element: <SurveyPage /> },
+      { path: 'helper/:id', element: <HelperPage/>},
       { path: '*', element: <NotFoundPage /> },
     ],
   },

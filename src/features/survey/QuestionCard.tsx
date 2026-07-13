@@ -1,10 +1,7 @@
-import type { ReactNode } from 'react';
-import Card from '@/components/common/Card/Card';
-
 export interface QuestionOption {
   value: string;
   label: string;
-  icon?: ReactNode;
+  icon?: string;
 }
 
 interface QuestionCardProps {
@@ -41,8 +38,7 @@ const QuestionCard = ({
   };
 
   return (
-    <Card className={`bg-brand-50 ${className}`}>
-      <h2 className="text-lg font-bold leading-7 text-gray-900">{question}</h2>
+    <div className={className}>
 
       <div className="mt-4 flex flex-col gap-3">
         {options.map((option) => {
@@ -55,19 +51,18 @@ const QuestionCard = ({
               role={multiple ? 'checkbox' : 'radio'}
               aria-checked={selected}
               onClick={() => handleSelect(option.value)}
-              className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-colors ${
+              className={`flex w-full items-center gap-3 rounded-full border px-4 py-3 text-left text-sm font-medium transition-colors ${
                 selected
-                  ? 'border-brand-500 bg-brand-500 text-white'
-                  : 'border-brand-200 bg-white text-gray-800 hover:border-brand-400 hover:bg-brand-50'
-              }`}
+                  ? 'border-[#FF8A3D] bg-[#FF8A3D] text-white'
+                  : 'border-[#FF8A3D] bg-white text-[#613212]'}`}
             >
-              {option.icon && <span className="shrink-0 text-base">{option.icon}</span>}
-              <span className="flex-1">{option.label}</span>
+              {option.icon && <img src={selected ? option.icon.replace('.png', '_choice.png') : option.icon} alt="" className='w-6 h-6'/>}
+              <span className="font-semibold">{option.label}</span>
             </button>
           );
         })}
       </div>
-    </Card>
+    </div>
   );
 };
 
