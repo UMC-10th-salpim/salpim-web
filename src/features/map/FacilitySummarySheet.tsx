@@ -29,10 +29,12 @@ const FacilitySummarySheet = ({ facility, onClose, onViewDetail }: FacilitySumma
             <PinIcon />
             {facility.address} {facility.detailAddress}
           </p>
-          <p className="flex items-center gap-1.5">
-            <ClockIcon />
-            {facility.operatingHours}
-          </p>
+          {facility.operatingHours && (
+            <p className="flex items-center gap-1.5">
+              <ClockIcon />
+              {facility.operatingHours}
+            </p>
+          )}
           <p className="flex items-center gap-1.5">
             <HomeIcon />
             우리 집에서 {facility.distanceFromHome}

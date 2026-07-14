@@ -17,11 +17,14 @@ const FilterBar = ({
   const isAllSelected = selectedMainCategory === null;
 
   return (
-    <section className="flex flex-wrap gap-2 border-b border-gray-100 bg-white px-4 py-3" aria-label="시설 카테고리 필터">
+    <section
+      className="absolute inset-x-0 top-0 z-30 flex flex-wrap gap-2 px-4 py-3"
+      aria-label="시설 카테고리 필터"
+    >
       <button
         type="button"
         onClick={onSelectAll}
-        className={`rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors ${
+        className={`rounded-full border px-4 py-1.5 text-sm font-semibold shadow-sm transition-colors ${
           isAllSelected
             ? 'border-[#FF8A3D] bg-[#FF8A3D] text-white'
             : 'border-gray-300 bg-white text-gray-700'
@@ -39,7 +42,7 @@ const FilterBar = ({
             key={category}
             type="button"
             onClick={() => onOpenCategory(category)}
-            className={`flex items-center gap-1 rounded-full border px-4 py-1.5 text-sm font-semibold transition-colors ${
+            className={`flex items-center gap-1 rounded-full border px-4 py-1.5 text-sm font-semibold shadow-sm transition-colors ${
               active
                 ? 'border-[#FF8A3D] bg-[#FF8A3D] text-white'
                 : 'border-gray-300 bg-white text-gray-700'
