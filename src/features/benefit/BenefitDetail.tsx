@@ -2,6 +2,7 @@ import Button from "@/components/common/Button/Button";
 import Chip from "@/components/common/Chip/Chip";
 import { useNavigate } from "react-router-dom";
 import useBenefitStore from "@/store/benefitStore";
+import { useEffect } from "react";
 
 interface BenefitDetailProps {
   isOnline : boolean;
@@ -24,6 +25,36 @@ const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, eligi
   const navigate = useNavigate();
   const isLiked = useBenefitStore((state) => state.isLiked(id));
   const toggleLike = useBenefitStore((state) => state.toggleLike);
+
+useEffect(()=>{
+  if(!window.Kakao.isInitialized()){
+    window.Kakao.init(import.meta.env.VITE_KAKAO_MAP_KEY);
+  }
+}, []);
+
+const handleKakaoShare = () => {
+  window.Kakao.Share.sendDefault({
+    objectType: 'feed',
+    content : {
+      title: title,
+      description: `${deadline} | ${ageLimit}`,
+      imageUrl : 'https://pdftolink.io/file/r2_dXNlcnMvZ3Vlc3QvNzI5NWQzMDQtYTExMS00NWFhLTg3NGEtMTNkMGNlMjZlMjYyLnBuZw' ,
+      link: {
+        mobileWebUrl: window.location.href,
+        webUrl : window.location.href,
+      }
+    },
+    buttons: [
+      {
+        title: '혜택 자세히 보기',
+        link: {
+          mobileWebUrl: window.location.href,
+          webUrl : window.location.href,
+        }
+      }
+    ]
+  })
+}
 
   return (
     <div className="flex flex-col p-4 gap-4">
@@ -110,10 +141,12 @@ const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, eligi
       {/*카카오톡 공유*/}
       <div className="flex flex-col gap-1">
         <span className="p-2 font-bold text-[#613212]"> 가족에게 공유하기 </span>
-        <div className="bg-[#FBE3BF] rounded-3xl p-4 flex items-center justify-between">
+        <div className="bg-[#FBE3BF] rounded-3xl p-4 flex items-center justify-between"
+          onClick={handleKakaoShare}
+        >
           <div className="flex items-center gap-3">
             <img src="/icons/kakaotalk.png" className="w-10 h-10"/>
-            <span className="font-bold" onClick={()=> console.log('카카오 공유 클릭')}>카카오톡으로 공유</span>
+            <span className="font-bold">카카오톡으로 공유</span>
           </div>
           <img src="/icons/path.png"/>
         </div>        

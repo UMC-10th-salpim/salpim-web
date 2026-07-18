@@ -9,8 +9,6 @@ interface ButtonProps {
 // rounded 기본값 "xl" 로그인 버튼 스타일
 export default function Button({children, onClick, disabled, rounded = 'xl', className=''}: ButtonProps) {
   const roundedStyle = rounded === "full" ? "rounded-full" : "rounded-xl"
-  console.log('button에 들어갈 텍스트:',children)
-  console.log('disabled 상태', disabled)
 
   return (
     <button 

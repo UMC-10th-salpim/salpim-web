@@ -1,11 +1,6 @@
-export interface QuestionOption {
-  value: string;
-  label: string;
-  icon?: string;
-}
+import type {QuestionOption} from '@/apis/survey';
 
 interface QuestionCardProps {
-  question: string;
   options: QuestionOption[];
   value: string | string[];
   onChange: (value: string | string[]) => void;
@@ -14,7 +9,6 @@ interface QuestionCardProps {
 }
 
 const QuestionCard = ({
-  question,
   options,
   value,
   onChange,
@@ -40,7 +34,7 @@ const QuestionCard = ({
   return (
     <div className={className}>
 
-      <div className="mt-4 flex flex-col gap-3">
+      <div className="mt-4 flex flex-col gap-2">
         {options.map((option) => {
           const selected = isSelected(option.value);
 
@@ -51,13 +45,13 @@ const QuestionCard = ({
               role={multiple ? 'checkbox' : 'radio'}
               aria-checked={selected}
               onClick={() => handleSelect(option.value)}
-              className={`flex w-full items-center gap-3 rounded-full border px-4 py-3 text-left text-sm font-medium transition-colors ${
+              className={`flex w-full items-center gap-3 rounded-full border px-4 py-3 justify-center text-[22px] font-semibold transition-colors shadow-[0_2px_2px_0_rgba(255,138,61,0.3)] ${
                 selected
                   ? 'border-[#FF8A3D] bg-[#FF8A3D] text-white'
-                  : 'border-[#FF8A3D] bg-white text-[#613212]'}`}
+                  : 'bg-white text-[#FF8A3D] border-white'}`}
             >
-              {option.icon && <img src={selected ? option.icon.replace('.png', '_choice.png') : option.icon} alt="" className='w-6 h-6'/>}
-              <span className="font-semibold">{option.label}</span>
+              {option.icon && <img src={selected ? option.icon.replace('.png', '_choice.png') : option.icon} alt="" className='w-8 h-8'/>}
+              <span className="items-center font-semibold">{option.label}</span>
             </button>
           );
         })}
