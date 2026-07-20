@@ -20,7 +20,7 @@ const QuestionCard = ({
 
   const handleSelect = (optionValue: string) => {
     if (!multiple) {
-      onChange(optionValue);
+      onChange(value === optionValue ? '' : optionValue);
       return;
     }
 

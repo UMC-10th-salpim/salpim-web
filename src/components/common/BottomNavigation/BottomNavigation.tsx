@@ -13,7 +13,7 @@ interface BottomNavigationProps {
 
 const defaultItems: BottomNavigationItem[] = [
   { label: '홈', path: '/recommendation', activePaths: ['/', '/recommendation'] },
-  { label: '혜택', path: '/benefits', activePaths: ['/benefits', '/survey'] },
+  { label: '혜택', path: '/survey', activePaths: ['/benefits', '/survey'] },
   { label: '지도', path: '/map', activePaths: ['/map', '/facility'] },
   { label: '마이', path: '/mypage', activePaths: ['/mypage'] },
 ];

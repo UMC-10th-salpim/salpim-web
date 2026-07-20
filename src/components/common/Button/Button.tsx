@@ -12,7 +12,7 @@ export default function Button({children, onClick, disabled, rounded = 'xl', cla
 
   return (
     <button 
-      className={`w-full text-[#FAFAFA] bg-[#FF8A3D] disabled:bg-[#DDDDDD] disabled:text-[#FAF8F3] disabled:cursor-not-allowed flex items-center justify-center ${roundedStyle} ${className}`}
+      className={`text-[#FAFAFA] bg-[#FF8A3D] disabled:bg-[#DDDDDD] disabled:text-[#FAF8F3] disabled:cursor-not-allowed flex items-center justify-center ${roundedStyle} ${className}`}
       onClick={onClick}
       disabled={disabled}
     >

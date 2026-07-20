@@ -64,7 +64,7 @@ const SurveyForm = ({ userName = 'OO', onComplete }: SurveyFormProps) => {
         <button className='rounded-full px-4 py-3 text-xl font-semibold bg-[#FF8A3D] text-white'>
           살피미 추천
         </button>
-        <button className="rounded-full px-4 py-3 text-xl font-semibold border border-[#FFD7AA] border-3 text-[#FF8A3D]"
+        <button className="rounded-full w-33 px-4 py-3 text-xl font-semibold border border-[#FFD7AA] border-3 text-[#FF8A3D]"
           onClick={() => navigate('/benefits/search')}
         >
           직접 찾기
