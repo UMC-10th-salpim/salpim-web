@@ -27,4 +27,5 @@
 
 body {
   background-color: #FAF8F3;
+  word-break: keep-all;
 }

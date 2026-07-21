@@ -53,18 +53,12 @@ const MapPage = () => {
   });
 
   const filteredFacilities = useMemo(() => {
-    if (!selectedSubCategory) return facilities;
+    if (!selectedSubCategory) return [];
 
     return facilities.filter((facility) => facility.subCategory === selectedSubCategory);
   }, [facilities, selectedSubCategory]);
 
   const selectedFacility = filteredFacilities.find((facility) => facility.id === selectedFacilityId) ?? null;
-
-  const handleSelectAll = () => {
-    setSelectedMainCategory(null);
-    setSelectedSubCategory(null);
-    setSelectedFacilityId(null);
-  };
 
   const handleOpenCategory = (category: FacilityMainCategory) => {
     setOpenCategorySheet(category);
@@ -94,6 +88,7 @@ const MapPage = () => {
         <MapView
           center={center}
           facilities={filteredFacilities}
+          hasCategorySelected={selectedSubCategory !== null}
           selectedFacilityId={selectedFacilityId}
           onSelectFacility={handleSelectFacility}
         />
@@ -101,7 +96,6 @@ const MapPage = () => {
         <FilterBar
           selectedMainCategory={selectedMainCategory}
           selectedSubCategory={selectedSubCategory}
-          onSelectAll={handleSelectAll}
           onOpenCategory={handleOpenCategory}
         />
 

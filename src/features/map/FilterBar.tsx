@@ -4,35 +4,15 @@ import type { FacilityMainCategory } from './types';
 interface FilterBarProps {
   selectedMainCategory: FacilityMainCategory | null;
   selectedSubCategory: string | null;
-  onSelectAll: () => void;
   onOpenCategory: (main: FacilityMainCategory) => void;
 }
 
-const FilterBar = ({
-  selectedMainCategory,
-  selectedSubCategory,
-  onSelectAll,
-  onOpenCategory,
-}: FilterBarProps) => {
-  const isAllSelected = selectedMainCategory === null;
-
+const FilterBar = ({ selectedMainCategory, selectedSubCategory, onOpenCategory }: FilterBarProps) => {
   return (
     <section
       className="absolute inset-x-0 top-0 z-30 flex flex-wrap gap-2 px-4 py-3"
       aria-label="시설 카테고리 필터"
     >
-      <button
-        type="button"
-        onClick={onSelectAll}
-        className={`rounded-full border px-4 py-1.5 text-sm font-semibold shadow-sm transition-colors ${
-          isAllSelected
-            ? 'border-[#FF8A3D] bg-[#FF8A3D] text-white'
-            : 'border-gray-300 bg-white text-gray-700'
-        }`}
-      >
-        전체
-      </button>
-
       {FACILITY_MAIN_CATEGORIES.map((category) => {
         const active = selectedMainCategory === category;
         const label = active && selectedSubCategory ? selectedSubCategory : category;
@@ -42,10 +22,8 @@ const FilterBar = ({
             key={category}
             type="button"
             onClick={() => onOpenCategory(category)}
-            className={`flex items-center gap-1 rounded-full border px-4 py-1.5 text-sm font-semibold shadow-sm transition-colors ${
-              active
-                ? 'border-[#FF8A3D] bg-[#FF8A3D] text-white'
-                : 'border-gray-300 bg-white text-gray-700'
+            className={`flex items-center gap-1 whitespace-nowrap rounded-full border-2 border-[#FF8A3D] px-3 py-1.5 text-2xl font-semibold shadow-sm transition-colors ${
+              active ? 'bg-[#FF8A3D] text-white' : 'bg-white text-gray-700'
             }`}
           >
             <span>{label}</span>

@@ -12,21 +12,26 @@ interface MenuRowProps {
   icon: string;
   title: string;
   description?: string;
+  variant?: 'filled' | 'outline';
   onClick: () => void;
 }
 
-const MenuRow = ({ icon, title, description, onClick }: MenuRowProps) => (
+const MenuRow = ({ icon, title, description, variant = 'filled', onClick }: MenuRowProps) => (
   <button
     type="button"
     onClick={onClick}
-    className="flex w-full items-center gap-3 rounded-2xl bg-[#FBE3BF] px-4 py-4 text-left transition-colors hover:bg-[#F6D6A3]"
+    className={`flex w-full items-center gap-3 rounded-[32px] px-4 py-4 text-left transition-colors ${
+      variant === 'filled'
+        ? 'bg-[#F6D6A3] hover:bg-[#F0C482]'
+        : 'border-2 border-[#F0C482] bg-[#FFF7ED] hover:bg-[#FBE3BF]'
+    }`}
   >
-    <img src={icon} alt="" className="h-10 w-10 shrink-0 rounded-full bg-white object-contain p-2" />
+    <img src={icon} alt="" className="h-12 w-12 shrink-0 rounded-full bg-white object-contain p-2.5" />
     <div className="flex-1">
-      <p className="text-base font-bold text-[#613212]">{title}</p>
-      {description && <p className="mt-0.5 text-xs text-gray-500">{description}</p>}
+      <p className="text-2xl font-bold text-[#613212]">{title}</p>
+      {description && <p className="mt-0.5 text-lg text-gray-500">{description}</p>}
     </div>
-    <img src="/icons/mypage/arrow.png" alt="" className="h-4 w-4 shrink-0" />
+    <img src="/icons/mypage/arrow.png" alt="" className="h-5 w-5 shrink-0" />
   </button>
 );
 
@@ -37,7 +42,7 @@ interface SectionProps {
 
 const Section = ({ title, children }: SectionProps) => (
   <section className="flex flex-col gap-2">
-    <h2 className="text-base font-bold text-[#613212]">{title}</h2>
+    <h2 className="text-2xl font-bold text-[#613212]">{title}</h2>
     {children}
   </section>
 );
@@ -61,15 +66,15 @@ const MyPageMenu = () => {
   return (
     <div className="flex flex-col gap-6 p-4 pb-10">
       {/* 인사 카드 */}
-      <div className="flex items-center gap-3 rounded-2xl border-2 border-brand-200 bg-[#FFF7ED] px-4 py-4">
+      <div className="flex items-center gap-3 rounded-[32px] border-[3px] border-[#F0C482] bg-[#FFF7ED] px-5 py-4">
         <img src="/characters/salpimi.png" alt="살피미" className="w-16 shrink-0" />
         <div>
-          <p className="text-lg font-bold leading-7 text-gray-900">
+          <p className="text-2xl font-bold leading-8 text-gray-900">
             안녕하세요,
             <br />
             {MOCK_PROFILE.name} 님!
           </p>
-          <p className="mt-1 text-sm font-semibold text-brand-500">{MOCK_PROFILE.region}</p>
+          <p className="mt-1 text-xl font-semibold text-brand-500">{MOCK_PROFILE.region}</p>
         </div>
       </div>
 
@@ -77,6 +82,7 @@ const MyPageMenu = () => {
         <MenuRow
           icon="/icons/heart_fill.png"
           title="눌러서 보관한 혜택을 확인해 보세요."
+          variant="outline"
           onClick={() => navigate('/mypage/liked')}
         />
       </Section>
@@ -109,10 +115,10 @@ const MyPageMenu = () => {
       </Section>
 
       <Section title="설정">
-        <div className="flex w-full items-center gap-3 rounded-2xl bg-[#FBE3BF] px-4 py-4">
+        <div className="flex w-full items-center gap-3 rounded-[32px] bg-[#F6D6A3] px-4 py-4">
           <div className="flex-1">
-            <p className="text-base font-bold text-[#613212]">마감 임박 혜택 표시</p>
-            <p className="mt-0.5 text-xs text-gray-500">
+            <p className="text-2xl font-bold text-[#613212]">마감 임박 혜택 표시</p>
+            <p className="mt-0.5 text-lg text-gray-500">
               홈 화면에서 곧 마감되는 혜택을 알려 줘요.
             </p>
           </div>
@@ -131,14 +137,14 @@ const MyPageMenu = () => {
         <button
           type="button"
           onClick={() => setConfirmModal('logout')}
-          className="w-full rounded-full border-2 border-brand-500 bg-white py-3.5 text-base font-bold text-brand-500 transition-colors hover:bg-brand-50"
+          className="w-full rounded-[32px] border-2 border-brand-500 bg-white py-3.5 text-2xl font-bold text-brand-500 transition-colors hover:bg-brand-50"
         >
           로그아웃하기
         </button>
         <button
           type="button"
           onClick={() => setConfirmModal('withdraw')}
-          className="w-full rounded-full bg-brand-500 py-3.5 text-base font-bold text-white transition-colors hover:bg-brand-600"
+          className="w-full rounded-[32px] bg-brand-500 py-3.5 text-2xl font-bold text-white transition-colors hover:bg-brand-600"
         >
           탈퇴하기
         </button>

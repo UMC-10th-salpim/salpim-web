@@ -34,7 +34,7 @@ const HeaderBar = ({ title, onBack, className = '' }: HeaderBarProps) => {
           <path d="M15 18l-6-6 6-6" />
         </svg>
       </button>
-      <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+      <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
     </header>
   );
 };
