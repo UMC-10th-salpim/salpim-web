@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getKakaoAuthorizeUrl } from '@/apis/auth';
+import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
+import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
+import FontSizeSettings from '@/features/mypage/FontSizeSettings';
 
 type FontSize = 'medium' | 'large';
 type NextPage = 'login' | 'kakao' | 'signup';
@@ -16,6 +19,16 @@ const FontSizePage = () => {
 
   const next = searchParams.get('next') as NextPage | null;
   const isLarge = fontSize === 'large';
+
+  if (!next) {
+    return (
+      <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-[#FAF8F3] pb-24">
+        <HeaderBar title="글자 크기 설정" />
+        <FontSizeSettings />
+        <BottomNavigation />
+      </div>
+    );
+  }
 
   const handleSave = () => {
     localStorage.setItem(FONT_SIZE_STORAGE_KEY, fontSize);

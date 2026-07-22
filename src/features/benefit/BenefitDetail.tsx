@@ -1,7 +1,7 @@
 import Button from "@/components/common/Button/Button";
 import Chip from "@/components/common/Chip/Chip";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useBenefitStore from "@/store/benefitStore";
 
 interface BenefitDetailProps {
   isOnline : boolean;
@@ -22,7 +22,8 @@ interface BenefitDetailProps {
 
 const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, eligibility, benefitContent, targetPerson, url, facilityName, facilityDistance, facilityHours}:BenefitDetailProps) => {
   const navigate = useNavigate();
-  const [isLiked, setIsLiked] = useState(false);
+  const isLiked = useBenefitStore((state) => state.isLiked(id));
+  const toggleLike = useBenefitStore((state) => state.toggleLike);
 
   return (
     <div className="flex flex-col p-4 gap-4">
@@ -33,7 +34,7 @@ const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, eligi
         <div className="flex items-center justify-between">
           <Chip label={category} className="px-3 py-1 text-xs"/>
           <button type="button" aria-label="찜하기"
-            onClick={()=>setIsLiked(!isLiked)}
+            onClick={()=>toggleLike(id)}
           >
             <img src={isLiked ? '/icons/heart_fill.png' : '/icons/heart.png'} alt="찜하기" className="w-6 h-6"/>
           </button>
