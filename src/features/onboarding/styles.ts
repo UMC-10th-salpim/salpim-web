@@ -3,6 +3,8 @@
 export const inputStyle =
   'w-full rounded-2xl border border-brand-200 bg-white px-5 py-4 text-2xl text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-brand-500';
 
+export const pillInputStyle = `${inputStyle} !h-[clamp(48px,7.11vh,56px)] !rounded-full !border-4 !py-0`;
+
 export const labelStyle = 'mb-2 block text-2xl font-bold text-gray-800';
 
 export const primaryButton =

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { authApi, getApiErrorMessage } from '@/apis/auth';
 import { inputStyle, labelStyle, primaryButton, secondaryButton } from './styles';
 
 const personalInfoInputStyle = (hasValue: boolean) =>
@@ -11,6 +12,7 @@ export interface OnboardingInfo {
   birthDay: string;
   gender: 'female' | 'male' | '';
   phone: string;
+  phoneVerified: boolean;
 }
 
 interface OnboardingFormProps {
@@ -32,7 +34,9 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
   // 문자 인증 상태 (발송 → 코드 입력 → 확인 → 완료)
   const [codeSent, setCodeSent] = useState(false);
   const [code, setCode] = useState('');
-  const [verified, setVerified] = useState(false);
+  const [phoneRequest, setPhoneRequest] = useState<'idle' | 'sending' | 'verifying'>('idle');
+  const [phoneMessage, setPhoneMessage] = useState('');
+  const [phoneMessageType, setPhoneMessageType] = useState<'info' | 'success' | 'error'>('info');
 
   const update = <K extends keyof OnboardingInfo>(key: K, fieldValue: OnboardingInfo[K]) =>
     onChange({ ...value, [key]: fieldValue });
@@ -41,24 +45,50 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
 
   // 전화번호를 바꾸면 인증 상태 초기화
   const handlePhoneChange = (raw: string) => {
-    update('phone', formatPhone(raw));
+    onChange({ ...value, phone: formatPhone(raw), phoneVerified: false });
     setCodeSent(false);
-    setVerified(false);
     setCode('');
+    setPhoneMessage('');
+    setPhoneMessageType('info');
   };
 
-  const handleSendCode = () => {
+  const handleSendCode = async () => {
     if (!phoneComplete) return;
-    // TODO: 인증번호 발송 API 연동 (예: POST /auth/phone/send)
-    setCodeSent(true);
-    setVerified(false);
-    setCode('');
+    setPhoneRequest('sending');
+    setPhoneMessage('');
+
+    try {
+      await authApi.sendPhoneVerificationCode(value.phone);
+      setCodeSent(true);
+      setCode('');
+      setPhoneMessage('인증번호를 보냈어요. 5분 안에 입력해 주세요.');
+      setPhoneMessageType('info');
+    } catch (error) {
+      setCodeSent(false);
+      setPhoneMessage(getApiErrorMessage(error, '인증번호를 보내지 못했어요.'));
+      setPhoneMessageType('error');
+    } finally {
+      setPhoneRequest('idle');
+    }
   };
 
-  const handleVerify = () => {
-    // TODO: 인증번호 확인 API 연동 (예: POST /auth/phone/verify) → 성공 시 verified 처리
+  const handleVerify = async () => {
     if (code.length !== 6) return;
-    setVerified(true);
+    setPhoneRequest('verifying');
+    setPhoneMessage('');
+
+    try {
+      const verified = await authApi.verifyPhoneCode(value.phone, code);
+      onChange({ ...value, phoneVerified: verified });
+      setPhoneMessage(verified ? '인증이 완료되었어요.' : '인증번호를 다시 확인해 주세요.');
+      setPhoneMessageType(verified ? 'success' : 'error');
+    } catch (error) {
+      onChange({ ...value, phoneVerified: false });
+      setPhoneMessage(getApiErrorMessage(error, '인증번호를 확인하지 못했어요.'));
+      setPhoneMessageType('error');
+    } finally {
+      setPhoneRequest('idle');
+    }
   };
 
   const hasCompleteBirthDate =
@@ -82,6 +112,8 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
     );
   })();
 
+  // 화면 개발 중에는 인증 서버 없이 다음 단계를 확인할 수 있도록 개발 모드만 우회합니다.
+  const phoneVerificationPassed = import.meta.env.DEV || value.phoneVerified;
   const isValid =
     value.name.trim() !== '' &&
     value.birthYear !== '' &&
@@ -89,7 +121,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
     value.birthDay !== '' &&
     !hasInvalidBirthDate &&
     value.gender !== '' &&
-    verified;
+    phoneVerificationPassed;
 
   return (
     <>
@@ -199,25 +231,29 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
               <div className="flex gap-2">
                 <input
                   id="phone"
-                  className={`${personalInfoInputStyle(value.phone !== '')} flex-1`}
+                  className={`${personalInfoInputStyle(value.phone !== '')} flex-1 placeholder:!text-[#613212] placeholder:!opacity-40`}
                   value={value.phone}
                   onChange={(event) => handlePhoneChange(event.target.value)}
                   placeholder="010-0000-0000"
                   inputMode="numeric"
-                  disabled={verified}
+                  disabled={value.phoneVerified}
                 />
                 <button
                   type="button"
-                  onClick={handleSendCode}
-                  disabled={!phoneComplete || verified}
+                  onClick={() => void handleSendCode()}
+                  disabled={!phoneComplete || value.phoneVerified || phoneRequest !== 'idle'}
                   className="shrink-0 rounded-2xl bg-brand-100 px-4 text-2xl font-bold text-brand-600 transition-colors hover:bg-brand-200 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {codeSent && !verified ? '재전송' : '인증하기'}
+                  {phoneRequest === 'sending'
+                    ? '전송 중'
+                    : codeSent && !value.phoneVerified
+                      ? '재전송'
+                      : '인증하기'}
                 </button>
               </div>
 
               {/* 인증번호 입력 (발송 후 노출) */}
-              {codeSent && !verified && (
+              {codeSent && !value.phoneVerified && (
                 <div className="mt-2 flex gap-2">
                   <input
                     className={`${personalInfoInputStyle(code !== '')} flex-1`}
@@ -230,18 +266,24 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
                   />
                   <button
                     type="button"
-                    onClick={handleVerify}
-                    disabled={code.length !== 6}
+                    onClick={() => void handleVerify()}
+                    disabled={code.length !== 6 || phoneRequest !== 'idle'}
                     className="shrink-0 rounded-2xl bg-brand-500 px-4 text-2xl font-bold text-white transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-brand-200"
                   >
-                    확인
+                    {phoneRequest === 'verifying' ? '확인 중' : '확인'}
                   </button>
                 </div>
               )}
 
-              {/* 인증 완료 */}
-              {verified && (
-                <p className="mt-2 text-sm font-bold text-brand-500">✓ 인증이 완료되었어요.</p>
+              {phoneMessage && (
+                <p
+                  role="status"
+                  className={`mt-2 text-sm font-bold ${
+                    phoneMessageType === 'error' ? 'text-red-500' : 'text-brand-500'
+                  }`}
+                >
+                  {phoneMessage}
+                </p>
               )}
             </div>
           </div>

@@ -11,7 +11,7 @@ interface IntroSlide {
   map?: boolean;
 }
 
-const highlight = 'text-brand-500 font-bold';
+const highlight = 'text-[#F97316] font-bold';
 
 const ChatBubble = ({
   children,

@@ -26,6 +26,7 @@ const FontSizePage = () => {
     }
 
     if (next === 'signup') {
+      sessionStorage.removeItem('salpim-kakao-signup-token');
       navigate('/onboarding');
       return;
     }
