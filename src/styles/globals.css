@@ -1,8 +1,10 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap');
 @import 'tailwindcss';
 
 /* 살핌 디자인 시스템 - 브랜드 컬러 (오렌지/크림 테마) */
 @theme {
-  --color-brand-50: #fff7ec;
+  --color-brand-50: #faf8f3;
   --color-brand-100: #fce4c7;
   --color-brand-200: #f6cfa3;
   --color-brand-300: #f4bd80;
@@ -25,6 +27,19 @@
   animation: slide-up 0.25s ease-out;
 }
 
+html,
 body {
-  background-color: #FAF8F3;
+  touch-action: manipulation;
+}
+
+body {
+  background-color: #faf8f3;
+  font-family:
+    'Pretendard',
+    -apple-system,
+    BlinkMacSystemFont,
+    system-ui,
+    sans-serif;
+  /* 모든 글자 자간 -6% (tracking-[-0.06em]) */
+  letter-spacing: -0.06em;
 }
