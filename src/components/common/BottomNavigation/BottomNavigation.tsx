@@ -13,7 +13,7 @@ interface BottomNavigationProps {
 
 const defaultItems: BottomNavigationItem[] = [
   { label: '홈', path: '/recommendation', activePaths: ['/', '/recommendation'] },
-  { label: '혜택', path: '/benefits', activePaths: ['/benefits'] },
+  { label: '혜택', path: '/survey', activePaths: ['/benefits', '/survey'] },
   { label: '지도', path: '/map', activePaths: ['/map', '/facility'] },
   { label: '마이', path: '/mypage', activePaths: ['/mypage'] },
 ];
@@ -43,8 +43,8 @@ const BottomNavigation = ({ items = defaultItems, className = '' }: BottomNaviga
             <NavLink
               key={item.path}
               to={item.path}
-              className={`flex min-h-11 items-center justify-center rounded-full text-[20px] font-extrabold transition-colors ${
-                active ? 'text-[#FF7A32]' : 'text-[#806B56] hover:text-[#FF7A32]'
+              className={`flex items-center justify-center font-bold transition-all ${
+                active ? 'text-[32px] text-[#FF8A3D]' : 'text-[32px] text-[#8B7355] hover:text-brand-500'
               }`}
               aria-current={active ? 'page' : undefined}
             >

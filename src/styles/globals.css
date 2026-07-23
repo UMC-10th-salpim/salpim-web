@@ -14,28 +14,8 @@
   --color-brand-700: #c56a1f;
 }
 
-:root {
-  font-family:
-    'Pretendard',
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
-  color: #43230f;
-  background: #faf8f3;
-  font-synthesis: none;
-  --salpim-page: #faf8f3;
-  --salpim-surface: #ffffff;
-  --salpim-cream: #fff0da;
-  --salpim-border: #ffd29e;
-  --salpim-orange: #ff853e;
-  --salpim-orange-dark: #eb6f27;
-  --salpim-brown: #613212;
-  --salpim-muted: #81746a;
-  --salpim-radius-card: 20px;
-  --salpim-radius-control: 16px;
-  --salpim-radius-pill: 999px;
-  --salpim-shadow: 0 4px 12px rgb(91 53 24 / 10%);
+* {
+  letter-spacing: -0.06em;
 }
 
 @keyframes slide-up {
