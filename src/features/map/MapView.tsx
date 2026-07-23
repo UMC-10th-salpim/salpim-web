@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { CustomOverlayMap, Map, useKakaoLoader } from 'react-kakao-maps-sdk';
 import FacilityIcon from './FacilityIcon';
 import type { Facility, MapCenter } from './types';
@@ -5,9 +6,21 @@ import type { Facility, MapCenter } from './types';
 interface MapViewProps {
   center: MapCenter;
   facilities: Facility[];
+  hasCategorySelected: boolean;
   selectedFacilityId?: string | null;
   onSelectFacility?: (facility: Facility) => void;
 }
+
+// 두 좌표 사이의 직선 거리를 미터 단위로 계산 (Haversine)
+const getDistanceMeters = (a: MapCenter, b: MapCenter) => {
+  const R = 6371000;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const lat1 = (a.lat * Math.PI) / 180;
+  const lat2 = (b.lat * Math.PI) / 180;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+};
 
 const LocationPin = () => (
   <svg width="28" height="36" viewBox="0 0 24 32" aria-hidden>
@@ -19,11 +32,33 @@ const LocationPin = () => (
   </svg>
 );
 
-const MapView = ({ center, facilities, selectedFacilityId, onSelectFacility }: MapViewProps) => {
+const MapView = ({
+  center,
+  facilities,
+  hasCategorySelected,
+  selectedFacilityId,
+  onSelectFacility,
+}: MapViewProps) => {
   const [loading, error] = useKakaoLoader({
     appkey: import.meta.env.VITE_KAKAO_MAP_KEY,
     url: 'https://dapi.kakao.com/v2/maps/sdk.js',
   });
+
+  const mapRef = useRef<kakao.maps.Map | null>(null);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || facilities.length === 0) return;
+
+    const nearest = facilities.reduce((closest, facility) =>
+      getDistanceMeters(center, facility) < getDistanceMeters(center, closest) ? facility : closest
+    );
+
+    const bounds = new kakao.maps.LatLngBounds();
+    bounds.extend(new kakao.maps.LatLng(center.lat, center.lng));
+    bounds.extend(new kakao.maps.LatLng(nearest.lat, nearest.lng));
+    map.setBounds(bounds, 80);
+  }, [facilities, center]);
 
   if (error) {
     return (
@@ -43,7 +78,14 @@ const MapView = ({ center, facilities, selectedFacilityId, onSelectFacility }: M
 
   return (
     <section className="relative flex-1 overflow-hidden" aria-label="주변 혜택 시설 지도">
-      <Map center={center} level={5} style={{ width: '100%', height: '100%' }}>
+      <Map
+        center={center}
+        level={5}
+        onCreate={(map) => {
+          mapRef.current = map;
+        }}
+        style={{ width: '100%', height: '100%' }}
+      >
         <CustomOverlayMap position={center} yAnchor={1}>
           <LocationPin />
         </CustomOverlayMap>
@@ -57,16 +99,16 @@ const MapView = ({ center, facilities, selectedFacilityId, onSelectFacility }: M
               <button
                 type="button"
                 onClick={() => onSelectFacility?.(facility)}
-                className="flex flex-col items-center gap-1"
+                className="flex flex-col items-center gap-0.5"
                 aria-pressed={selected}
               >
                 <FacilityIcon
                   category={facility.mainCategory}
-                  className={selected ? 'ring-2 ring-[#FF8A3D]' : ''}
+                  className={selected ? 'ring-4 ring-[#FF8A3D] ring-offset-2' : ''}
                 />
                 <span
-                  className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold shadow-md transition-colors ${
-                    selected ? 'bg-[#FF8A3D] text-white' : 'bg-white text-gray-900'
+                  className={`whitespace-nowrap rounded-full border-2 bg-white px-3 py-1 text-xs font-bold text-gray-900 shadow-md ${
+                    selected ? 'border-[#FF8A3D]' : 'border-transparent'
                   }`}
                 >
                   {facility.name}
@@ -77,7 +119,7 @@ const MapView = ({ center, facilities, selectedFacilityId, onSelectFacility }: M
         })}
       </Map>
 
-      {facilities.length === 0 && (
+      {hasCategorySelected && facilities.length === 0 && (
         <div className="pointer-events-none absolute inset-x-6 top-1/2 z-20 -translate-y-1/2 rounded-2xl bg-white px-5 py-4 text-center text-sm text-gray-600 shadow-sm">
           선택한 카테고리에 해당하는 주변시설이 없습니다.
         </div>

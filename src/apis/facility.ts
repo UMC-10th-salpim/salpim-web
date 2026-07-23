@@ -44,6 +44,12 @@ const formatDistance = (meters: string): string => {
   return value >= 1000 ? `${(value / 1000).toFixed(1)}km` : `${value}m`;
 };
 
+// "CU 구로보건소점" 처럼 편의점 지점명이 검색 키워드와 우연히 겹쳐 나오는 경우를 걸러낸다.
+const EXCLUDED_NAME_PREFIXES = ['CU', 'GS25', 'GS', '파리바게뜨'];
+
+const isExcludedFacilityName = (name: string) =>
+  EXCLUDED_NAME_PREFIXES.some((prefix) => name.trim().toUpperCase().startsWith(prefix));
+
 const searchFacilitiesBySubCategory = async (
   mainCategory: FacilityMainCategory,
   subCategory: string,
@@ -66,17 +72,19 @@ const searchFacilitiesBySubCategory = async (
 
   const data: KakaoKeywordResponse = await res.json();
 
-  return data.documents.map((doc) => ({
-    id: doc.id,
-    name: doc.place_name,
-    mainCategory,
-    subCategory,
-    address: doc.road_address_name || doc.address_name,
-    lat: Number(doc.y),
-    lng: Number(doc.x),
-    distanceFromHome: formatDistance(doc.distance),
-    phone: doc.phone || undefined,
-  }));
+  return data.documents
+    .filter((doc) => !isExcludedFacilityName(doc.place_name))
+    .map((doc) => ({
+      id: doc.id,
+      name: doc.place_name,
+      mainCategory,
+      subCategory,
+      address: doc.road_address_name || doc.address_name,
+      lat: Number(doc.y),
+      lng: Number(doc.x),
+      distanceFromHome: formatDistance(doc.distance),
+      phone: doc.phone || undefined,
+    }));
 };
 
 // 내 위치 주변의 실제 시설을 카테고리별로 모두 검색한다.

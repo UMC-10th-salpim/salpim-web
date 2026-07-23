@@ -28,18 +28,13 @@
 }
 
 html,
-body {
-  touch-action: manipulation;
-}
-
-body {
-  background-color: #faf8f3;
-  font-family:
-    'Pretendard',
-    -apple-system,
-    BlinkMacSystemFont,
-    system-ui,
-    sans-serif;
-  /* 모든 글자 자간 -6% (tracking-[-0.06em]) */
-  letter-spacing: -0.06em;
-}
+  body {
+    background-color: #faf8f3;
+    font-family:
+      BlinkMacSystemFont,
+      system-ui,
+      sans-serif;
+    letter-spacing: -0.06em;
+    word-break: keep-all;
+    touch-action: manipulation;
+  }
