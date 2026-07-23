@@ -1,21 +1,23 @@
 import { useState } from 'react';
-import { searchAddress } from '@/apis/address';
 import type { AddressResult } from '@/apis/address';
-import { inputStyle, labelStyle, primaryButton } from './styles';
+import RoadAddressSearchPage from './RoadAddressSearchPage';
+import { inputStyle, labelStyle, primaryButton, secondaryButton } from './styles';
 
 export interface AddressInfo {
   roadAddress: string;
   detail: string;
+  city: string;
+  district: string;
+  eupMyeonDong: string;
 }
 
 interface AddressSelectorProps {
   value: AddressInfo;
   onChange: (address: AddressInfo) => void;
+  onBack: () => void;
   onNext: () => void;
   onUseCurrentLocation?: () => void;
 }
-
-type SearchStatus = 'idle' | 'loading' | 'results' | 'empty' | 'error';
 
 const SearchIcon = ({ className = '' }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" className={className}>
@@ -24,67 +26,75 @@ const SearchIcon = ({ className = '' }: { className?: string }) => (
   </svg>
 );
 
-const PinIcon = ({ className = '' }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="none" className={className}>
+const LocationIcon = ({ className = '' }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+    <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" />
+    <circle cx="12" cy="12" r="4" fill="currentColor" />
     <path
-      d="M12 21s7-5.686 7-11a7 7 0 10-14 0c0 5.314 7 11 7 11z"
+      d="M12 1v3M12 20v3M1 12h3M20 12h3"
       stroke="currentColor"
-      strokeWidth="1.8"
+      strokeWidth="2"
+      strokeLinecap="round"
     />
-    <circle cx="12" cy="10" r="2.4" stroke="currentColor" strokeWidth="1.8" />
   </svg>
 );
 
 const AddressSelector = ({
   value,
   onChange,
+  onBack,
   onNext,
   onUseCurrentLocation,
 }: AddressSelectorProps) => {
   const [query, setQuery] = useState(value.roadAddress);
-  const [status, setStatus] = useState<SearchStatus>('idle');
-  const [results, setResults] = useState<AddressResult[]>([]);
-  const [page, setPage] = useState(1);
-  const [isEnd, setIsEnd] = useState(true);
-  const [total, setTotal] = useState(0);
+  const [isSearchPageOpen, setIsSearchPageOpen] = useState(false);
 
   const isValid = value.roadAddress.trim() !== '' && value.detail.trim() !== '';
 
-  const runSearch = async (nextPage: number) => {
-    const q = query.trim();
-    if (!q) return;
-    setStatus('loading');
-    try {
-      const res = await searchAddress(q, nextPage);
-      setResults((prev) => (nextPage === 1 ? res.results : [...prev, ...res.results]));
-      setTotal(res.totalCount);
-      setIsEnd(res.isEnd);
-      setPage(nextPage);
-      setStatus(res.totalCount === 0 ? 'empty' : 'results');
-    } catch {
-      setStatus('error');
-    }
+  const openSearchPage = () => {
+    if (!query.trim()) return;
+    setIsSearchPageOpen(true);
   };
 
-  const selectResult = (addr: string) => {
-    onChange({ ...value, roadAddress: addr });
-    setQuery(addr);
-    setResults([]);
-    setStatus('idle');
+  const confirmAddress = (address: AddressResult) => {
+    onChange({
+      roadAddress: address.roadAddress,
+      detail: address.roadAddress === value.roadAddress ? value.detail : '',
+      city: address.city,
+      district: address.district,
+      eupMyeonDong: address.eupMyeonDong,
+    });
+    setQuery(address.roadAddress);
+    setIsSearchPageOpen(false);
   };
+
+  if (isSearchPageOpen) {
+    return (
+      <RoadAddressSearchPage
+        initialQuery={query}
+        initialSelectedAddress={value.roadAddress}
+        onBack={() => setIsSearchPageOpen(false)}
+        onConfirm={confirmAddress}
+      />
+    );
+  }
 
   return (
     <>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="flex min-h-full flex-col py-2">
-          <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">
+        <div className="flex min-h-full flex-col pb-2 pt-[clamp(6px,1.02vh,8px)]">
+          <h1 className="mb-6 text-center text-[clamp(26px,3.68vh,29px)] font-bold text-[#613212]">
             우리집을 설정해 주세요!
           </h1>
 
           {/* 안내 */}
-          <div className="mb-6 flex items-center gap-3">
-            <img src="/assets/Salpimi/Search.png" alt="살피미" className="w-20 shrink-0" />
-            <div className="flex-1 rounded-2xl bg-brand-100 px-4 py-3 text-sm font-medium leading-6 text-brand-700">
+          <div className="relative mb-[clamp(4px,0.76vh,6px)] h-[clamp(88px,12.18vh,96px)] w-full translate-y-[clamp(40px,6.35vh,50px)]">
+            <img
+              src="/assets/Salpimi/Search.png"
+              alt="살피미"
+              className="absolute -left-[clamp(12px,4vw,15px)] top-[calc(50%-clamp(36px,5.71vh,45px))] z-10 h-[clamp(96px,14.21vh,112px)] w-[clamp(96px,14.21vh,112px)] -translate-y-1/2 scale-x-[-1] object-contain"
+            />
+            <div className="absolute left-1/2 top-1/2 flex h-[clamp(88px,12.18vh,96px)] w-[clamp(280px,82.67vw,310px)] -translate-x-1/2 -translate-y-1/2 items-center rounded-2xl bg-brand-100 pl-[clamp(60px,18.13vw,68px)] pr-4 font-[Pretendard] text-[clamp(18px,2.54vh,20px)] font-medium leading-[1.35] text-black">
               주소로 내 지역 혜택과
               <br />
               근처 복지 시설을 찾아 드려요.
@@ -95,125 +105,62 @@ const AddressSelector = ({
           <button
             type="button"
             onClick={onUseCurrentLocation}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-brand-300 bg-brand-50 py-4 text-base font-bold text-brand-600 transition-colors hover:bg-brand-100"
+            className="mx-auto flex h-[clamp(60px,8.88vh,70px)] w-[clamp(280px,82.67vw,310px)] translate-y-[clamp(40px,6.35vh,50px)] items-center justify-center gap-2 rounded-2xl border-[clamp(1px,0.254vh,2px)] border-[#FFB86B] bg-[#FFE3C2] py-0 font-[Pretendard] text-[clamp(20px,3.05vh,24px)] font-semibold text-[#8B5A2B] transition-colors hover:bg-[#FFDBB2]"
           >
-            <span aria-hidden>◎</span>
+            <LocationIcon className="h-6 w-6 shrink-0 text-[#8B5A2B]" />
             현재 위치로 자동 설정
           </button>
-          <p className="mb-6 mt-3 text-center text-sm text-gray-400">또는 직접 입력하기</p>
+          <p className="mb-[clamp(50px,7.61vh,60px)] mt-[clamp(8px,1.27vh,10px)] flex w-full translate-y-[clamp(40px,6.35vh,50px)] justify-center text-center font-[Pretendard] text-[clamp(16px,2.54vh,20px)] font-semibold text-black">
+            또는 직접 입력하기
+          </p>
 
           {/* 도로명 주소 검색 */}
           <label className={labelStyle}>도로명 주소</label>
-          <div className="flex items-center gap-2 rounded-2xl border border-brand-200 bg-white px-4 py-3.5 focus-within:border-brand-500">
-            <SearchIcon className="h-5 w-5 shrink-0 text-gray-500" />
+          <div className="flex items-center gap-2 rounded-2xl border-[clamp(3px,0.51vh,4px)] border-[#FED7AA] bg-white px-4 py-3.5 focus-within:border-[#FED7AA]">
+            <SearchIcon className="h-[clamp(30px,4.57vh,36px)] w-[clamp(30px,4.57vh,36px)] shrink-0 text-[#613212]" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               onKeyDown={(event) => {
-                if (event.key === 'Enter') runSearch(1);
+                if (event.key === 'Enter') openSearchPage();
               }}
-              placeholder="도로명 주소를 입력해 주세요"
-              className="min-w-0 flex-1 text-base text-gray-900 outline-none placeholder:text-gray-400"
+              placeholder="도로명 주소 입력"
+              className="min-w-0 flex-1 text-2xl text-gray-900 outline-none placeholder:text-gray-400"
               aria-label="도로명 주소 검색"
             />
             <button
               type="button"
-              onClick={() => runSearch(1)}
-              className="shrink-0 text-base font-bold text-brand-500"
+              onClick={openSearchPage}
+              disabled={!query.trim()}
+              className="flex h-[clamp(30px,4.57vh,36px)] shrink-0 items-center text-2xl font-bold text-[#613212]"
             >
               검색
             </button>
           </div>
 
-          {/* 로딩 */}
-          {status === 'loading' && (
-            <div className="mt-3 flex flex-col items-center gap-4 rounded-2xl border border-brand-200 bg-white py-14">
-              <span className="h-10 w-10 animate-spin rounded-full border-4 border-brand-100 border-t-brand-500" />
-              <span className="text-base font-bold text-gray-700">검색 중입니다...</span>
-            </div>
-          )}
-
-          {/* 검색 결과 */}
-          {status === 'results' && (
-            <div className="mt-3 rounded-2xl border border-brand-200 bg-white p-2">
-              <p className="px-2 py-2 text-sm text-gray-500">검색 결과 {total}건</p>
-              <ul>
-                {results.map((result, index) => {
-                  const selected = value.roadAddress === result.roadAddress;
-                  return (
-                    <li key={`${result.roadAddress}-${index}`}>
-                      <button
-                        type="button"
-                        onClick={() => selectResult(result.roadAddress)}
-                        className={`flex w-full items-start gap-2 rounded-xl px-2 py-2.5 text-left text-sm transition-colors ${
-                          selected ? 'bg-brand-50' : 'hover:bg-brand-50'
-                        }`}
-                      >
-                        <PinIcon className="mt-0.5 h-4 w-4 shrink-0 text-brand-500" />
-                        <span className="text-gray-800">
-                          {result.roadAddress}
-                          {result.buildingName ? ` (${result.buildingName})` : ''}
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
-              {!isEnd && (
-                <button
-                  type="button"
-                  onClick={() => runSearch(page + 1)}
-                  className="mt-1 flex w-full items-center justify-center gap-1 border-t border-brand-100 py-3 text-sm text-gray-500"
-                >
-                  더 많은 결과 보기 <span aria-hidden>˅</span>
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* 결과 없음 */}
-          {status === 'empty' && (
-            <div className="mt-3 flex flex-col items-center gap-2 rounded-2xl border border-brand-200 bg-white py-12 text-center">
-              <SearchIcon className="mb-1 h-9 w-9 text-brand-500" />
-              <p className="text-base font-bold text-gray-800">검색 결과가 없습니다.</p>
-              <p className="text-sm leading-6 text-gray-400">
-                도로명 또는 건물명을
-                <br />
-                다시 입력해 주세요
-              </p>
-            </div>
-          )}
-
-          {/* 오류 */}
-          {status === 'error' && (
-            <div className="mt-3 flex flex-col items-center gap-2 rounded-2xl border border-brand-200 bg-white py-12 text-center">
-              <SearchIcon className="mb-1 h-9 w-9 text-brand-500" />
-              <p className="text-base font-bold text-gray-800">검색에 실패했어요.</p>
-              <p className="text-sm leading-6 text-gray-400">
-                잠시 후 다시 시도해 주세요
-              </p>
-            </div>
-          )}
-
           {/* 상세 주소 (주소 선택 후 노출) */}
-          {value.roadAddress && status === 'idle' && (
+          {value.roadAddress && (
             <div className="mt-5">
               <label htmlFor="detail" className={labelStyle}>
                 상세 주소
               </label>
-              <input
+              <textarea
                 id="detail"
-                className={inputStyle}
+                rows={2}
+                className={`${inputStyle} resize-none !border-[clamp(3px,0.51vh,4px)] !border-[#FED7AA] !font-[Inter] !text-[clamp(20px,3.05vh,24px)] !font-medium !leading-[1.35] focus:!border-[#FED7AA] placeholder:!font-[Inter] placeholder:!text-[clamp(20px,3.05vh,24px)] placeholder:!font-medium placeholder:!text-[#613212] placeholder:!opacity-40`}
                 value={value.detail}
                 onChange={(event) => onChange({ ...value, detail: event.target.value })}
-                placeholder="상세 주소를 입력해 주세요"
+                placeholder={'건물명, 동/호수 등\n상세 주소를 입력해주세요.'}
               />
             </div>
           )}
         </div>
       </div>
 
-      <div className="flex shrink-0 pt-4">
+      <div className="flex shrink-0 gap-3 pt-4">
+        <button type="button" onClick={onBack} className={secondaryButton}>
+          이전
+        </button>
         <button type="button" onClick={onNext} disabled={!isValid} className={primaryButton}>
           다음
         </button>

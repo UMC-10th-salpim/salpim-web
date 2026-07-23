@@ -7,7 +7,7 @@ import Loading from '@/components/common/Loading/Loading';
 const OAuthKakaoPage = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const setAuth = useUserStore((state) => state.setAuth);
+  const setTokens = useUserStore((state) => state.setTokens);
   const handled = useRef(false);
 
   useEffect(() => {
@@ -23,12 +23,23 @@ const OAuthKakaoPage = () => {
     authApi
       .kakaoLogin(code)
       .then((result) => {
-        setAuth(result.user, result.accessToken);
+        if (result.nextStep === 'SIGNUP_REQUIRED' && result.signupToken) {
+          sessionStorage.setItem('salpim-kakao-signup-token', result.signupToken);
+          navigate('/onboarding', { replace: true });
+          return;
+        }
+
+        if (!result.accessToken || !result.refreshToken) {
+          throw new Error('로그인 토큰이 없습니다.');
+        }
+
+        sessionStorage.removeItem('salpim-kakao-signup-token');
+        setTokens(result.accessToken, result.refreshToken);
         navigate('/recommendation', { replace: true });
       })
       // TODO: 로그인 실패 UI 처리
       .catch(() => navigate('/', { replace: true }));
-  }, [params, navigate, setAuth]);
+  }, [params, navigate, setTokens]);
 
   return <Loading fullScreen text="로그인 중..." />;
 };
