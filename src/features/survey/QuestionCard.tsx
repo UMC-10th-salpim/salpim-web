@@ -39,7 +39,7 @@ const QuestionCard = ({
 
   return (
     <div className={className}>
-
+      {question && <h2 className="text-lg font-bold text-[#613212]">{question}</h2>}
       <div className="mt-4 flex flex-col gap-3">
         {options.map((option) => {
           const selected = isSelected(option.value);
@@ -54,9 +54,16 @@ const QuestionCard = ({
               className={`flex w-full items-center gap-3 rounded-full border px-4 py-3 text-left text-sm font-medium transition-colors ${
                 selected
                   ? 'border-[#FF8A3D] bg-[#FF8A3D] text-white'
-                  : 'border-[#FF8A3D] bg-white text-[#613212]'}`}
+                  : 'border-[#FF8A3D] bg-white text-[#613212]'
+              }`}
             >
-              {option.icon && <img src={selected ? option.icon.replace('.png', '_choice.png') : option.icon} alt="" className='w-6 h-6'/>}
+              {option.icon && (
+                <img
+                  src={selected ? option.icon.replace('.png', '_choice.png') : option.icon}
+                  alt=""
+                  className="w-6 h-6"
+                />
+              )}
               <span className="font-semibold">{option.label}</span>
             </button>
           );

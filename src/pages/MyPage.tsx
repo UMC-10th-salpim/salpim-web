@@ -4,7 +4,7 @@ import MyPageMenu from '@/features/mypage/MyPageMenu';
 
 const MyPage = () => {
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-[#FAF8F3] pb-24">
+    <div className="mypage-screen mx-auto max-w-md">
       <HeaderBar title="마이페이지" />
       <MyPageMenu />
       <BottomNavigation />

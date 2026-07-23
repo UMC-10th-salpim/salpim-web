@@ -4,11 +4,21 @@ interface KeypadProps {
   onSubmit: () => void;
   maxLength?: number;
   disabled?: boolean;
+  submitLabel?: string;
+  backspaceLabel?: string;
 }
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
-const Keypad = ({ value, onChange, onSubmit, maxLength = 6, disabled }: KeypadProps) => {
+const Keypad = ({
+  value,
+  onChange,
+  onSubmit,
+  maxLength = 6,
+  disabled,
+  submitLabel = '다음',
+  backspaceLabel = '지우기',
+}: KeypadProps) => {
   const isComplete = value.length === maxLength;
 
   const handlePress = (digit: string) => {
@@ -22,28 +32,36 @@ const Keypad = ({ value, onChange, onSubmit, maxLength = 6, disabled }: KeypadPr
   };
 
   return (
-    <div className="flex flex-col items-center gap-8">
-      {/* dot 인디케이터 */}
-      <div className="flex gap-3">
+    <div className="flex w-full flex-col items-center gap-6">
+      <div className="flex w-full max-w-[330px] justify-center gap-2">
         {Array.from({ length: maxLength }).map((_, index) => (
           <span
             key={index}
-            className={`h-3.5 w-3.5 rounded-full border-2 border-brand-400 ${
-              index < value.length ? 'bg-brand-500' : 'bg-white'
-            }`}
-          />
+            className="flex aspect-square min-w-0 flex-1 items-center justify-center rounded-lg bg-[#FFEBD1] text-[#9A816A]"
+            aria-hidden
+          >
+            {index < value.length && (
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 3.5v17M4.65 7.75l14.7 8.5M19.35 7.75l-14.7 8.5"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                />
+              </svg>
+            )}
+          </span>
         ))}
       </div>
 
-      {/* 숫자 키패드 */}
-      <div className="grid w-full max-w-xs grid-cols-3 gap-4">
+      <div className="grid w-full max-w-[300px] grid-cols-3 justify-items-center gap-x-5 gap-y-3.5">
         {KEYS.map((digit) => (
           <button
             key={digit}
             type="button"
             onClick={() => handlePress(digit)}
             disabled={disabled}
-            className="rounded-2xl bg-brand-50 py-4 text-xl font-bold text-gray-800 transition-colors hover:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-[60px] w-[60px] items-center justify-center rounded-full border border-[#F3EEE8] bg-white text-[22px] font-bold text-[#613212] shadow-[0_3px_8px_rgba(73,45,24,0.10)] transition-colors hover:bg-[#FFF3E4] active:bg-[#FFE7C6] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {digit}
           </button>
@@ -54,16 +72,16 @@ const Keypad = ({ value, onChange, onSubmit, maxLength = 6, disabled }: KeypadPr
           onClick={handleBackspace}
           disabled={disabled}
           aria-label="지우기"
-          className="rounded-2xl bg-brand-50 py-4 text-xl font-bold text-gray-500 transition-colors hover:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-[60px] w-[60px] items-center justify-center rounded-full bg-[#F3F3F1] text-[16px] font-extrabold text-[#34302D] shadow-[0_3px_8px_rgba(73,45,24,0.08)] transition-colors hover:bg-[#EAE8E5] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          ⌫
+          {backspaceLabel}
         </button>
 
         <button
           type="button"
           onClick={() => handlePress('0')}
           disabled={disabled}
-          className="rounded-2xl bg-brand-50 py-4 text-xl font-bold text-gray-800 transition-colors hover:bg-brand-100 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-[60px] w-[60px] items-center justify-center rounded-full border border-[#F3EEE8] bg-white text-[22px] font-bold text-[#613212] shadow-[0_3px_8px_rgba(73,45,24,0.10)] transition-colors hover:bg-[#FFF3E4] active:bg-[#FFE7C6] disabled:cursor-not-allowed disabled:opacity-50"
         >
           0
         </button>
@@ -73,9 +91,9 @@ const Keypad = ({ value, onChange, onSubmit, maxLength = 6, disabled }: KeypadPr
           onClick={onSubmit}
           disabled={disabled || !isComplete}
           aria-label="확인"
-          className="flex items-center justify-center rounded-2xl bg-brand-500 py-4 text-xl font-bold text-white transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-brand-200"
+          className="flex h-[60px] w-[60px] items-center justify-center rounded-full bg-[#FF6F12] text-[17px] font-extrabold text-white shadow-[0_3px_8px_rgba(255,111,18,0.22)] transition-colors hover:bg-[#ED650D] disabled:cursor-not-allowed disabled:bg-[#F8C59F]"
         >
-          →
+          {submitLabel}
         </button>
       </div>
     </div>

@@ -12,17 +12,17 @@ const HeaderBar = ({ title, onBack, className = '' }: HeaderBarProps) => {
 
   return (
     <header
-      className={`sticky top-0 z-30 flex h-14 items-center gap-1 bg-white px-3 ${className}`}
+      className={`sticky top-0 z-30 flex h-14 shrink-0 items-center gap-0 border-b border-[#EDE4DA] bg-[#FFFCF8] px-2 shadow-[0_2px_6px_rgba(87,52,25,0.04)] ${className}`}
     >
       <button
         type="button"
         onClick={handleBack}
         aria-label="뒤로 가기"
-        className="flex h-9 w-9 items-center justify-center rounded-full text-gray-800 transition-colors hover:bg-gray-100"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#9B8068] transition-colors hover:bg-[#FFF0DA] active:bg-[#FFE4C2]"
       >
         <svg
-          width="24"
-          height="24"
+          width="26"
+          height="26"
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
@@ -34,7 +34,7 @@ const HeaderBar = ({ title, onBack, className = '' }: HeaderBarProps) => {
           <path d="M15 18l-6-6 6-6" />
         </svg>
       </button>
-      <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
+      <h1 className="truncate text-[20px] font-extrabold text-[#613212]">{title}</h1>
     </header>
   );
 };

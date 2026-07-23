@@ -21,8 +21,8 @@ const FontSizeSettings = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 pb-10">
-      <div className="flex gap-3">
+    <main className="mypage-content gap-7">
+      <div className="grid grid-cols-2 gap-4 pt-4">
         {OPTIONS.map((option) => {
           const active = selected === option.value;
           return (
@@ -30,10 +30,13 @@ const FontSizeSettings = () => {
               key={option.value}
               type="button"
               onClick={() => setSelected(option.value)}
-              className={`flex-1 rounded-2xl border py-4 text-base font-bold transition-colors ${
+              aria-pressed={active}
+              className={`flex min-h-[112px] items-center justify-center rounded-[20px] border-2 font-extrabold shadow-[0_4px_10px_rgba(73,45,24,0.10)] transition-colors ${
+                option.value === 'large' ? 'text-[30px]' : 'text-[22px]'
+              } ${
                 active
-                  ? 'border-brand-500 bg-brand-400 text-white'
-                  : 'border-brand-200 bg-white text-gray-500 hover:border-brand-300'
+                  ? 'border-[#FFB700] bg-[#FFB700] text-[#292524]'
+                  : 'border-[#FFE2BC] bg-[#FFEBD1] text-[#292524] hover:border-[#FFD29E]'
               }`}
             >
               {option.label}
@@ -42,28 +45,34 @@ const FontSizeSettings = () => {
         })}
       </div>
 
-      <div>
-        <h2 className="mb-2 text-base font-bold text-[#613212]">미리보기</h2>
-        <div className="rounded-2xl border border-brand-200 bg-white p-4">
+      <section>
+        <h2 className="mb-2 text-[18px] font-extrabold text-[#613212]">미리보기</h2>
+        <div className="min-h-[150px] rounded-[16px] border-2 border-[#E5E1DC] bg-white p-4">
           <p
-            className={`font-bold text-gray-900 ${selected === 'large' ? 'text-xl' : 'text-base'}`}
+            className={`font-extrabold leading-tight text-[#292524] ${
+              selected === 'large' ? 'text-[30px]' : 'text-[22px]'
+            }`}
           >
             노인 의료비 지원
           </p>
           <p
-            className={`mt-2 leading-7 text-gray-700 ${
-              selected === 'large' ? 'text-lg' : 'text-sm'
+            className={`mt-3 font-bold text-[#292524] ${
+              selected === 'large' ? 'text-[24px] leading-8' : 'text-[18px] leading-6'
             }`}
           >
             병원 갈 때 드는 돈을 나라에서 일부 도와주는 제도예요!
           </p>
         </div>
-      </div>
+      </section>
 
-      <button type="button" onClick={handleSave} className={primaryButton}>
+      <button
+        type="button"
+        onClick={handleSave}
+        className={`${primaryButton} !mt-auto !min-h-14 !flex-none !text-[22px]`}
+      >
         저장하기
       </button>
-    </div>
+    </main>
   );
 };
 

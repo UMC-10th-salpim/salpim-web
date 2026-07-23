@@ -27,28 +27,30 @@ const CurrentPasswordStep = ({ onVerified }: CurrentPasswordStepProps) => {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 pb-10">
-      <h1 className="text-center text-lg font-bold text-gray-900">
+    <main className="mypage-content gap-5">
+      <h2 className="text-center text-[20px] font-extrabold leading-7 text-[#43230F]">
         현재 비밀번호 6자리를
         <br />
         입력해 주세요.
-      </h1>
+      </h2>
 
-      {error && <p className="text-sm font-semibold text-red-500">비밀번호가 일치하지 않아요.</p>}
+      <div aria-live="polite" className="min-h-6 text-center">
+        {error && <p className="text-[16px] font-bold text-red-500">비밀번호가 일치하지 않아요.</p>}
+      </div>
 
-      <Keypad value={value} onChange={handleChange} onSubmit={handleSubmit} />
+      <Keypad value={value} onChange={handleChange} onSubmit={handleSubmit} submitLabel="다음" />
 
-      <div className="text-center text-sm text-gray-500">
-        비밀번호를 잊으셨나요?{' '}
+      <div className="mt-auto border-t border-[#E8E0D8] pt-3 text-center">
+        <p className="mb-2 text-[16px] font-semibold text-[#8A817A]">비밀번호를 잊으셨나요?</p>
         <button
           type="button"
           onClick={() => navigate('/mypage/password/find')}
-          className="font-bold text-brand-500"
+          className="min-h-11 rounded-full border-2 border-[#FFD29E] bg-white px-5 text-[18px] font-extrabold text-[#FF7A32]"
         >
           비밀번호 찾기
         </button>
       </div>
-    </div>
+    </main>
   );
 };
 
