@@ -1,6 +1,5 @@
 import Button from "@/components/common/Button/Button";
 import Card from "@/components/common/Card/Card";
-import Chip from "@/components/common/Chip/Chip";
 import { useNavigate } from "react-router-dom";
 
 interface BenefitCardProps {
@@ -20,19 +19,22 @@ const BenefitCard = ({id, category, icon, title, className=''} : BenefitCardProp
 
   return (
     <div>
-      <Card className={`flex items-center gap-3 !bg-[#FBE3BF] ${className}`}>
-        <img src={icon} alt="" className="rounded-full w-12 h-12 bg-[#FAF8F3]" /> 
+      <Card className={`flex items-center gap-3 !bg-[#FBE3BF] !shadow-none !border-none ${className}`}>
+        <div className="w-16 h-16 rounded-full bg-[#FAF8F3] flex items-center justify-center shrink-0">
+          <img src={icon} alt="" className="w-10 h-10" /> 
+        </div>
                
-        <div className="flex flex-col gap-1 flex-1 items-start">
-          <Chip label={category}></Chip>
-          <span className="text-base font-bold text-[#613212]">{title}</span>
+        <div className="flex flex-col flex-1 items-start">
+          <div className="rounded-full bg-white text-[#613212] font-medium text-sm w-17 h-7 px-[15px] py-1 shrink-0 whitespace-nowrap">{category}</div>
+          <span className="text-lg font-bold text-[#613212]">{title}</span>
         </div>
 
         <Button 
           rounded="full"
-          className="!w-auto !h-auto px-3 py-1.5 text-xs font-medium bg-white !text-gray-700 border border-gray-200 shadow-sm whitespace-nowrap flex-shrink-0"
+          className="text-xs font-medium text-black !bg-[#FAF8F3] shrink-0 whitespace-nowrap w-[87px] h-[22px] pl-3 py-1 pr-2"
           onClick={handleDetailClick}>
-            자세히보기 {'>'}
+            자세히보기
+          <img src="/icons/path.png" alt="화살표" className="w-4 h-5 pl-1"/>
         </Button>
       </Card>
     </div>

@@ -14,6 +14,10 @@
   --color-brand-700: #c56a1f;
 }
 
+* {
+  letter-spacing: -0.06em;
+}
+
 @keyframes slide-up {
   from {
     transform: translateY(100%);
