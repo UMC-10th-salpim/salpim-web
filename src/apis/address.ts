@@ -10,6 +10,10 @@ export interface AddressResult {
   roadAddress: string;
   /** 건물명 (있을 때만) */
   buildingName?: string;
+  /** 백엔드 행정구역 resolve API에 전달할 지역 정보 */
+  city: string;
+  district: string;
+  eupMyeonDong: string;
 }
 
 export interface AddressSearchResponse {
@@ -22,8 +26,19 @@ export interface AddressSearchResponse {
 
 interface KakaoDoc {
   address_name: string;
-  road_address: { address_name: string; building_name: string } | null;
-  address: { address_name: string } | null;
+  road_address: {
+    address_name: string;
+    building_name: string;
+    region_1depth_name: string;
+    region_2depth_name: string;
+    region_3depth_name: string;
+  } | null;
+  address: {
+    address_name: string;
+    region_1depth_name: string;
+    region_2depth_name: string;
+    region_3depth_name: string;
+  } | null;
 }
 
 interface KakaoResponse {
@@ -34,17 +49,18 @@ interface KakaoResponse {
 // 개발 편의용 목 데이터 (키가 없을 때 dev 모드에서만 사용)
 const mockSearch = (query: string, page: number): AddressSearchResponse => {
   const base = query.trim() || '서울특별시 중구 세종대로';
+  const [city = '서울특별시', district = '중구', eupMyeonDong = '태평로1가'] = base.split(/\s+/);
   const results: AddressResult[] = Array.from({ length: 6 }).map((_, index) => ({
     roadAddress: `${base} ${page * 10 + index}`,
     buildingName: index === 0 ? '살핌빌딩' : undefined,
+    city,
+    district,
+    eupMyeonDong,
   }));
   return { results, isEnd: page >= 3, totalCount: 18 };
 };
 
-export const searchAddress = async (
-  query: string,
-  page = 1,
-): Promise<AddressSearchResponse> => {
+export const searchAddress = async (query: string, page = 1): Promise<AddressSearchResponse> => {
   const key = import.meta.env.VITE_KAKAO_REST_API_KEY;
   if (!key) {
     // 키가 없으면 개발 중에는 목 데이터로 플로우 확인, 운영 빌드에서는 에러
@@ -67,10 +83,17 @@ export const searchAddress = async (
   if (!res.ok) throw new Error(`주소 검색 실패 (${res.status})`);
 
   const data: KakaoResponse = await res.json();
-  const results: AddressResult[] = data.documents.map((doc) => ({
-    roadAddress: doc.road_address?.address_name || doc.address_name,
-    buildingName: doc.road_address?.building_name || undefined,
-  }));
+  const results: AddressResult[] = data.documents.map((doc) => {
+    const region = doc.address ?? doc.road_address;
+
+    return {
+      roadAddress: doc.road_address?.address_name || doc.address_name,
+      buildingName: doc.road_address?.building_name || undefined,
+      city: region?.region_1depth_name ?? '',
+      district: region?.region_2depth_name ?? '',
+      eupMyeonDong: region?.region_3depth_name ?? '',
+    };
+  });
 
   return {
     results,

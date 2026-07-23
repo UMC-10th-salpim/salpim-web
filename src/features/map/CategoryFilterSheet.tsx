@@ -21,7 +21,7 @@ const CategoryFilterSheet = ({
 
   return (
     <BottomSheet open={open && !!group} onClose={onClose}>
-      <h2 className="mb-3 text-base font-bold text-gray-900">{mainCategory} 선택</h2>
+      <h2 className="mb-3 text-2xl font-bold text-gray-900">{mainCategory} 선택</h2>
 
       <div role="radiogroup" aria-label={`${mainCategory} 세부 시설`} className="flex flex-col">
         {group?.options.map((option) => {
@@ -34,7 +34,7 @@ const CategoryFilterSheet = ({
               role="radio"
               aria-checked={selected}
               onClick={() => onSelect(option)}
-              className="flex items-center gap-3 px-1 py-3 text-left text-sm text-gray-800"
+              className="flex items-center gap-3 px-1 py-3 text-left text-2xl text-gray-800"
             >
               <span
                 className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${

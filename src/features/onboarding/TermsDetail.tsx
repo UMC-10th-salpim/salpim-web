@@ -33,13 +33,13 @@ const TermsDetail = ({ termKey, onClose }: TermsDetailProps) => {
 
         {/* 표형 (개인정보/민감정보/위치정보 동의) */}
         {content.table && (
-          <table className="w-full table-fixed border-collapse overflow-hidden rounded-xl border border-gray-200 text-base">
+          <table className="w-full table-fixed border-collapse overflow-hidden rounded-xl border-[3px] border-gray-200 text-base">
             <thead>
               <tr className="bg-brand-50">
                 {content.table.columns.map((column) => (
                   <th
                     key={column}
-                    className="border border-gray-200 px-2 py-3 text-center font-bold text-gray-900"
+                    className="border-[3px] border-gray-200 px-2 py-3 text-center font-bold text-gray-900"
                   >
                     {column}
                   </th>
@@ -52,7 +52,7 @@ const TermsDetail = ({ termKey, onClose }: TermsDetailProps) => {
                   {row.map((cell, cellIndex) => (
                     <td
                       key={cellIndex}
-                      className="border border-gray-200 px-2 py-3 text-center font-medium leading-7 text-gray-800"
+                      className="border-[3px] border-gray-200 px-2 py-3 text-center font-medium leading-7 text-gray-800"
                     >
                       {cell}
                     </td>

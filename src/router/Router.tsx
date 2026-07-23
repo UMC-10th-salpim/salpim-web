@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import LoginPage from '@/pages/LoginPage';
+import FontSizePage from '@/pages/FontSizePage';
 import OnboardingPage from '@/pages/OnboardingPage';
 import SignUpPage from '@/pages/SignUpPage';
 import OAuthKakaoPage from '@/pages/OAuthKakaoPage';
@@ -14,7 +15,6 @@ import FacilityDetailPage from '@/pages/FacilityDetailPage';
 import MyPage from '@/pages/MyPage';
 import LikedBenefitsPage from '@/pages/LikedBenefitsPage';
 import EditProfilePage from '@/pages/EditProfilePage';
-import FontSizePage from '@/pages/FontSizePage';
 import InquiryPage from '@/pages/InquiryPage';
 import PasswordChangePage from '@/pages/PasswordChangePage';
 import PasswordFindPage from '@/pages/PasswordFindPage';
@@ -23,10 +23,10 @@ import HelperPage from '@/pages/HelperPage';
 
 const router = createBrowserRouter([
   { path: '/', element: <LoginPage /> },
+  { path: '/font-size', element: <FontSizePage /> },
   {
     element: <Layout />,
     children: [
-      { index: true, element: <RecommendationPage /> },
       { path: 'recommendation', element: <RecommendationPage /> },
       { path: 'benefits', element: <BenefitPage /> },
       { path: 'benefits/search', element: <BenefitSearchPage /> },
@@ -45,7 +45,7 @@ const router = createBrowserRouter([
       { path: 'signup', element: <SignUpPage /> },
       { path: 'oauth/kakao', element: <OAuthKakaoPage /> },
       { path: 'survey', element: <SurveyPage /> },
-      { path: 'helper/:id', element: <HelperPage/>},
+      { path: 'helper/:id', element: <HelperPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

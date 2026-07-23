@@ -4,7 +4,7 @@ interface ProgressDotsProps {
 }
 
 const ProgressDots = ({ total, current }: ProgressDotsProps) => (
-  <div className="mb-6 flex shrink-0 items-center justify-center gap-2 pt-2">
+  <div className="mb-[clamp(20px,3.05vh,24px)] flex shrink-0 items-center justify-center gap-2 pt-2">
     {Array.from({ length: total }).map((_, index) => (
       <span
         key={index}

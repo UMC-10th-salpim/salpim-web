@@ -14,10 +14,12 @@ const CATEGORY_ICON_SRC: Record<FacilityMainCategory, string> = {
 
 const FacilityIcon = ({ category, className = '' }: FacilityIconProps) => {
   return (
-    <span
-      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm ${className}`}
-    >
-      <img src={CATEGORY_ICON_SRC[category]} alt={category} className="h-5 w-5" />
+    <span className={`flex h-12 w-12 shrink-0 items-center justify-center ${className}`}>
+      <img
+        src={CATEGORY_ICON_SRC[category]}
+        alt={category}
+        className="h-full w-full drop-shadow-[0_4px_6px_rgba(0,0,0,0.4)]"
+      />
     </span>
   );
 };

@@ -1,18 +1,23 @@
 import { create } from 'zustand';
-import type { AuthUser } from '@/apis/auth';
+import { persist } from 'zustand/middleware';
 
 interface UserState {
-  user: AuthUser | null;
   accessToken: string | null;
-  setAuth: (user: AuthUser, accessToken: string) => void;
+  refreshToken: string | null;
+  setTokens: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
 }
 
-const useUserStore = create<UserState>()((set) => ({
-  user: null,
-  accessToken: null,
-  setAuth: (user, accessToken) => set({ user, accessToken }),
-  logout: () => set({ user: null, accessToken: null }),
-}));
+const useUserStore = create<UserState>()(
+  persist(
+    (set) => ({
+      accessToken: null,
+      refreshToken: null,
+      setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
+      logout: () => set({ accessToken: null, refreshToken: null }),
+    }),
+    { name: 'salpim-auth' }
+  )
+);
 
 export default useUserStore;
