@@ -1,4 +1,4 @@
-import { inputStyle, labelStyle, primaryButton } from './styles';
+import { labelStyle, pillInputStyle, primaryButton } from './styles';
 
 export interface SecurityData {
   question: string;
@@ -19,31 +19,31 @@ const SecurityQuestionStep = ({ value, onChange, onNext }: SecurityQuestionStepP
   return (
     <>
       <div className="min-h-0 flex-1 overflow-y-auto">
-       <div className="flex min-h-full flex-col justify-center py-2">
-        <h1 className="text-center text-2xl font-bold leading-9 text-gray-900">
-          비밀번호를 잊었을 때를 위한
-          <br />
-          질문이에요!
-        </h1>
-        <p className="mb-8 mt-2 text-center text-base font-semibold leading-6 text-brand-500">
-          질문에 대한 답을 알면
-          <br />
-          비밀번호를 찾을 수 있어요.
-        </p>
+        <div className="flex min-h-full flex-col justify-start pb-2 pt-[clamp(6px,1.02vh,8px)]">
+          <h1 className="text-center text-3xl font-bold leading-10 text-[#613212]">
+            비밀번호를 잊었을 때를 위한
+            <br />
+            질문이에요!
+          </h1>
+          <p className="mb-8 mt-2 text-center text-2xl font-semibold leading-8 text-brand-500">
+            질문에 대한 답을 알면
+            <br />
+            비밀번호를 찾을 수 있어요.
+          </p>
 
-        <div>
-          <p className={labelStyle}>{SECURITY_QUESTION}</p>
-          <input
-            className={inputStyle}
-            value={value.answer}
-            onChange={(event) =>
-              onChange({ question: SECURITY_QUESTION, answer: event.target.value })
-            }
-            placeholder="답변을 적어 주세요."
-            aria-label="답변"
-          />
+          <div>
+            <p className={labelStyle}>{SECURITY_QUESTION}</p>
+            <input
+              className={pillInputStyle}
+              value={value.answer}
+              onChange={(event) =>
+                onChange({ question: SECURITY_QUESTION, answer: event.target.value })
+              }
+              placeholder="답변을 적어 주세요."
+              aria-label="답변"
+            />
+          </div>
         </div>
-       </div>
       </div>
 
       <div className="flex shrink-0 pt-4">

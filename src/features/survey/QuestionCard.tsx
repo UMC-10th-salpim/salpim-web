@@ -14,7 +14,6 @@ interface QuestionCardProps {
 }
 
 const QuestionCard = ({
-  question,
   options,
   value,
   onChange,
@@ -39,7 +38,6 @@ const QuestionCard = ({
 
   return (
     <div className={className}>
-      {question && <h2 className="text-lg font-bold text-[#613212]">{question}</h2>}
       <div className="mt-4 flex flex-col gap-3">
         {options.map((option) => {
           const selected = isSelected(option.value);
