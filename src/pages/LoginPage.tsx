@@ -4,6 +4,7 @@ import { authApi, getLoginErrorMessage } from '@/apis/auth';
 import OnboardingButton from '@/features/onboarding/ui/OnboardingButton';
 import OnboardingInput from '@/features/onboarding/ui/OnboardingInput';
 import useUserStore from '@/store/userStore';
+import { formatPhone } from '@/utils/phone';
 
 // 버튼 높이/간격을 뷰포트 높이에 맞춰 동적으로 (최소값 보장)
 const buttonSize = 'py-[max(1rem,1.9vh)] !text-lg !font-semibold';
@@ -11,14 +12,6 @@ const landingButtonBase = 'aspect-[310/80] py-0 !font-semibold';
 const landingButtonSize = `${landingButtonBase} !text-[32px]`;
 const kakaoButtonSize = `${landingButtonBase} !text-[clamp(28px,3.69vh,30px)]`;
 const kakaoLogoSize = 'h-[clamp(36px,4.93vh,40px)] w-[clamp(36px,4.93vh,40px)]';
-
-// 숫자만 남기고 010-1234-5678 형태로 자동 하이픈
-const formatPhone = (value: string) => {
-  const digits = value.replace(/\D/g, '').slice(0, 11);
-  if (digits.length < 4) return digits;
-  if (digits.length < 8) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
-};
 
 const LoginPage = () => {
   const navigate = useNavigate();

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { authApi, getPhoneVerificationErrorMessage } from '@/apis/auth';
+import { formatPhone } from '@/utils/phone';
 import { inputStyle, labelStyle, primaryButton, secondaryButton } from './styles';
 
 const personalInfoInputStyle = (hasValue: boolean) =>
@@ -21,14 +22,6 @@ interface OnboardingFormProps {
   onNext: () => void;
   onBack: () => void;
 }
-
-// 숫자만 남기고 010-1234-5678 형태로 자동 하이픈
-const formatPhone = (value: string) => {
-  const digits = value.replace(/\D/g, '').slice(0, 11);
-  if (digits.length < 4) return digits;
-  if (digits.length < 8) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
-};
 
 const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps) => {
   // 문자 인증 상태 (발송 → 코드 입력 → 확인 → 완료)

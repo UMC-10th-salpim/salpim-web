@@ -1,5 +1,5 @@
-import axios from 'axios';
 import client from './client';
+import { createErrorMessageGetter } from './errorMessage';
 
 const KAKAO_AUTHORIZE_URL = 'https://kauth.kakao.com/oauth/authorize';
 
@@ -8,12 +8,6 @@ interface ApiResponse<T> {
   code: string;
   message: string;
   result: T;
-}
-
-interface ApiErrorResponse {
-  status?: number;
-  code?: string;
-  message?: string;
 }
 
 export interface PhoneVerificationSendResult {
@@ -110,47 +104,15 @@ export interface KakaoSignupRequest extends SignupProfile {
 
 const unwrap = <T>(response: ApiResponse<T>) => response.result;
 
-export const getPhoneVerificationErrorMessage = (error: unknown, fallback: string) => {
-  if (!axios.isAxiosError<ApiErrorResponse>(error)) return fallback;
+export const getPhoneVerificationErrorMessage = createErrorMessageGetter(
+  PHONE_VERIFICATION_ERROR_MESSAGES
+);
 
-  const response = error.response?.data;
-  if (!response) return fallback;
+export const getSignupErrorMessage = createErrorMessageGetter(SIGNUP_ERROR_MESSAGES);
 
-  return (
-    (response.code && PHONE_VERIFICATION_ERROR_MESSAGES[response.code]) ||
-    response.message ||
-    fallback
-  );
-};
+export const getLoginErrorMessage = createErrorMessageGetter(LOGIN_ERROR_MESSAGES);
 
-export const getSignupErrorMessage = (error: unknown, fallback: string) => {
-  if (!axios.isAxiosError<ApiErrorResponse>(error)) return fallback;
-
-  const response = error.response?.data;
-  if (!response) return fallback;
-
-  return (response.code && SIGNUP_ERROR_MESSAGES[response.code]) || response.message || fallback;
-};
-
-export const getLoginErrorMessage = (error: unknown, fallback: string) => {
-  if (!axios.isAxiosError<ApiErrorResponse>(error)) return fallback;
-
-  const response = error.response?.data;
-  if (!response) return fallback;
-
-  return (response.code && LOGIN_ERROR_MESSAGES[response.code]) || response.message || fallback;
-};
-
-export const getKakaoLoginErrorMessage = (error: unknown, fallback: string) => {
-  if (!axios.isAxiosError<ApiErrorResponse>(error)) return fallback;
-
-  const response = error.response?.data;
-  if (!response) return fallback;
-
-  return (
-    (response.code && KAKAO_LOGIN_ERROR_MESSAGES[response.code]) || response.message || fallback
-  );
-};
+export const getKakaoLoginErrorMessage = createErrorMessageGetter(KAKAO_LOGIN_ERROR_MESSAGES);
 
 const normalizePhoneNumber = (phoneNumber: string) => phoneNumber.replace(/\D/g, '');
 

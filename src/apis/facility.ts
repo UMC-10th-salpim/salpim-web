@@ -1,8 +1,8 @@
 // 카카오 로컬 - 키워드로 장소 검색 API (주변 시설 검색용)
 // 문서: https://developers.kakao.com/docs/latest/ko/local/dev-guide#search-by-keyword
 // 참고: 로컬 검색용 REST 키는 프론트 노출이 일반적으로 허용되나, 운영에서는 백엔드 프록시 권장.
-import axios from 'axios';
 import client from './client';
+import { createErrorMessageGetter } from './errorMessage';
 import { FACILITY_CATEGORY_GROUPS } from '@/features/map/types';
 import type { Facility, FacilityMainCategory, MapCenter } from '@/features/map/types';
 
@@ -10,12 +10,6 @@ const KAKAO_LOCAL_KEYWORD_URL = 'https://dapi.kakao.com/v2/local/search/keyword.
 const NEARBY_FACILITIES_URL = '/v1/facilities/nearby';
 const SEARCH_RADIUS_METERS = 3000;
 const RESULTS_PER_SUBCATEGORY = 5;
-
-interface FacilityApiErrorResponse {
-  status?: number;
-  code?: string;
-  message?: string;
-}
 
 export interface NearbyFacility {
   facilityId: number;
@@ -38,16 +32,15 @@ export const getNearbyFacilities = async (limit = 3): Promise<NearbyFacility[]> 
   return data.facilities;
 };
 
-export const getNearbyFacilitiesErrorMessage = (error: unknown) => {
-  if (!axios.isAxiosError<FacilityApiErrorResponse>(error)) {
-    return '근처 혜택 시설을 불러오지 못했습니다';
-  }
-
-  const response = error.response?.data;
-  if (response?.code === 'FC001') return '근처 혜택 시설을 찾을 수 없습니다';
-  if (response?.code === 'GL001') return '서버 오류가 발생했습니다';
-  return response?.message || '근처 혜택 시설을 불러오지 못했습니다';
+const NEARBY_FACILITIES_ERROR_MESSAGES: Record<string, string> = {
+  FC001: '근처 혜택 시설을 찾을 수 없습니다',
+  GL001: '서버 오류가 발생했습니다',
 };
+
+const getNearbyFacilitiesMessage = createErrorMessageGetter(NEARBY_FACILITIES_ERROR_MESSAGES);
+
+export const getNearbyFacilitiesErrorMessage = (error: unknown) =>
+  getNearbyFacilitiesMessage(error, '근처 혜택 시설을 불러오지 못했습니다');
 
 // 카카오 로컬 검색에서 실제로 더 잘 매칭되는 키워드로 보정
 const SUBCATEGORY_SEARCH_KEYWORD: Record<string, string> = {
