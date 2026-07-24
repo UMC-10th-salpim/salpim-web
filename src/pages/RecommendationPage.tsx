@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
+import HomeBottomNavigation from '@/features/home/HomeBottomNavigation';
 
 // TODO: 로그인 사용자 이름 연동 (스토어/회원 API)
 const USER_NAME = 'OOO';
@@ -96,7 +96,7 @@ const DeadlineCard = ({ title, daysLeft, progress, activeIndex, onDetail }: Dead
       <button
         type="button"
         onClick={onDetail}
-        className="flex items-center gap-0.5 text-sm text-gray-500"
+        className="flex items-center gap-0.5 !text-sm !font-semibold text-gray-500"
       >
         자세히 보기 <ChevronRight />
       </button>
@@ -109,7 +109,7 @@ const RecommendationPage = () => {
   const [activeDeadlineIndex, setActiveDeadlineIndex] = useState(0);
 
   return (
-    <div className="ml-[calc(50%_-_50dvw)] flex min-h-dvh w-dvw flex-col bg-brand-50 pb-24">
+    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-brand-50 pb-24">
       {/* 헤더 */}
       <header className="sticky top-0 z-30 flex items-center justify-between bg-brand-50 px-5 py-4">
         <span className="text-2xl font-bold text-brand-600">살핌</span>
@@ -183,7 +183,7 @@ const RecommendationPage = () => {
             <button
               type="button"
               onClick={() => navigate('/benefits/search')}
-              className="mt-3 w-full rounded-full bg-brand-500 py-3.5 text-[clamp(18px,2.54vh,20px)] font-bold text-white transition-colors hover:bg-brand-600"
+              className="mt-3 w-full rounded-full bg-brand-500 py-3.5 !text-[clamp(18px,2.54vh,20px)] !font-semibold text-white transition-colors hover:bg-brand-600"
             >
               살피미에게 바로 물어보기
             </button>
@@ -198,10 +198,10 @@ const RecommendationPage = () => {
           <button
             type="button"
             onClick={() => navigate('/map')}
-            className="flex w-full items-center justify-between rounded-2xl bg-white px-5 py-4 shadow-sm"
+            className="flex w-full items-center justify-between rounded-2xl bg-white px-5 py-4 !font-semibold shadow-sm"
           >
             <span className="text-left">
-              <span className="block text-base font-bold text-gray-900">00 복지관</span>
+              <span className="block text-base font-semibold text-gray-900">00 복지관</span>
               <span className="block text-sm text-gray-400">혜택 n개</span>
             </span>
             <ChevronRight />
@@ -209,7 +209,7 @@ const RecommendationPage = () => {
         </section>
       </main>
 
-      <BottomNavigation className="[&>div]:max-w-none" />
+      <HomeBottomNavigation />
     </div>
   );
 };

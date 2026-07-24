@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
-import Button from '@/components/common/Button/Button';
+import OnboardingButton from '@/features/onboarding/ui/OnboardingButton';
 
 interface IntroSlide {
   character: string;
@@ -13,25 +13,16 @@ interface IntroSlide {
 
 const highlight = 'text-[#F97316] font-bold';
 
-const ChatBubble = ({
-  children,
-  greeting = false,
-}: {
-  children: ReactNode;
-  greeting?: boolean;
-}) => (
-  <div className="-ml-[clamp(10px,3.6vw,13.5px)] flex items-start gap-[clamp(6px,1.87vw,7px)]">
+// 도움말 슬라이드 전용 말풍선입니다. 다른 화면의 공통 UI 스타일과 분리해 사용합니다.
+const HelpSlideChatBubble = ({ children }: { children: ReactNode }) => (
+  <div className="-ml-[clamp(28px,8vw,30px)] flex items-start gap-[clamp(6px,1.87vw,7px)]">
     <img
       src="/assets/Salpimi/Dog.png"
       alt=""
       className="h-[clamp(72px,10.84vh,88px)] w-[clamp(72px,10.84vh,88px)] shrink-0 scale-x-[-1] object-contain"
     />
-    <div
-      className={`${
-        greeting ? 'h-[clamp(58px,8.62vh,70px)] w-[clamp(194px,62.4vw,234px)] shrink-0' : 'flex-1'
-      } rounded-[20px] rounded-bl-none border border-[#FF843D] bg-[#FFF8F3] px-3 py-2 text-left font-[Pretendard] text-[clamp(20px,6.4vw,24px)] leading-[1.1] tracking-[-0.06em] text-[#613212]`}
-    >
-      {greeting ? <div className="w-[112%] origin-left scale-x-90">{children}</div> : children}
+    <div className="w-max shrink-0 whitespace-nowrap rounded-[20px] rounded-bl-none border-[3px] border-[#FF843D]/70 bg-[#FFF8F3] px-3 py-2 text-left font-[Pretendard] text-[clamp(20px,6.4vw,24px)] leading-[1.1] !tracking-[-0.06em] text-[#613212]">
+      {children}
     </div>
   </div>
 );
@@ -68,11 +59,11 @@ const slides: IntroSlide[] = [
     ),
     extra: (
       <div className="mt-[clamp(30px,4.68vh,38px)] w-[calc(100%+16px)] self-start">
-        <ChatBubble greeting>
+        <HelpSlideChatBubble>
           안녕하세요 ㅇㅇ님!
           <br />
           어떤 도움이 필요하세요?
-        </ChatBubble>
+        </HelpSlideChatBubble>
         <div className="mt-[clamp(8px,1.23vh,10px)] flex justify-end">
           <img
             src="/assets/Icon/Choice/Hospital/Default-1.png"
@@ -81,11 +72,11 @@ const slides: IntroSlide[] = [
           />
         </div>
         <div className="mt-[clamp(18px,2.96vh,24px)]">
-          <ChatBubble>
+          <HelpSlideChatBubble>
             건강·병원비가
             <br />
             걱정되시나요?
-          </ChatBubble>
+          </HelpSlideChatBubble>
         </div>
         <div className="mt-4 flex justify-end">
           <div className="flex h-[clamp(42px,5.91vh,48px)] w-[clamp(220px,69.33vw,260px)] items-center justify-center rounded-full bg-[#FFD9BF] text-[clamp(20px,6.4vw,24px)] font-semibold text-white">
@@ -116,10 +107,11 @@ const slides: IntroSlide[] = [
   },
 ];
 
-const buttonStyle = 'py-4 text-2xl font-bold';
-const introButtonStyle = 'h-[clamp(68px,9.85vh,80px)] max-w-[157px] flex-1 py-0 text-2xl font-bold';
+const buttonStyle = 'w-full py-4 !text-2xl !font-semibold';
+const introButtonStyle =
+  'h-[clamp(68px,9.85vh,80px)] max-w-[157px] flex-1 py-0 !text-2xl !font-semibold';
 const helpButtonStyle =
-  'h-[clamp(68px,9.85vh,80px)] max-w-[157px] flex-1 py-0 text-[clamp(28px,3.69vh,30px)] font-bold';
+  'h-[clamp(68px,9.85vh,80px)] max-w-[157px] flex-1 py-0 !text-[clamp(28px,3.69vh,30px)] !font-semibold';
 const introButtonGap = 'gap-[clamp(12px,1.97vh,16px)]';
 const welcomeCharacterSize =
   'h-[clamp(160px,24.63vh,200px)] w-[clamp(160px,24.63vh,200px)] object-contain';
@@ -188,17 +180,21 @@ const OnboardingPage = () => {
                 {current.description}
               </p>
             </div>
-            <div className="relative mt-auto aspect-[375/350] w-full shrink-0">
+            <div className="relative min-h-0 w-full flex-1 overflow-hidden">
               <img
                 src="/assets/Salpimi Map.png"
                 alt="주변 노인 시설 지도"
-                className="absolute bottom-0 left-1/2 h-auto w-full -translate-x-1/2 -translate-y-[clamp(8px,1.27vh,10px)] object-contain"
+                className="absolute inset-0 h-full w-full object-contain object-bottom"
               />
             </div>
-            <div className="absolute inset-x-6 bottom-[clamp(20px,3.05vh,24px)] z-10">
-              <Button className={buttonStyle} onClick={finish}>
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[clamp(112px,17vh,138px)] bg-[linear-gradient(to_bottom,transparent_0%,#FAF8F3_100%)]"
+            />
+            <div className="absolute inset-x-6 bottom-[clamp(20px,3.05vh,24px)] z-20">
+              <OnboardingButton className={buttonStyle} onClick={finish}>
                 시작하기
-              </Button>
+              </OnboardingButton>
             </div>
           </>
         ) : (
@@ -257,15 +253,18 @@ const OnboardingPage = () => {
                   : 'pb-8 pt-4'
               }`}
             >
-              <Button className={step === 1 ? helpButtonStyle : introButtonStyle} onClick={finish}>
+              <OnboardingButton
+                className={step === 1 ? helpButtonStyle : introButtonStyle}
+                onClick={finish}
+              >
                 건너뛰기
-              </Button>
-              <Button
+              </OnboardingButton>
+              <OnboardingButton
                 className={step === 1 ? helpButtonStyle : introButtonStyle}
                 onClick={handleNext}
               >
                 다음
-              </Button>
+              </OnboardingButton>
             </div>
           </>
         )}

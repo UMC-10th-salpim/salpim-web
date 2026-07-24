@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import Button from '@/components/common/Button/Button';
-import Input from '@/components/common/Input/Input';
 import { authApi, getApiErrorMessage } from '@/apis/auth';
+import OnboardingButton from '@/features/onboarding/ui/OnboardingButton';
+import OnboardingInput from '@/features/onboarding/ui/OnboardingInput';
 import useUserStore from '@/store/userStore';
 
 // 버튼 높이/간격을 뷰포트 높이에 맞춰 동적으로 (최소값 보장)
-const buttonSize = 'py-[max(1rem,1.9vh)] text-lg font-bold';
-const landingButtonBase = 'aspect-[310/80] py-0 font-medium';
-const landingButtonSize = `${landingButtonBase} text-[32px]`;
-const kakaoButtonSize = `${landingButtonBase} text-[clamp(28px,3.69vh,30px)]`;
+const buttonSize = 'py-[max(1rem,1.9vh)] !text-lg !font-semibold';
+const landingButtonBase = 'aspect-[310/80] py-0 !font-semibold';
+const landingButtonSize = `${landingButtonBase} !text-[32px]`;
+const kakaoButtonSize = `${landingButtonBase} !text-[clamp(28px,3.69vh,30px)]`;
 const kakaoLogoSize = 'h-[clamp(36px,4.93vh,40px)] w-[clamp(36px,4.93vh,40px)]';
 
 // 숫자만 남기고 010-1234-5678 형태로 자동 하이픈
@@ -54,7 +54,7 @@ const LoginPage = () => {
       <div className="mx-auto flex h-dvh max-w-md flex-col overflow-hidden bg-brand-50 px-6 pb-8 pt-[clamp(16px,2.54vh,20px)]">
         <div className="flex min-h-0 flex-1 flex-col justify-start overflow-y-auto">
           <img
-            src="/characters/salpimi.png"
+            src="/assets/Salpimi/Notebook.png"
             alt="살피미"
             className="mx-auto size-[clamp(150px,49.07vw,184px)] scale-x-[-1] object-contain"
           />
@@ -65,14 +65,14 @@ const LoginPage = () => {
           </h1>
 
           <div className="mt-10 flex flex-col gap-5">
-            <Input
+            <OnboardingInput
               label="전화번호"
               type="tel"
               value={phone}
               onChange={(event) => setPhone(formatPhone(event.target.value))}
               placeholder="전화번호를 입력해 주세요"
             />
-            <Input
+            <OnboardingInput
               label="비밀번호"
               type="password"
               inputMode="numeric"
@@ -89,13 +89,13 @@ const LoginPage = () => {
           )}
         </div>
 
-        <Button
+        <OnboardingButton
           className={`shrink-0 ${buttonSize}`}
           onClick={() => void handleLogin()}
           disabled={!phone || !isPasswordValid || isLoggingIn}
         >
           {isLoggingIn ? '로그인 중...' : '시작하기'}
-        </Button>
+        </OnboardingButton>
       </div>
     );
   }
@@ -118,19 +118,25 @@ const LoginPage = () => {
 
       {/* 하단: 버튼 (뷰포트에 따라 동적) */}
       <div className="flex shrink-0 flex-col gap-[1.6vh]">
-        <Button className={landingButtonSize} onClick={() => navigate('/font-size?next=login')}>
+        <OnboardingButton
+          className={landingButtonSize}
+          onClick={() => navigate('/font-size?next=login')}
+        >
           시작하기
-        </Button>
-        <Button
+        </OnboardingButton>
+        <OnboardingButton
           className={`${kakaoButtonSize} gap-2`}
           onClick={() => navigate('/font-size?next=kakao')}
         >
           <img src="/icons/kakaotalk.png" alt="" className={kakaoLogoSize} />
           카카오로 시작하기
-        </Button>
-        <Button className={landingButtonSize} onClick={() => navigate('/font-size?next=signup')}>
+        </OnboardingButton>
+        <OnboardingButton
+          className={landingButtonSize}
+          onClick={() => navigate('/font-size?next=signup')}
+        >
           회원가입
-        </Button>
+        </OnboardingButton>
       </div>
     </div>
   );

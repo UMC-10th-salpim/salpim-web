@@ -3,7 +3,7 @@ import { authApi, getApiErrorMessage } from '@/apis/auth';
 import { inputStyle, labelStyle, primaryButton, secondaryButton } from './styles';
 
 const personalInfoInputStyle = (hasValue: boolean) =>
-  `${inputStyle} !h-[clamp(48px,7.11vh,56px)] !rounded-full !border-[3px] !py-0 placeholder:!text-[21px] ${hasValue ? '!border-brand-500' : '!border-[#FED7AA]'}`;
+  `${inputStyle} !h-[clamp(48px,7.11vh,56px)] !rounded-full !border-[3px] !py-0 placeholder:!text-[23px] ${hasValue ? '!border-brand-500' : '!border-[#FED7AA]'}`;
 
 export interface OnboardingInfo {
   name: string;
@@ -152,7 +152,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
               <div className="flex items-center gap-[clamp(1px,0.54vw,2px)]">
                 <div className="flex min-w-0 flex-1 items-center gap-[clamp(1px,0.54vw,2px)]">
                   <input
-                    className={`${personalInfoInputStyle(value.birthYear !== '')} min-w-[clamp(84px,25.34vw,95px)] flex-1 !px-2 text-[23px]`}
+                    className={`${personalInfoInputStyle(value.birthYear !== '')} min-w-[clamp(84px,25.34vw,95px)] flex-1 !px-2 !text-[23px]`}
                     value={value.birthYear}
                     onChange={(event) => update('birthYear', event.target.value.replace(/\D/g, ''))}
                     inputMode="numeric"
@@ -164,7 +164,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
                 </div>
                 <div className="flex shrink-0 items-center gap-[clamp(1px,0.54vw,2px)]">
                   <input
-                    className={`${personalInfoInputStyle(value.birthMonth !== '')} !w-[clamp(64px,19.74vw,74px)] shrink-0 !px-2 text-center tracking-[-0.08em] ${value.birthMonth.length === 2 ? 'text-[21px]' : 'text-[23px]'}`}
+                    className={`${personalInfoInputStyle(value.birthMonth !== '')} !w-[clamp(64px,19.74vw,74px)] shrink-0 !px-2 text-center tracking-[-0.08em] ${value.birthMonth.length === 2 ? '!text-[21px]' : '!text-[23px]'}`}
                     value={value.birthMonth}
                     onChange={(event) =>
                       update('birthMonth', event.target.value.replace(/\D/g, ''))
@@ -178,7 +178,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
                 </div>
                 <div className="flex shrink-0 items-center gap-[clamp(1px,0.54vw,2px)]">
                   <input
-                    className={`${personalInfoInputStyle(value.birthDay !== '')} !w-[clamp(64px,19.74vw,74px)] shrink-0 !px-2 text-center tracking-[-0.08em] ${value.birthDay.length === 2 ? 'text-[21px]' : 'text-[23px]'}`}
+                    className={`${personalInfoInputStyle(value.birthDay !== '')} !w-[clamp(64px,19.74vw,74px)] shrink-0 !px-2 text-center tracking-[-0.08em] ${value.birthDay.length === 2 ? '!text-[21px]' : '!text-[23px]'}`}
                     value={value.birthDay}
                     onChange={(event) => update('birthDay', event.target.value.replace(/\D/g, ''))}
                     inputMode="numeric"
@@ -207,7 +207,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
                       key={gender}
                       type="button"
                       onClick={() => update('gender', gender)}
-                      className={`flex h-[clamp(48px,7.11vh,56px)] flex-1 items-center justify-center rounded-full border-[clamp(3px,0.51vh,4px)] py-0 text-2xl font-bold transition-colors ${
+                      className={`flex h-[clamp(48px,7.11vh,56px)] flex-1 items-center justify-center rounded-full border-[clamp(3px,0.51vh,4px)] py-0 !text-2xl !font-semibold transition-colors ${
                         selected
                           ? 'border-brand-500 bg-brand-100 text-brand-600'
                           : 'border-brand-100 bg-brand-100 text-brand-600 opacity-50 hover:border-brand-200 hover:opacity-70'
@@ -242,7 +242,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
                   type="button"
                   onClick={() => void handleSendCode()}
                   disabled={!phoneComplete || value.phoneVerified || phoneRequest !== 'idle'}
-                  className="shrink-0 rounded-2xl bg-brand-100 px-4 text-2xl font-bold text-brand-600 transition-colors hover:bg-brand-200 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="shrink-0 rounded-2xl bg-brand-100 px-4 !text-2xl !font-semibold text-brand-600 transition-colors hover:bg-brand-200 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {phoneRequest === 'sending'
                     ? '전송 중'
@@ -268,7 +268,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
                     type="button"
                     onClick={() => void handleVerify()}
                     disabled={code.length !== 6 || phoneRequest !== 'idle'}
-                    className="shrink-0 rounded-2xl bg-brand-500 px-4 text-2xl font-bold text-white transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-brand-200"
+                    className="shrink-0 rounded-2xl bg-brand-500 px-4 !text-2xl !font-semibold text-white transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-brand-200"
                   >
                     {phoneRequest === 'verifying' ? '확인 중' : '확인'}
                   </button>
