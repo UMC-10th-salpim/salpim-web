@@ -1,0 +1,44 @@
+name: 일반 작업
+description: 리팩터링, 문서, 설정, 테스트 등의 작업을 정의합니다.
+title: '[CHORE] '
+labels: []
+assignees: []
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: 작업 유형
+      options:
+        - REFACTOR
+        - CHORE
+        - DOCS
+        - TEST
+        - STYLE
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: 작업 배경
+      description: 작업이 필요한 이유를 작성해 주세요.
+    validations:
+      required: true
+
+  - type: textarea
+    id: tasks
+    attributes:
+      label: 상세 작업 내용
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+
+  - type: textarea
+    id: done
+    attributes:
+      label: 완료 조건
+      description: 리뷰어가 확인할 수 있는 완료 기준을 작성해 주세요.
+    validations:
+      required: true

@@ -1,75 +1,126 @@
-import type { Facility } from './types';
+import { useEffect, useRef } from 'react';
+import { CustomOverlayMap, Map, useKakaoLoader } from 'react-kakao-maps-sdk';
+import FacilityIcon from './FacilityIcon';
+import type { Facility, MapCenter } from './types';
 
 interface MapViewProps {
+  center: MapCenter;
   facilities: Facility[];
-  selectedFacilityId?: string;
-  userLocationLabel?: string;
+  hasCategorySelected: boolean;
+  selectedFacilityId?: string | null;
   onSelectFacility?: (facility: Facility) => void;
 }
 
-const getMarkerPosition = (facility: Facility, index: number) => {
-  if (facility.lat !== undefined && facility.lng !== undefined) {
-    const left = 16 + Math.abs(facility.lng * 13) % 68;
-    const top = 18 + Math.abs(facility.lat * 17) % 58;
-
-    return { left: `${left}%`, top: `${top}%` };
-  }
-
-  return {
-    left: `${18 + (index * 23) % 64}%`,
-    top: `${20 + (index * 17) % 56}%`,
-  };
+// 두 좌표 사이의 직선 거리를 미터 단위로 계산 (Haversine)
+const getDistanceMeters = (a: MapCenter, b: MapCenter) => {
+  const R = 6371000;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const lat1 = (a.lat * Math.PI) / 180;
+  const lat2 = (b.lat * Math.PI) / 180;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
 };
 
+const LocationPin = () => (
+  <svg width="28" height="36" viewBox="0 0 24 32" aria-hidden>
+    <path
+      d="M12 0C5.4 0 0 5.4 0 12c0 9 12 20 12 20s12-11 12-20C24 5.4 18.6 0 12 0Z"
+      fill="#FF5A3C"
+    />
+    <circle cx="12" cy="12" r="5" fill="white" />
+  </svg>
+);
+
 const MapView = ({
+  center,
   facilities,
+  hasCategorySelected,
   selectedFacilityId,
-  userLocationLabel = '내 주변',
   onSelectFacility,
 }: MapViewProps) => {
+  const [loading, error] = useKakaoLoader({
+    appkey: import.meta.env.VITE_KAKAO_MAP_KEY,
+    url: 'https://dapi.kakao.com/v2/maps/sdk.js',
+  });
+
+  const mapRef = useRef<kakao.maps.Map | null>(null);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || facilities.length === 0) return;
+
+    const nearest = facilities.reduce((closest, facility) =>
+      getDistanceMeters(center, facility) < getDistanceMeters(center, closest) ? facility : closest
+    );
+
+    const bounds = new kakao.maps.LatLngBounds();
+    bounds.extend(new kakao.maps.LatLng(center.lat, center.lng));
+    bounds.extend(new kakao.maps.LatLng(nearest.lat, nearest.lng));
+    map.setBounds(bounds, 80);
+  }, [facilities, center]);
+
+  if (error) {
+    return (
+      <section className="flex flex-1 items-center justify-center bg-gray-50 px-6 text-center text-sm text-gray-500">
+        지도를 불러오지 못했습니다. 카카오맵 키와 등록된 도메인을 확인해주세요.
+      </section>
+    );
+  }
+
+  if (loading) {
+    return (
+      <section className="flex flex-1 items-center justify-center bg-gray-50 text-sm text-gray-400">
+        지도를 불러오는 중...
+      </section>
+    );
+  }
+
   return (
-    <section className="relative h-[360px] overflow-hidden bg-[#F4F7F5]" aria-label="주변시설 지도">
-      <div className="absolute inset-0">
-        <div className="absolute left-0 top-1/4 h-px w-full bg-white" />
-        <div className="absolute left-0 top-2/4 h-px w-full bg-white" />
-        <div className="absolute left-0 top-3/4 h-px w-full bg-white" />
-        <div className="absolute left-1/4 top-0 h-full w-px bg-white" />
-        <div className="absolute left-2/4 top-0 h-full w-px bg-white" />
-        <div className="absolute left-3/4 top-0 h-full w-px bg-white" />
-        <div className="absolute left-[8%] top-[58%] h-16 w-[120%] -rotate-12 bg-[#E7DED0]" />
-        <div className="absolute left-[-8%] top-[32%] h-12 w-[120%] rotate-6 bg-[#DBE8DF]" />
-      </div>
+    <section className="relative flex-1 overflow-hidden" aria-label="주변 혜택 시설 지도">
+      <Map
+        center={center}
+        level={5}
+        onCreate={(map) => {
+          mapRef.current = map;
+        }}
+        style={{ width: '100%', height: '100%' }}
+      >
+        <CustomOverlayMap position={center} yAnchor={1}>
+          <LocationPin />
+        </CustomOverlayMap>
 
-      <div className="absolute left-4 top-4 rounded-full bg-white px-4 py-2 text-sm font-semibold text-gray-800 shadow-sm">
-        {userLocationLabel}
-      </div>
+        {facilities.map((facility) => {
+          const selected = facility.id === selectedFacilityId;
+          const position = { lat: facility.lat, lng: facility.lng };
 
-      <div className="absolute left-1/2 top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1">
-        <div className="h-4 w-4 rounded-full border-2 border-white bg-blue-500 shadow-md" />
-        <span className="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-gray-700 shadow-sm">현재 위치</span>
-      </div>
+          return (
+            <CustomOverlayMap key={facility.id} position={position} yAnchor={1} zIndex={selected ? 20 : 10}>
+              <button
+                type="button"
+                onClick={() => onSelectFacility?.(facility)}
+                className="flex flex-col items-center gap-0.5"
+                aria-pressed={selected}
+              >
+                <FacilityIcon
+                  category={facility.mainCategory}
+                  className={selected ? 'ring-4 ring-[#FF8A3D] ring-offset-2' : ''}
+                />
+                <span
+                  className={`whitespace-nowrap rounded-full border-2 bg-white px-3 py-1 text-xs font-bold text-gray-900 shadow-md ${
+                    selected ? 'border-[#FF8A3D]' : 'border-transparent'
+                  }`}
+                >
+                  {facility.name}
+                </span>
+              </button>
+            </CustomOverlayMap>
+          );
+        })}
+      </Map>
 
-      {facilities.map((facility, index) => {
-        const selected = facility.id === selectedFacilityId;
-
-        return (
-          <button
-            key={facility.id}
-            type="button"
-            onClick={() => onSelectFacility?.(facility)}
-            className={`absolute z-20 -translate-x-1/2 -translate-y-full rounded-full px-3 py-2 text-xs font-semibold shadow-md transition-transform hover:scale-105 ${
-              selected ? 'bg-[#FF8A3D] text-white' : 'bg-white text-gray-900'
-            }`}
-            style={getMarkerPosition(facility, index)}
-            aria-pressed={selected}
-          >
-            {facility.name}
-          </button>
-        );
-      })}
-
-      {facilities.length === 0 && (
-        <div className="absolute inset-x-6 top-1/2 z-20 -translate-y-1/2 rounded-2xl bg-white px-5 py-4 text-center text-sm text-gray-600 shadow-sm">
+      {hasCategorySelected && facilities.length === 0 && (
+        <div className="pointer-events-none absolute inset-x-6 top-1/2 z-20 -translate-y-1/2 rounded-2xl bg-white px-5 py-4 text-center text-sm text-gray-600 shadow-sm">
           선택한 카테고리에 해당하는 주변시설이 없습니다.
         </div>
       )}

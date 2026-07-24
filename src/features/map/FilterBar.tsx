@@ -1,49 +1,36 @@
-import Chip from '@/components/common/Chip/Chip';
-import type { FacilityCategory } from './types';
-import { FACILITY_CATEGORIES } from './types';
+import { FACILITY_MAIN_CATEGORIES } from './types';
+import type { FacilityMainCategory } from './types';
 
 interface FilterBarProps {
-  selectedCategories: FacilityCategory[];
-  categories?: FacilityCategory[];
-  onToggleCategory: (category: FacilityCategory) => void;
-  onReset?: () => void;
+  selectedMainCategory: FacilityMainCategory | null;
+  selectedSubCategory: string | null;
+  onOpenCategory: (main: FacilityMainCategory) => void;
 }
 
-const FilterBar = ({
-  selectedCategories,
-  categories = FACILITY_CATEGORIES,
-  onToggleCategory,
-  onReset,
-}: FilterBarProps) => {
-  const hasSelectedCategory = selectedCategories.length > 0;
-
+const FilterBar = ({ selectedMainCategory, selectedSubCategory, onOpenCategory }: FilterBarProps) => {
   return (
-    <section className="border-b border-gray-100 bg-white px-4 py-3" aria-label="시설 카테고리 필터">
-      <div className="flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold text-gray-900">시설 카테고리</h2>
-        {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            disabled={!hasSelectedCategory}
-            className="text-sm font-medium text-[#FF8A3D] disabled:cursor-not-allowed disabled:text-gray-300"
-          >
-            초기화
-          </button>
-        )}
-      </div>
+    <section
+      className="absolute inset-x-0 top-0 z-30 flex flex-wrap gap-2 px-4 py-3"
+      aria-label="시설 카테고리 필터"
+    >
+      {FACILITY_MAIN_CATEGORIES.map((category) => {
+        const active = selectedMainCategory === category;
+        const label = active && selectedSubCategory ? selectedSubCategory : category;
 
-      <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-        {categories.map((category) => (
-          <Chip
+        return (
+          <button
             key={category}
-            label={category}
-            selected={selectedCategories.includes(category)}
-            onClick={() => onToggleCategory(category)}
-            className="shrink-0"
-          />
-        ))}
-      </div>
+            type="button"
+            onClick={() => onOpenCategory(category)}
+            className={`flex items-center gap-1 whitespace-nowrap rounded-full border-2 border-[#FF8A3D] px-3 py-1.5 text-2xl font-semibold shadow-sm transition-colors ${
+              active ? 'bg-[#FF8A3D] text-white' : 'bg-white text-gray-700'
+            }`}
+          >
+            <span>{label}</span>
+            <span>▾</span>
+          </button>
+        );
+      })}
     </section>
   );
 };

@@ -8,15 +8,14 @@ const BenefitDetailPage = () => {
   const {id} = useParams();
   const benefit = MOCK_BENEFITS.find((b) => b.id === Number(id));
 
-  console.log('선택된 혜택:', benefit);
-
   if(!benefit) return <div>찾을 수 없다</div>;
 
   return (
-    <div className="flex flex-col p-4 gap-4 pb-20">
+    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-[#FAF8F3] pb-20">
       <HeaderBar title="혜택 자세히 보기"/>
       <BenefitDetail
-        isOnline={benefit?.isOnline}
+        isOnline={benefit.isOnline}
+        id={benefit.id}
         category={benefit.category}
         title={benefit.title}
         icon={benefit.icon}
@@ -25,8 +24,9 @@ const BenefitDetailPage = () => {
         eligibility={benefit.eligibility}
         benefitContent={benefit.benefitContent}
         targetPerson={benefit.targetPerson}
+        url={benefit.url}
         facilityName={benefit.facilityName}
-        facilityDistance={benefit.facilityDistane}
+        facilityDistance={benefit.facilityDistance}
         facilityHours={benefit.facilityHours}
         />
       <BottomNavigation/>

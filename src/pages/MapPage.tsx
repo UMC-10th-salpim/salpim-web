@@ -1,70 +1,122 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import FacilityCard from '@/features/map/FacilityCard';
+import { useQuery } from '@tanstack/react-query';
+import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
+import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
+import { searchAllFacilities, sendFacilitiesToBackend } from '@/apis/facility';
+import CategoryFilterSheet from '@/features/map/CategoryFilterSheet';
+import FacilitySummarySheet from '@/features/map/FacilitySummarySheet';
 import FilterBar from '@/features/map/FilterBar';
 import MapView from '@/features/map/MapView';
-import { mockFacilities } from '@/features/map/mockFacilities';
-import type { Facility, FacilityCategory } from '@/features/map/types';
+import { getMockFacilitiesNear } from '@/features/map/mockFacilities';
+import type { Facility, FacilityMainCategory, MapCenter } from '@/features/map/types';
+
+// 위치 권한이 없거나 거부됐을 때 사용하는 기본 중심 좌표 (서울시청)
+const DEFAULT_CENTER: MapCenter = { lat: 37.5665, lng: 126.978 };
 
 const MapPage = () => {
   const navigate = useNavigate();
-  const [selectedCategories, setSelectedCategories] = useState<FacilityCategory[]>([]);
-  const [selectedFacilityId, setSelectedFacilityId] = useState(mockFacilities[0]?.id);
+  const [selectedMainCategory, setSelectedMainCategory] = useState<FacilityMainCategory | null>(null);
+  const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
+  const [openCategorySheet, setOpenCategorySheet] = useState<FacilityMainCategory | null>(null);
+  const [selectedFacilityId, setSelectedFacilityId] = useState<string | null>(null);
+
+  const [center, setCenter] = useState<MapCenter>(DEFAULT_CENTER);
+  const [centerReady, setCenterReady] = useState(false);
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setCenterReady(true);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
+        setCenterReady(true);
+      },
+      () => setCenterReady(true)
+    );
+  }, []);
+
+  const { data: facilities = [] } = useQuery({
+    queryKey: ['facilities', center.lat, center.lng],
+    queryFn: async () => {
+      const realFacilities = await searchAllFacilities(center);
+      const result = realFacilities.length > 0 ? realFacilities : getMockFacilitiesNear(center);
+
+      void sendFacilitiesToBackend(result);
+
+      return result;
+    },
+    enabled: centerReady,
+  });
 
   const filteredFacilities = useMemo(() => {
-    if (selectedCategories.length === 0) return mockFacilities;
+    if (!selectedSubCategory) return [];
 
-    return mockFacilities.filter((facility) => selectedCategories.includes(facility.category));
-  }, [selectedCategories]);
+    return facilities.filter((facility) => facility.subCategory === selectedSubCategory);
+  }, [facilities, selectedSubCategory]);
 
-  const handleToggleCategory = (category: FacilityCategory) => {
-    setSelectedCategories((currentCategories) =>
-      currentCategories.includes(category)
-        ? currentCategories.filter((currentCategory) => currentCategory !== category)
-        : [...currentCategories, category]
-    );
+  const selectedFacility = filteredFacilities.find((facility) => facility.id === selectedFacilityId) ?? null;
+
+  const handleOpenCategory = (category: FacilityMainCategory) => {
+    setOpenCategorySheet(category);
+  };
+
+  const handleSelectSubCategory = (subCategory: string) => {
+    if (subCategory === selectedSubCategory) {
+      setSelectedMainCategory(null);
+      setSelectedSubCategory(null);
+    } else {
+      setSelectedMainCategory(openCategorySheet);
+      setSelectedSubCategory(subCategory);
+    }
+    setSelectedFacilityId(null);
+    setOpenCategorySheet(null);
   };
 
   const handleSelectFacility = (facility: Facility) => {
-    setSelectedFacilityId(facility.id);
+    setSelectedFacilityId((currentId) => (currentId === facility.id ? null : facility.id));
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 pb-24">
-      <header className="bg-white px-4 py-5">
-        <p className="text-sm font-medium text-[#FF8A3D]">주변시설 탐색</p>
-        <h1 className="mt-1 text-2xl font-bold text-gray-900">내 주변 복지시설</h1>
-      </header>
+    <main className="flex h-screen flex-col bg-gray-50">
+      <HeaderBar title="주변 혜택 시설" />
 
-      <FilterBar
-        selectedCategories={selectedCategories}
-        onToggleCategory={handleToggleCategory}
-        onReset={() => setSelectedCategories([])}
+      <div className="relative flex flex-1 flex-col overflow-hidden pb-16">
+        <MapView
+          center={center}
+          facilities={filteredFacilities}
+          hasCategorySelected={selectedSubCategory !== null}
+          selectedFacilityId={selectedFacilityId}
+          onSelectFacility={handleSelectFacility}
+        />
+
+        <FilterBar
+          selectedMainCategory={selectedMainCategory}
+          selectedSubCategory={selectedSubCategory}
+          onOpenCategory={handleOpenCategory}
+        />
+
+        {selectedFacility && (
+          <FacilitySummarySheet
+            facility={selectedFacility}
+            onClose={() => setSelectedFacilityId(null)}
+            onViewDetail={(facility) => navigate(`/facility/${facility.id}`, { state: { facility } })}
+          />
+        )}
+      </div>
+
+      <CategoryFilterSheet
+        open={openCategorySheet !== null}
+        mainCategory={openCategorySheet}
+        selectedSubCategory={selectedSubCategory}
+        onSelect={handleSelectSubCategory}
+        onClose={() => setOpenCategorySheet(null)}
       />
 
-      <MapView
-        facilities={filteredFacilities}
-        selectedFacilityId={selectedFacilityId}
-        userLocationLabel="서울 강남구 주변"
-        onSelectFacility={handleSelectFacility}
-      />
-
-      <section className="px-4 py-5">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">주변시설 {filteredFacilities.length}곳</h2>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          {filteredFacilities.map((facility) => (
-            <FacilityCard
-              key={facility.id}
-              facility={facility}
-              selected={facility.id === selectedFacilityId}
-              onClick={(selectedFacility) => navigate(`/facility/${selectedFacility.id}`)}
-            />
-          ))}
-        </div>
-      </section>
+      <BottomNavigation />
     </main>
   );
 };
