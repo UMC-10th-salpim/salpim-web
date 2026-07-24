@@ -142,7 +142,9 @@ export const searchAllFacilities = async (center: MapCenter): Promise<Facility[]
 
   return settled.flatMap((result) => {
     if (result.status === 'rejected') {
-      console.warn('[facility] 일부 카테고리 검색 실패', result.reason);
+      if (import.meta.env.DEV) {
+        console.warn('[facility] 일부 카테고리 검색 실패', result.reason);
+      }
       return [];
     }
     return result.value;
@@ -154,6 +156,8 @@ export const sendFacilitiesToBackend = async (facilities: Facility[]): Promise<v
   try {
     await client.post('/facilities', facilities);
   } catch (error) {
-    console.warn('[facility] 백엔드 전송 실패 (엔드포인트 미구현 상태일 수 있음)', error);
+    if (import.meta.env.DEV) {
+      console.warn('[facility] 백엔드 전송 실패 (엔드포인트 미구현 상태일 수 있음)', error);
+    }
   }
 };
