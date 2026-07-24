@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { authApi, getApiErrorMessage } from '@/apis/auth';
+import { authApi, getLoginErrorMessage } from '@/apis/auth';
 import OnboardingButton from '@/features/onboarding/ui/OnboardingButton';
 import OnboardingInput from '@/features/onboarding/ui/OnboardingInput';
 import useUserStore from '@/store/userStore';
@@ -43,7 +43,7 @@ const LoginPage = () => {
       setTokens(tokens.accessToken, tokens.refreshToken);
       navigate('/recommendation', { replace: true });
     } catch (error) {
-      setLoginError(getApiErrorMessage(error, '로그인하지 못했어요. 다시 확인해 주세요.'));
+      setLoginError(getLoginErrorMessage(error, '로그인하지 못했어요. 다시 확인해 주세요.'));
     } finally {
       setIsLoggingIn(false);
     }

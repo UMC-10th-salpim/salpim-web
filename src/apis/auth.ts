@@ -10,6 +10,55 @@ interface ApiResponse<T> {
   result: T;
 }
 
+interface ApiErrorResponse {
+  status?: number;
+  code?: string;
+  message?: string;
+}
+
+export interface PhoneVerificationSendResult {
+  phoneNumber: string;
+  message: string;
+}
+
+export interface PhoneVerificationConfirmResult {
+  phoneNumber: string;
+  verified: boolean;
+  message: string;
+}
+
+const PHONE_VERIFICATION_ERROR_MESSAGES: Record<string, string> = {
+  PHONE001: '올바르지 않은 전화번호 형식입니다',
+  PHONE002: '이미 가입된 전화번호입니다',
+  PHONE003: '인증번호 요청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요',
+  PHONE005: '인증번호가 일치하지 않습니다',
+  PHONE006: '인증번호가 만료되었습니다',
+  GL001: '서버 오류가 발생했습니다',
+};
+
+const SIGNUP_ERROR_MESSAGES: Record<string, string> = {
+  ADDR002: '주소 형식이 올바르지 않습니다',
+  ADDR003: '주소 검색 결과를 찾을 수 없습니다',
+  ADDR004: '주소 변환 중 오류가 발생했습니다',
+  MEMBER001: '필수 입력값이 누락되었습니다',
+  KAKAO006: '유효하지 않은 회원가입 토큰입니다',
+  GL001: '서버 오류가 발생했습니다',
+};
+
+const LOGIN_ERROR_MESSAGES: Record<string, string> = {
+  LOGIN001: '전화번호와 비밀번호를 입력해주세요',
+  PHONE001: '올바르지 않은 전화번호 형식입니다',
+  LOGIN002: '전화번호 또는 비밀번호가 일치하지 않습니다',
+  GL001: '서버 오류가 발생했습니다',
+};
+
+const KAKAO_LOGIN_ERROR_MESSAGES: Record<string, string> = {
+  KAKAO001: '카카오 인가 코드가 필요합니다',
+  KAKAO003: '유효하지 않은 카카오 인가 코드입니다',
+  KAKAO005: '카카오 사용자 정보 조회에 실패했습니다',
+  GL001: '서버 오류가 발생했습니다',
+};
+
 export interface TokenResult {
   accessToken: string;
   refreshToken: string;
@@ -18,27 +67,23 @@ export interface TokenResult {
 export interface KakaoLoginResult {
   isNewMember: boolean;
   nextStep: 'LOGIN_COMPLETE' | 'SIGNUP_REQUIRED';
-  accessToken?: string;
-  refreshToken?: string;
-  signupToken?: string;
+  memberId: number | null;
+  loginType: 'KAKAO';
+  name: string;
+  accessToken: string | null;
+  refreshToken: string | null;
+  signupToken: string | null;
 }
 
-export interface GeocodeResult {
+export interface AddressLocationResult {
+  regionId: number;
+  cityL: string;
+  cityS: string;
+  dong: string;
   roadAddress: string;
+  detailAddress: string;
   latitude: number;
   longitude: number;
-}
-
-export interface RegionResolveRequest {
-  city: string | null;
-  district: string | null;
-  eupMyeonDong: string;
-}
-
-export interface RegionResolveResult {
-  regionId: number;
-  regionName: string;
-  fullRegionName: string;
 }
 
 interface SignupProfile {
@@ -55,81 +100,151 @@ interface SignupProfile {
 
 export interface LocalSignupRequest extends SignupProfile {
   password: string;
+  agreedTermIds: number[];
   passwordAnswer: string;
 }
 
-export type KakaoSignupRequest = SignupProfile;
+export interface KakaoSignupRequest extends SignupProfile {
+  agreedTermIds: number[];
+}
 
 const unwrap = <T>(response: ApiResponse<T>) => response.result;
 
-export const getApiErrorMessage = (error: unknown, fallback: string) => {
-  if (!axios.isAxiosError<ApiResponse<unknown>>(error)) return fallback;
-  return error.response?.data?.message || fallback;
+export const getPhoneVerificationErrorMessage = (error: unknown, fallback: string) => {
+  if (!axios.isAxiosError<ApiErrorResponse>(error)) return fallback;
+
+  const response = error.response?.data;
+  if (!response) return fallback;
+
+  return (
+    (response.code && PHONE_VERIFICATION_ERROR_MESSAGES[response.code]) ||
+    response.message ||
+    fallback
+  );
 };
+
+export const getSignupErrorMessage = (error: unknown, fallback: string) => {
+  if (!axios.isAxiosError<ApiErrorResponse>(error)) return fallback;
+
+  const response = error.response?.data;
+  if (!response) return fallback;
+
+  return (response.code && SIGNUP_ERROR_MESSAGES[response.code]) || response.message || fallback;
+};
+
+export const getLoginErrorMessage = (error: unknown, fallback: string) => {
+  if (!axios.isAxiosError<ApiErrorResponse>(error)) return fallback;
+
+  const response = error.response?.data;
+  if (!response) return fallback;
+
+  return (response.code && LOGIN_ERROR_MESSAGES[response.code]) || response.message || fallback;
+};
+
+export const getKakaoLoginErrorMessage = (error: unknown, fallback: string) => {
+  if (!axios.isAxiosError<ApiErrorResponse>(error)) return fallback;
+
+  const response = error.response?.data;
+  if (!response) return fallback;
+
+  return (
+    (response.code && KAKAO_LOGIN_ERROR_MESSAGES[response.code]) || response.message || fallback
+  );
+};
+
+const normalizePhoneNumber = (phoneNumber: string) => phoneNumber.replace(/\D/g, '');
+
+export const getKakaoRedirectUri = () =>
+  import.meta.env.VITE_KAKAO_REDIRECT_URI || `${window.location.origin}/oauth/kakao`;
 
 // 카카오 인가 페이지 URL (OAuth 2.0 authorization code)
 export const getKakaoAuthorizeUrl = () => {
   const params = new URLSearchParams({
     client_id: import.meta.env.VITE_KAKAO_REST_API_KEY,
-    redirect_uri: import.meta.env.VITE_KAKAO_REDIRECT_URI,
+    redirect_uri: getKakaoRedirectUri(),
     response_type: 'code',
   });
   return `${KAKAO_AUTHORIZE_URL}?${params.toString()}`;
 };
 
 export const authApi = {
-  sendPhoneVerificationCode: async (phoneNumber: string) => {
-    const { data } = await client.post<ApiResponse<null>>('/v1/signup/phone/send', {
-      phoneNumber,
-    });
-    return data;
-  },
-
-  verifyPhoneCode: async (phoneNumber: string, code: string) => {
-    const { data } = await client.post<ApiResponse<{ verified: boolean }>>(
-      '/v1/signup/phone/verify',
-      { phoneNumber, code }
+  sendPhoneVerificationCode: async (phoneNumber: string): Promise<PhoneVerificationSendResult> => {
+    const { data } = await client.post<ApiResponse<{ phoneNumber: string }>>(
+      '/v1/signup/phone/send',
+      {
+        phoneNumber: normalizePhoneNumber(phoneNumber),
+      }
     );
-    return unwrap(data).verified;
+
+    return {
+      phoneNumber: data.result.phoneNumber,
+      message: data.message,
+    };
   },
 
-  geocodeAddress: async (roadAddress: string) => {
-    const { data } = await client.post<ApiResponse<GeocodeResult>>('/v1/signup/location/geocode', {
-      roadAddress,
-    });
-    return unwrap(data);
+  verifyPhoneCode: async (
+    phoneNumber: string,
+    verificationCode: string
+  ): Promise<PhoneVerificationConfirmResult> => {
+    const { data } = await client.post<ApiResponse<{ phoneNumber: string; verified: boolean }>>(
+      '/v1/signup/phone/verify',
+      {
+        phoneNumber: normalizePhoneNumber(phoneNumber),
+        verificationCode,
+      }
+    );
+
+    return {
+      phoneNumber: data.result.phoneNumber,
+      verified: data.result.verified,
+      message: data.message,
+    };
   },
 
-  resolveRegion: async (request: RegionResolveRequest) => {
-    const { data } = await client.post<ApiResponse<RegionResolveResult>>(
-      '/v1/regions/resolve',
-      request
+  geocodeAddress: async (roadAddress: string, detailAddress: string) => {
+    const { data } = await client.post<ApiResponse<AddressLocationResult>>(
+      '/v1/signup/location/geocode',
+      {
+        roadAddress,
+        detailAddress,
+      }
     );
     return unwrap(data);
   },
 
   signupLocal: async (request: LocalSignupRequest) => {
-    await client.post<ApiResponse<null>>('/v1/signup/local', request);
+    await client.post<void>('/v1/signup/local', {
+      ...request,
+      phoneNumber: normalizePhoneNumber(request.phoneNumber),
+    });
   },
 
   loginLocal: async (phoneNumber: string, password: string) => {
-    const { data } = await client.post<ApiResponse<TokenResult>>('/v1/login/local', {
-      phoneNumber,
+    const { data } = await client.post<TokenResult>('/v1/login/local', {
+      phoneNumber: normalizePhoneNumber(phoneNumber),
       password,
     });
-    return unwrap(data);
+    return data;
   },
 
-  kakaoLogin: async (authorizationCode: string) => {
+  kakaoLogin: async (code: string, redirectUri: string) => {
     const { data } = await client.post<ApiResponse<KakaoLoginResult>>('/v1/login/kakao', {
-      authorizationCode,
+      code,
+      redirectUri,
     });
     return unwrap(data);
   },
 
   signupKakao: async (signupToken: string, request: KakaoSignupRequest) => {
-    await client.post<ApiResponse<null>>('/v1/signup/kakao', request, {
-      headers: { Authorization: `Bearer ${signupToken}` },
-    });
+    await client.post<void>(
+      '/v1/signup/kakao',
+      {
+        ...request,
+        phoneNumber: normalizePhoneNumber(request.phoneNumber),
+      },
+      {
+        headers: { Authorization: `Bearer ${signupToken}` },
+      }
+    );
   },
 };

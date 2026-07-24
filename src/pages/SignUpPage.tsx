@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authApi, getApiErrorMessage, getKakaoAuthorizeUrl } from '@/apis/auth';
+import { authApi, getKakaoAuthorizeUrl, getSignupErrorMessage } from '@/apis/auth';
 import useUserStore from '@/store/userStore';
 import ProgressDots from '@/features/onboarding/ProgressDots';
 import OnboardingForm from '@/features/onboarding/OnboardingForm';
@@ -18,6 +18,12 @@ import SummaryStep from '@/features/onboarding/SummaryStep';
 const LOCAL_TOTAL_STEPS = 4; // 진행 표시 점 개수 (약관 동의/요약 화면 제외)
 const KAKAO_TOTAL_STEPS = 2;
 const KAKAO_SIGNUP_TOKEN_KEY = 'salpim-kakao-signup-token';
+const LOCAL_TERM_IDS: { key: keyof TermsData; id: number }[] = [
+  { key: 'service', id: 1 },
+  { key: 'privacy', id: 2 },
+  { key: 'sensitive', id: 3 },
+  { key: 'location', id: 4 },
+];
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -62,28 +68,26 @@ const SignUpPage = () => {
 
     try {
       const birthDate = `${info.birthYear}-${info.birthMonth.padStart(2, '0')}-${info.birthDay.padStart(2, '0')}`;
-      const [coordinates, region] = await Promise.all([
-        authApi.geocodeAddress(address.roadAddress),
-        authApi.resolveRegion({
-          city: address.city || null,
-          district: address.district || null,
-          eupMyeonDong: address.eupMyeonDong,
-        }),
-      ]);
+      const location = await authApi.geocodeAddress(address.roadAddress, address.detail.trim());
 
       const signupProfile = {
         name: info.name.trim(),
         birthDate,
         gender: info.gender === 'male' ? ('MALE' as const) : ('FEMALE' as const),
         phoneNumber: info.phone,
-        roadAddress: coordinates.roadAddress,
-        detailAddress: address.detail.trim(),
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude,
-        regionId: region.regionId,
+        roadAddress: location.roadAddress,
+        detailAddress: location.detailAddress,
+        latitude: location.latitude,
+        longitude: location.longitude,
+        regionId: location.regionId,
       };
+      const agreedTermIds = LOCAL_TERM_IDS.filter(({ key }) => terms[key]).map(({ id }) => id);
+
       if (kakaoSignupToken) {
-        await authApi.signupKakao(kakaoSignupToken, signupProfile);
+        await authApi.signupKakao(kakaoSignupToken, {
+          ...signupProfile,
+          agreedTermIds,
+        });
         sessionStorage.removeItem(KAKAO_SIGNUP_TOKEN_KEY);
         window.location.href = getKakaoAuthorizeUrl();
         return;
@@ -92,6 +96,7 @@ const SignUpPage = () => {
       await authApi.signupLocal({
         ...signupProfile,
         password: password.password,
+        agreedTermIds,
         passwordAnswer: security.answer.trim(),
       });
 
@@ -100,7 +105,7 @@ const SignUpPage = () => {
       navigate('/recommendation', { replace: true });
     } catch (error) {
       setSubmitError(
-        getApiErrorMessage(error, '회원가입을 완료하지 못했어요. 다시 시도해 주세요.')
+        getSignupErrorMessage(error, '회원가입을 완료하지 못했어요. 다시 시도해 주세요.')
       );
     } finally {
       setIsSubmitting(false);
