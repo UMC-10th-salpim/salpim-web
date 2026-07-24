@@ -32,13 +32,135 @@
 }
 
 html,
-  body {
-    background-color: #faf8f3;
-    font-family:
-      BlinkMacSystemFont,
-      system-ui,
-      sans-serif;
-    letter-spacing: -0.06em;
-    word-break: keep-all;
-    touch-action: manipulation;
+body {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+  background-color: var(--salpim-page);
+  word-break: keep-all;
+  letter-spacing: -0.06em;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  touch-action: manipulation;
+}
+
+/* 마이페이지 공통 레이아웃 */
+.mypage-screen {
+  display: flex;
+  width: 100%;
+  min-height: 100dvh;
+  flex-direction: column;
+  background: var(--salpim-page);
+  padding-bottom: calc(88px + env(safe-area-inset-bottom));
+}
+
+.mypage-content {
+  display: flex;
+  width: 100%;
+  flex: 1;
+  flex-direction: column;
+  padding: 20px 18px 24px;
+}
+
+.mypage-card {
+  border: 2px solid var(--salpim-border);
+  border-radius: var(--salpim-radius-card);
+  background: var(--salpim-surface);
+  box-shadow: var(--salpim-shadow);
+}
+
+.mypage-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--salpim-brown);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.mypage-field {
+  width: 100%;
+  min-height: 52px;
+  border: 2px solid var(--salpim-border);
+  border-radius: var(--salpim-radius-control);
+  background: var(--salpim-surface);
+  padding: 12px 16px;
+  color: #292524;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.mypage-field::placeholder {
+  color: #a8a29e;
+  font-weight: 500;
+}
+
+.mypage-field:focus {
+  border-color: var(--salpim-orange);
+  box-shadow: 0 0 0 3px rgb(255 133 62 / 14%);
+}
+
+.mypage-pill {
+  border-radius: var(--salpim-radius-pill);
+}
+
+.mypage-primary-action {
+  display: flex;
+  width: 100%;
+  min-height: 56px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--salpim-radius-control);
+  background: var(--salpim-orange);
+  padding: 12px 18px;
+  color: white;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.25;
+  transition:
+    background-color 160ms ease,
+    transform 120ms ease;
+}
+
+.mypage-primary-action:hover {
+  background: var(--salpim-orange-dark);
+}
+
+.mypage-primary-action:active {
+  transform: scale(0.99);
+}
+
+.mypage-primary-action:disabled {
+  cursor: not-allowed;
+  background: #f7c49f;
+}
+
+@media (max-width: 359px) {
+  .mypage-content {
+    padding-right: 14px;
+    padding-left: 14px;
   }
+
+  .mypage-primary-action {
+    min-height: 52px;
+    font-size: 20px;
+  }
+}

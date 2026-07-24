@@ -33,9 +33,9 @@ const BottomNavigation = ({ items = defaultItems, className = '' }: BottomNaviga
   return (
     <nav
       aria-label="하단 내비게이션"
-      className={`fixed inset-x-0 bottom-0 z-40 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-2 ${className}`}
+      className={`fixed inset-x-0 bottom-0 z-40 px-5 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 ${className}`}
     >
-      <div className="mx-auto grid max-w-md grid-cols-4 rounded-full bg-white py-4 shadow-[0_4px_20px_rgba(0,0,0,0.12)]">
+      <div className="mx-auto grid h-14 w-full max-w-sm grid-cols-4 items-center rounded-full border border-[#F3EBE2] bg-white px-2 shadow-[0_4px_18px_rgba(71,45,25,0.14)]">
         {items.map((item) => {
           const active = isActivePath(item);
 

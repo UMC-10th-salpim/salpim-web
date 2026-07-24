@@ -4,7 +4,8 @@ import { searchAddress } from '@/apis/address';
 import type { AddressResult } from '@/apis/address';
 import { MOCK_PROFILE } from '@/apis/mypage';
 import Modal from '@/components/common/Modal/Modal';
-import { inputStyle, labelStyle, primaryButton } from '@/features/onboarding/styles';
+import ScrollMoreIndicator from '@/components/common/ScrollMoreIndicator/ScrollMoreIndicator';
+import { primaryButton } from '@/features/onboarding/styles';
 
 const formatPhone = (value: string) => {
   const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -82,58 +83,58 @@ const EditProfile = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 pb-10">
-      <h1 className="text-center text-lg font-bold text-gray-900">
+    <main className="mypage-content gap-6">
+      <h2 className="text-center text-[20px] font-extrabold text-[#43230F]">
         수정할 정보를 입력해 주세요.
-      </h1>
+      </h2>
 
       <div>
-        <label htmlFor="name" className={labelStyle}>
+        <label htmlFor="name" className="mypage-label">
           이름
         </label>
         <input
           id="name"
-          className={inputStyle}
+          className="mypage-field mypage-pill"
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
       </div>
 
       <div>
-        <span className={labelStyle}>생년월일</span>
+        <span className="mypage-label">생년월일</span>
         <div className="flex items-center gap-2">
           <input
-            className={`${inputStyle} flex-1`}
+            className="mypage-field mypage-pill min-w-0 flex-1"
             value={birthYear}
             onChange={(event) => setBirthYear(event.target.value.replace(/\D/g, ''))}
             inputMode="numeric"
             maxLength={4}
             aria-label="년"
           />
-          <span className="text-base font-medium text-gray-700">년</span>
+          <span className="text-[17px] font-bold text-[#613212]">년</span>
           <input
-            className={`${inputStyle} !w-16 shrink-0 px-3 text-center`}
+            className="mypage-field mypage-pill !w-[62px] shrink-0 px-2 text-center"
             value={birthMonth}
             onChange={(event) => setBirthMonth(event.target.value.replace(/\D/g, ''))}
             inputMode="numeric"
             maxLength={2}
             aria-label="월"
           />
-          <span className="text-base font-medium text-gray-700">월</span>
+          <span className="text-[17px] font-bold text-[#613212]">월</span>
           <input
-            className={`${inputStyle} !w-16 shrink-0 px-3 text-center`}
+            className="mypage-field mypage-pill !w-[62px] shrink-0 px-2 text-center"
             value={birthDay}
             onChange={(event) => setBirthDay(event.target.value.replace(/\D/g, ''))}
             inputMode="numeric"
             maxLength={2}
             aria-label="일"
           />
-          <span className="text-base font-medium text-gray-700">일</span>
+          <span className="text-[17px] font-bold text-[#613212]">일</span>
         </div>
       </div>
 
       <div>
-        <span className={labelStyle}>성별</span>
+        <span className="mypage-label">성별</span>
         <div className="flex gap-3">
           {(['female', 'male'] as const).map((option) => {
             const selected = gender === option;
@@ -142,10 +143,10 @@ const EditProfile = () => {
                 key={option}
                 type="button"
                 onClick={() => setGender(option)}
-                className={`flex-1 rounded-2xl border py-4 text-base font-bold transition-colors ${
+                className={`min-h-[54px] flex-1 rounded-[999px] border-2 text-[18px] font-extrabold transition-colors ${
                   selected
-                    ? 'border-brand-500 bg-brand-100 text-brand-600'
-                    : 'border-brand-200 bg-brand-50 text-gray-500 hover:border-brand-300'
+                    ? 'border-[#F39A00] bg-[#FFE2B9] text-[#FF6F12]'
+                    : 'border-[#FFD29E] bg-[#FFEBD1] text-[#FF7A32] hover:bg-[#FFE2B9]'
                 }`}
               >
                 {option === 'female' ? '여성' : '남성'}
@@ -156,16 +157,16 @@ const EditProfile = () => {
       </div>
 
       <div>
-        <label htmlFor="phone" className={labelStyle}>
+        <label htmlFor="phone" className="mypage-label">
           전화번호
         </label>
-        <p className="mb-2 text-sm font-semibold text-brand-500">
+        <p className="mb-2 text-[15px] font-bold leading-5 text-[#FF7A32]">
           본인 확인을 위해 문자로 인증 번호를 보내 드려요.
         </p>
         <div className="flex gap-2">
           <input
             id="phone"
-            className={`${inputStyle} flex-1`}
+            className="mypage-field mypage-pill min-w-0 flex-1"
             value={phone}
             onChange={(event) => handlePhoneChange(event.target.value)}
             placeholder="010-0000-0000"
@@ -175,7 +176,7 @@ const EditProfile = () => {
             type="button"
             onClick={handleVerify}
             disabled={verified}
-            className="shrink-0 rounded-2xl bg-brand-100 px-4 text-base font-bold text-brand-600 transition-colors hover:bg-brand-200 disabled:cursor-not-allowed disabled:opacity-50"
+            className="min-h-[52px] shrink-0 rounded-[999px] bg-[#FF853E] px-4 text-[17px] font-extrabold text-white transition-colors hover:bg-[#EB6F27] disabled:cursor-not-allowed disabled:bg-[#FFE2B9] disabled:text-[#FF7A32]"
           >
             {verified ? '인증 완료' : '인증하기'}
           </button>
@@ -186,15 +187,33 @@ const EditProfile = () => {
         <button
           type="button"
           onClick={handleUseCurrentLocation}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-brand-300 bg-brand-50 py-4 text-base font-bold text-brand-600 transition-colors hover:bg-brand-100"
+          className="flex min-h-[68px] w-full items-center justify-center gap-3 rounded-[18px] border-2 border-[#FFB263] bg-[#FFE1BB] text-[20px] font-extrabold text-[#7A4B20] transition-colors hover:bg-[#FFD7A5]"
         >
-          <span aria-hidden>◎</span>
+          <svg
+            width="30"
+            height="30"
+            viewBox="0 0 30 30"
+            fill="none"
+            aria-hidden
+            className="shrink-0"
+          >
+            <circle cx="15" cy="15" r="8" stroke="currentColor" strokeWidth="2.2" />
+            <path
+              d="M15 2v4M15 24v4M2 15h4M24 15h4"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+            />
+            <circle cx="15" cy="15" r="3.5" fill="currentColor" />
+          </svg>
           현재 위치로 자동 설정
         </button>
-        <p className="mb-4 mt-3 text-center text-sm text-gray-400">또는 직접 입력하기</p>
+        <p className="mb-4 mt-3 text-center text-[15px] font-semibold text-[#81746A]">
+          또는 직접 입력하기
+        </p>
 
-        <label className={labelStyle}>도로명 주소</label>
-        <div className="flex items-center gap-2 rounded-2xl border border-brand-200 bg-white px-4 py-3.5 focus-within:border-brand-500">
+        <label className="mypage-label">도로명 주소</label>
+        <div className="mypage-pill flex min-h-[52px] items-center gap-2 border-2 border-[#FFD29E] bg-white px-4 py-2 focus-within:border-[#FF853E]">
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -202,26 +221,26 @@ const EditProfile = () => {
               if (event.key === 'Enter') runSearch();
             }}
             placeholder="도로명 주소를 입력해 주세요"
-            className="min-w-0 flex-1 text-base text-gray-900 outline-none placeholder:text-gray-400"
+            className="min-w-0 flex-1 text-[18px] font-semibold text-gray-900 outline-none placeholder:text-gray-400"
           />
           <button
             type="button"
             onClick={runSearch}
             disabled={searching}
-            className="shrink-0 text-base font-bold text-brand-500 disabled:opacity-50"
+            className="min-h-10 shrink-0 px-2 text-[18px] font-extrabold text-[#FF7A32] disabled:opacity-50"
           >
             검색
           </button>
         </div>
 
         {results.length > 0 && (
-          <ul className="mt-2 rounded-2xl border border-brand-200 bg-white p-2">
+          <ul className="mt-2 rounded-2xl border-2 border-[#FFD29E] bg-white p-2">
             {results.map((result, index) => (
               <li key={`${result.roadAddress}-${index}`}>
                 <button
                   type="button"
                   onClick={() => selectResult(result.roadAddress)}
-                  className="w-full rounded-xl px-2 py-2.5 text-left text-sm text-gray-800 hover:bg-brand-50"
+                  className="min-h-12 w-full rounded-xl px-2 py-2.5 text-left text-[16px] font-semibold text-gray-800 hover:bg-[#FFF7EC]"
                 >
                   {result.roadAddress}
                   {result.buildingName ? ` (${result.buildingName})` : ''}
@@ -232,12 +251,12 @@ const EditProfile = () => {
         )}
 
         <div className="mt-5">
-          <label htmlFor="detail" className={labelStyle}>
+          <label htmlFor="detail" className="mypage-label">
             상세 주소
           </label>
           <input
             id="detail"
-            className={inputStyle}
+            className="mypage-field mypage-pill"
             value={detail}
             onChange={(event) => setDetail(event.target.value)}
             placeholder="상세 주소를 입력해 주세요"
@@ -245,7 +264,12 @@ const EditProfile = () => {
         </div>
       </div>
 
-      <button type="button" onClick={handleSave} disabled={!isValid} className={primaryButton}>
+      <button
+        type="button"
+        onClick={handleSave}
+        disabled={!isValid}
+        className={`${primaryButton} !min-h-14 !flex-none !text-[22px]`}
+      >
         저장하기
       </button>
 
@@ -258,7 +282,9 @@ const EditProfile = () => {
       >
         수정한 정보가 반영되었어요.
       </Modal>
-    </div>
+
+      <ScrollMoreIndicator />
+    </main>
   );
 };
 

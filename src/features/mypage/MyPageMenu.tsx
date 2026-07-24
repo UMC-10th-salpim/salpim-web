@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Modal from '@/components/common/Modal/Modal';
+import ScrollMoreIndicator from '@/components/common/ScrollMoreIndicator/ScrollMoreIndicator';
 import Toggle from '@/components/common/Toggle/Toggle';
 import TermsDetail from '@/features/onboarding/TermsDetail';
 import useSettingsStore from '@/store/settingsStore';
@@ -20,18 +21,24 @@ const MenuRow = ({ icon, title, description, variant = 'filled', onClick }: Menu
   <button
     type="button"
     onClick={onClick}
-    className={`flex w-full items-center gap-3 rounded-[32px] px-4 py-4 text-left transition-colors ${
+    className={`flex min-h-[76px] w-full items-center gap-3 rounded-[20px] px-4 py-3.5 text-left shadow-[0_3px_10px_rgba(97,50,18,0.06)] transition-colors ${
       variant === 'filled'
-        ? 'bg-[#F6D6A3] hover:bg-[#F0C482]'
-        : 'border-2 border-[#F0C482] bg-[#FFF7ED] hover:bg-[#FBE3BF]'
+        ? 'border-2 border-[#F4C78F] bg-[#FFE9CA] hover:bg-[#FFDFB4]'
+        : 'border-2 border-[#FFD19C] bg-white hover:bg-[#FFF8EF]'
     }`}
   >
-    <img src={icon} alt="" className="h-12 w-12 shrink-0 rounded-full bg-white object-contain p-2.5" />
+    <img
+      src={icon}
+      alt=""
+      className="h-11 w-11 shrink-0 rounded-full bg-white object-contain p-2"
+    />
     <div className="flex-1">
-      <p className="text-2xl font-bold text-[#613212]">{title}</p>
-      {description && <p className="mt-0.5 text-lg text-gray-500">{description}</p>}
+      <p className="text-[20px] font-extrabold leading-6 text-[#613212]">{title}</p>
+      {description && (
+        <p className="mt-1 text-[16px] font-semibold leading-5 text-[#81746A]">{description}</p>
+      )}
     </div>
-    <img src="/icons/mypage/arrow.png" alt="" className="h-5 w-5 shrink-0" />
+    <img src="/icons/mypage/arrow.png" alt="" className="h-6 w-6 shrink-0" />
   </button>
 );
 
@@ -41,8 +48,8 @@ interface SectionProps {
 }
 
 const Section = ({ title, children }: SectionProps) => (
-  <section className="flex flex-col gap-2">
-    <h2 className="text-2xl font-bold text-[#613212]">{title}</h2>
+  <section className="flex flex-col gap-2.5">
+    <h2 className="px-1 text-[20px] font-extrabold text-[#613212]">{title}</h2>
     {children}
   </section>
 );
@@ -64,17 +71,17 @@ const MyPageMenu = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 pb-10">
+    <main className="mypage-content gap-7">
       {/* 인사 카드 */}
-      <div className="flex items-center gap-3 rounded-[32px] border-[3px] border-[#F0C482] bg-[#FFF7ED] px-5 py-4">
-        <img src="/characters/salpimi.png" alt="살피미" className="w-16 shrink-0" />
+      <div className="mypage-card flex items-center gap-4 px-5 py-4">
+        <img src="/characters/salpimi.png" alt="살피미" className="w-[72px] shrink-0" />
         <div>
-          <p className="text-2xl font-bold leading-8 text-gray-900">
+          <p className="text-[22px] font-extrabold leading-8 text-[#3F2A1D]">
             안녕하세요,
             <br />
             {MOCK_PROFILE.name} 님!
           </p>
-          <p className="mt-1 text-xl font-semibold text-brand-500">{MOCK_PROFILE.region}</p>
+          <p className="mt-1 text-[17px] font-bold text-[#F07B32]">{MOCK_PROFILE.region}</p>
         </div>
       </div>
 
@@ -115,36 +122,73 @@ const MyPageMenu = () => {
       </Section>
 
       <Section title="설정">
-        <div className="flex w-full items-center gap-3 rounded-[32px] bg-[#F6D6A3] px-4 py-4">
-          <div className="flex-1">
-            <p className="text-2xl font-bold text-[#613212]">마감 임박 혜택 표시</p>
-            <p className="mt-0.5 text-lg text-gray-500">
-              홈 화면에서 곧 마감되는 혜택을 알려 줘요.
-            </p>
+        <div className="overflow-hidden rounded-[18px] border-2 border-[#FFD29E] bg-white">
+          <div className="flex min-h-[76px] items-center gap-3 px-4 py-3">
+            <span
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FFF2E2] text-[#FF853E]"
+              aria-hidden
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M18 9a6 6 0 10-12 0c0 7-3 7-3 8.5h18C21 16 18 16 18 9Z"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M9.8 20h4.4"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[18px] font-extrabold text-[#613212]">마감 임박 혜택 표시</p>
+              <p className="mt-0.5 text-[14px] font-semibold leading-5 text-[#FF7A32]">
+                홈 화면에서 곧 마감되는 혜택을 알려 줘요.
+              </p>
+            </div>
+            <Toggle
+              checked={deadlineAlertEnabled}
+              onChange={toggleDeadlineAlert}
+              label="마감 임박 혜택 표시"
+            />
           </div>
-          <Toggle checked={deadlineAlertEnabled} onChange={toggleDeadlineAlert} label="마감 임박 혜택 표시" />
-        </div>
 
-        <MenuRow
-          icon="/icons/mypage/security.png"
-          title="글자 크기 설정"
-          description={`화면에 표시되는 글자 크기를 바꿔요. (현재: ${fontSize === 'large' ? '크게' : '중간'})`}
-          onClick={() => navigate('/mypage/font-size')}
-        />
+          <button
+            type="button"
+            onClick={() => navigate('/mypage/font-size')}
+            className="flex min-h-[76px] w-full items-center gap-3 border-t border-[#F1E5D9] px-4 py-3 text-left transition-colors hover:bg-[#FFF8EF]"
+          >
+            <img
+              src="/icons/mypage/security.png"
+              alt=""
+              className="h-10 w-10 shrink-0 rounded-full bg-[#FFF2E2] object-contain p-2"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-[18px] font-extrabold text-[#613212]">글자 크기 설정</p>
+              <p className="mt-0.5 text-[14px] font-semibold leading-5 text-[#FF7A32]">
+                화면에 표시되는 글자 크기를 바꿔요. 현재 {fontSize === 'large' ? '크게' : '중간'}
+              </p>
+            </div>
+            <img src="/icons/mypage/arrow.png" alt="" className="h-6 w-6 shrink-0" />
+          </button>
+        </div>
       </Section>
 
-      <div className="flex flex-col gap-3 pt-2">
+      <div className="flex flex-col gap-3 pt-1">
         <button
           type="button"
           onClick={() => setConfirmModal('logout')}
-          className="w-full rounded-[32px] border-2 border-brand-500 bg-white py-3.5 text-2xl font-bold text-brand-500 transition-colors hover:bg-brand-50"
+          className="mypage-primary-action"
         >
           로그아웃하기
         </button>
         <button
           type="button"
           onClick={() => setConfirmModal('withdraw')}
-          className="w-full rounded-[32px] bg-brand-500 py-3.5 text-2xl font-bold text-white transition-colors hover:bg-brand-600"
+          className="mypage-primary-action"
         >
           탈퇴하기
         </button>
@@ -163,7 +207,9 @@ const MyPageMenu = () => {
           ? '다시 로그인하면 이용하실 수 있어요.'
           : '탈퇴하면 저장된 정보가 모두 사라져요.'}
       </Modal>
-    </div>
+
+      <ScrollMoreIndicator />
+    </main>
   );
 };
 

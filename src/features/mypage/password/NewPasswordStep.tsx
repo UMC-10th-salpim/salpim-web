@@ -8,22 +8,57 @@ interface NewPasswordStepProps {
 
 const NewPasswordStep = ({ onSaved }: NewPasswordStepProps) => {
   const [value, setValue] = useState('');
+  const [firstValue, setFirstValue] = useState('');
+  const [phase, setPhase] = useState<'new' | 'confirm'>('new');
+  const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
 
   const handleSubmit = () => {
+    if (phase === 'new') {
+      setFirstValue(value);
+      setValue('');
+      setError('');
+      setPhase('confirm');
+      return;
+    }
+
+    if (value !== firstValue) {
+      setValue('');
+      setError('비밀번호가 달라요. 다시 입력해 주세요.');
+      return;
+    }
+
     // TODO: 새 비밀번호 저장 API 연동
     setSaved(true);
   };
 
   return (
-    <div className="flex flex-col gap-6 p-4 pb-10">
-      <h1 className="text-center text-lg font-bold text-gray-900">
-        새로운 비밀번호 6자리를
-        <br />
-        입력해 주세요.
-      </h1>
+    <main className="mypage-content gap-5">
+      <h2 className="text-center text-[20px] font-extrabold leading-7 text-[#43230F]">
+        {phase === 'new' ? (
+          <>
+            새로운 비밀번호 6자리를
+            <br />
+            입력해 주세요.
+          </>
+        ) : (
+          '한번 더 입력해 주세요.'
+        )}
+      </h2>
 
-      <Keypad value={value} onChange={setValue} onSubmit={handleSubmit} />
+      <div aria-live="polite" className="min-h-6 text-center">
+        {error && <p className="text-[16px] font-bold text-red-500">{error}</p>}
+      </div>
+
+      <Keypad
+        value={value}
+        onChange={(nextValue) => {
+          setValue(nextValue);
+          setError('');
+        }}
+        onSubmit={handleSubmit}
+        submitLabel="다음"
+      />
 
       <Modal
         open={saved}
@@ -34,7 +69,7 @@ const NewPasswordStep = ({ onSaved }: NewPasswordStepProps) => {
       >
         새 비밀번호로 로그인해 주세요.
       </Modal>
-    </div>
+    </main>
   );
 };
 

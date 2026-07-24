@@ -7,16 +7,16 @@ interface FindPasswordResultProps {
 
 const FindPasswordResult = ({ onChangePassword }: FindPasswordResultProps) => {
   return (
-    <div className="flex flex-col gap-6 p-4 pb-10 text-center">
-      <p className="text-lg font-bold text-gray-900">본인 확인이 완료됐어요!</p>
+    <main className="mypage-content gap-6 text-center">
+      <h2 className="text-[22px] font-extrabold text-[#43230F]">본인 확인이 완료됐어요!</h2>
 
-      <div className="self-center">
-        <p className="mb-2 text-sm font-semibold text-brand-500">현재 비밀번호</p>
-        <div className="flex gap-3">
+      <div className="mypage-card self-center p-5">
+        <p className="mb-3 text-[17px] font-extrabold text-[#FF7A32]">현재 비밀번호</p>
+        <div className="flex gap-2">
           {MOCK_PASSWORD.split('').map((digit, index) => (
             <span
               key={index}
-              className="flex h-12 w-10 items-center justify-center rounded-xl border border-brand-200 bg-white text-xl font-bold text-gray-900"
+              className="flex h-12 w-10 items-center justify-center rounded-lg bg-[#FFEBD1] text-xl font-extrabold text-[#613212]"
             >
               {digit}
             </span>
@@ -24,10 +24,14 @@ const FindPasswordResult = ({ onChangePassword }: FindPasswordResultProps) => {
         </div>
       </div>
 
-      <button type="button" onClick={onChangePassword} className={primaryButton}>
+      <button
+        type="button"
+        onClick={onChangePassword}
+        className={`${primaryButton} !mt-auto !min-h-14 !flex-none !text-[22px]`}
+      >
         새 비밀번호로 바꾸기
       </button>
-    </div>
+    </main>
   );
 };
 
