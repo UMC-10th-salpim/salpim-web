@@ -25,8 +25,8 @@ const BenefitCard = ({id, category, icon, title, className=''} : BenefitCardProp
         </div>
                
         <div className="flex flex-col flex-1 items-start">
-          <div className="rounded-full bg-white text-[#613212] font-medium text-sm w-17 h-7 px-[15px] py-1 shrink-0 whitespace-nowrap">{category}</div>
-          <span className="text-lg font-bold text-[#613212]">{title}</span>
+          <div className="rounded-full bg-white text-[#613212] font-medium text-sm w-17 h-7 flex items-center justify-center shrink-0 whitespace-nowrap">{category}</div>
+          <span className="text-lg font-bold text-[#613212] break-keep text-balance">{title}</span>
         </div>
 
         <Button 
