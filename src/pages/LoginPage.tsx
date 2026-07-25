@@ -7,7 +7,7 @@ import useUserStore from '@/store/userStore';
 import { formatPhone } from '@/utils/phone';
 
 // 버튼 높이/간격을 뷰포트 높이에 맞춰 동적으로 (최소값 보장)
-const buttonSize = 'py-[max(1rem,1.9vh)] !text-lg !font-semibold';
+const buttonSize = 'py-[max(1rem,1.9vh)] !text-2xl !font-semibold';
 const landingButtonBase = 'aspect-[310/80] py-0 !font-semibold';
 const landingButtonSize = `${landingButtonBase} !text-[32px]`;
 const kakaoButtonSize = `${landingButtonBase} !text-[clamp(28px,3.69vh,30px)]`;
@@ -16,18 +16,17 @@ const kakaoLogoSize = 'h-[clamp(36px,4.93vh,40px)] w-[clamp(36px,4.93vh,40px)]';
 const LoginPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [step] = useState<'landing' | 'login'>(() =>
-    searchParams.get('step') === 'login' ? 'login' : 'landing'
-  );
+  const step: 'landing' | 'login' = searchParams.get('step') === 'login' ? 'login' : 'landing';
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState('');
   const setTokens = useUserStore((state) => state.setTokens);
   const isPasswordValid = /^\d{6}$/.test(password);
+  const isLoginFormFilled = phone.replace(/\D/g, '').length === 11 && isPasswordValid;
 
   const handleLogin = async () => {
-    if (!phone || !isPasswordValid || isLoggingIn) return;
+    if (!isLoginFormFilled || isLoggingIn) return;
     setIsLoggingIn(true);
     setLoginError('');
 
@@ -75,20 +74,27 @@ const LoginPage = () => {
               placeholder="숫자 6자리를 입력해 주세요"
             />
           </div>
+          <div className="mt-10 flex shrink-0 gap-3">
+            <OnboardingButton
+              className={`flex-1 !bg-brand-500 !text-white ${buttonSize}`}
+              onClick={() => navigate('/', { replace: true })}
+            >
+              이전
+            </OnboardingButton>
+            <OnboardingButton
+              className={`flex-1 !text-white ${buttonSize}`}
+              onClick={() => void handleLogin()}
+              disabled={!isLoginFormFilled || isLoggingIn}
+            >
+              {isLoggingIn ? '로그인 중...' : '시작하기'}
+            </OnboardingButton>
+          </div>
           {loginError && (
             <p role="alert" className="mt-3 text-center text-sm font-semibold text-red-500">
               {loginError}
             </p>
           )}
         </div>
-
-        <OnboardingButton
-          className={`shrink-0 ${buttonSize}`}
-          onClick={() => void handleLogin()}
-          disabled={!phone || !isPasswordValid || isLoggingIn}
-        >
-          {isLoggingIn ? '로그인 중...' : '시작하기'}
-        </OnboardingButton>
       </div>
     );
   }
