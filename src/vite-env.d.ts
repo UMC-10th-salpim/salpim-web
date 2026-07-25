@@ -30,11 +30,17 @@ interface KakaoShareFeedOptions {
   }>;
 }
 
+interface KakaoShareCustomOptions{
+  templateId: number;
+  templateArgs?: Record<string,string>;
+}
+
 interface KakaoSdk {
   isInitialized: () => boolean;
   init: (appKey: string) => void;
   Share: {
     sendDefault: (options: KakaoShareFeedOptions) => void;
+    sendCustom: (options: KakaoShareCustomOptions) => void;
   };
 }
 
