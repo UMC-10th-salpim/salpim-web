@@ -1,9 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { getNearbyFacilities, getNearbyFacilitiesErrorMessage } from '@/apis/facility';
 import HomeBottomNavigation from '@/features/home/HomeBottomNavigation';
-import useUserStore from '@/store/userStore';
 
 // TODO: 로그인 사용자 이름 연동 (스토어/회원 API)
 const USER_NAME = 'OOO';
@@ -110,17 +107,6 @@ const DeadlineCard = ({ title, daysLeft, progress, activeIndex, onDetail }: Dead
 const RecommendationPage = () => {
   const navigate = useNavigate();
   const [activeDeadlineIndex, setActiveDeadlineIndex] = useState(0);
-  const accessToken = useUserStore((state) => state.accessToken);
-  const {
-    data: nearbyFacilities = [],
-    error: nearbyFacilitiesError,
-    isLoading: nearbyFacilitiesLoading,
-  } = useQuery({
-    queryKey: ['nearby-facilities', 3],
-    queryFn: () => getNearbyFacilities(3),
-    enabled: Boolean(accessToken),
-    retry: false,
-  });
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-brand-50 pb-24">
@@ -209,62 +195,21 @@ const RecommendationPage = () => {
           <h2 className="mb-3 text-[clamp(22px,3.05vh,24px)] font-bold text-[#613212]">
             내 근처 혜택 시설
           </h2>
-          <div className="flex flex-col gap-2">
-            {!accessToken && (
-              <p className="rounded-2xl bg-white px-5 py-4 text-center text-base text-gray-500 shadow-sm">
-                로그인하면 근처 혜택 시설을 확인할 수 있어요.
-              </p>
-            )}
-
-            {nearbyFacilitiesLoading && (
-              <p
-                role="status"
-                className="rounded-2xl bg-white px-5 py-4 text-center text-base text-gray-500 shadow-sm"
-              >
-                근처 시설을 찾고 있어요...
-              </p>
-            )}
-
-            {nearbyFacilitiesError && (
-              <p
-                role="alert"
-                className="rounded-2xl bg-white px-5 py-4 text-center text-base text-red-500 shadow-sm"
-              >
-                {getNearbyFacilitiesErrorMessage(nearbyFacilitiesError)}
-              </p>
-            )}
-
-            {!nearbyFacilitiesLoading &&
-              !nearbyFacilitiesError &&
-              accessToken &&
-              nearbyFacilities.length === 0 && (
-                <p className="rounded-2xl bg-white px-5 py-4 text-center text-base text-gray-500 shadow-sm">
-                  근처 혜택 시설을 찾을 수 없습니다.
-                </p>
-              )}
-
-            {nearbyFacilities.map((facility) => (
-              <button
-                key={facility.facilityId}
-                type="button"
-                onClick={() => navigate('/map')}
-                className="flex w-full items-center justify-between rounded-2xl bg-white px-5 py-4 !font-semibold shadow-sm"
-              >
-                <span className="min-w-0 text-left">
-                  <span className="block truncate text-base font-semibold text-gray-900">
-                    {facility.name}
-                  </span>
-                  <span className="mt-0.5 block text-sm text-gray-500">
-                    {facility.facilityType} · 우리 집에서 {facility.distance.toFixed(1)}km
-                  </span>
-                  <span className="mt-0.5 block truncate text-sm text-gray-400">
-                    {facility.address}
-                  </span>
-                </span>
-                <ChevronRight className="ml-3 h-5 w-5 shrink-0 text-gray-400" />
-              </button>
-            ))}
-          </div>
+          <button
+            type="button"
+            onClick={() => navigate('/map')}
+            className="flex w-full items-center justify-between rounded-2xl bg-white px-5 py-4 !font-semibold shadow-sm"
+          >
+            <span className="min-w-0 text-left">
+              <span className="block text-base font-semibold text-gray-900">
+                지도에서 가까운 시설 찾기
+              </span>
+              <span className="mt-1 block text-sm font-medium text-gray-500">
+                현재 위치 주변의 복지관, 주민센터, 병원을 확인해 보세요.
+              </span>
+            </span>
+            <ChevronRight className="ml-3 h-5 w-5 shrink-0 text-gray-400" />
+          </button>
         </section>
       </main>
 

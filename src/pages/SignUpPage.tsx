@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi, getKakaoAuthorizeUrl, getSignupErrorMessage } from '@/apis/auth';
 import useUserStore from '@/store/userStore';
@@ -18,12 +18,6 @@ import SummaryStep from '@/features/onboarding/SummaryStep';
 const LOCAL_TOTAL_STEPS = 4; // 진행 표시 점 개수 (약관 동의/요약 화면 제외)
 const KAKAO_TOTAL_STEPS = 2;
 const KAKAO_SIGNUP_TOKEN_KEY = 'salpim-kakao-signup-token';
-const LOCAL_TERM_IDS: { key: keyof TermsData; id: number }[] = [
-  { key: 'service', id: 1 },
-  { key: 'privacy', id: 2 },
-  { key: 'sensitive', id: 3 },
-  { key: 'location', id: 4 },
-];
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -61,6 +55,16 @@ const SignUpPage = () => {
   const isKakaoSignup = Boolean(kakaoSignupToken);
   const next = () => setStep((previous) => (isKakaoSignup && previous === 1 ? 4 : previous + 1));
 
+  // 카카오 가입 화면을 벗어날 때(성공 소비 전 이탈) 남은 가입 토큰을 정리해 노출 시간을 최소화한다.
+  // - 정상 완료: 리다이렉트 전에 이미 removeItem 되므로 여기서는 no-op.
+  // - 실패(catch): 컴포넌트가 언마운트되지 않아 cleanup이 실행되지 않으므로 재시도용 토큰이 유지된다.
+  // 토큰은 이미 마운트 시 state로 읽어두므로(StrictMode 이중 마운트 포함) 진행 중 흐름에는 영향이 없다.
+  useEffect(() => {
+    return () => {
+      sessionStorage.removeItem(KAKAO_SIGNUP_TOKEN_KEY);
+    };
+  }, []);
+
   const finish = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -68,7 +72,12 @@ const SignUpPage = () => {
 
     try {
       const birthDate = `${info.birthYear}-${info.birthMonth.padStart(2, '0')}-${info.birthDay.padStart(2, '0')}`;
-      const location = await authApi.geocodeAddress(address.roadAddress, address.detail.trim());
+      const location = await authApi.geocodeAddress(address.roadAddress);
+      const region = await authApi.resolveRegion(
+        address.city,
+        address.district,
+        address.eupMyeonDong
+      );
 
       const signupProfile = {
         name: info.name.trim(),
@@ -76,18 +85,14 @@ const SignUpPage = () => {
         gender: info.gender === 'male' ? ('MALE' as const) : ('FEMALE' as const),
         phoneNumber: info.phone,
         roadAddress: location.roadAddress,
-        detailAddress: location.detailAddress,
+        detailAddress: address.detail.trim(),
         latitude: location.latitude,
         longitude: location.longitude,
-        regionId: location.regionId,
+        regionId: region.regionId,
       };
-      const agreedTermIds = LOCAL_TERM_IDS.filter(({ key }) => terms[key]).map(({ id }) => id);
 
       if (kakaoSignupToken) {
-        await authApi.signupKakao(kakaoSignupToken, {
-          ...signupProfile,
-          agreedTermIds,
-        });
+        await authApi.signupKakao(kakaoSignupToken, signupProfile);
         sessionStorage.removeItem(KAKAO_SIGNUP_TOKEN_KEY);
         window.location.href = getKakaoAuthorizeUrl();
         return;
@@ -96,7 +101,6 @@ const SignUpPage = () => {
       await authApi.signupLocal({
         ...signupProfile,
         password: password.password,
-        agreedTermIds,
         passwordAnswer: security.answer.trim(),
       });
 

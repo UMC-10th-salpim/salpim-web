@@ -1,15 +1,18 @@
 import BenefitCard from '@/features/benefit/BenefitCard';
 import { MOCK_BENEFITS } from '@/apis/benefit';
+import type { FacilityBenefit } from '@/apis/facility';
 import FacilityIcon from './FacilityIcon';
 import { ClockIcon, HomeIcon, PinIcon } from './InfoIcons';
 import type { Facility } from './types';
 
 interface FacilityDetailProps {
   facility: Facility;
+  benefits?: FacilityBenefit[];
 }
 
-const FacilityDetail = ({ facility }: FacilityDetailProps) => {
+const FacilityDetail = ({ facility, benefits }: FacilityDetailProps) => {
   const relatedBenefits = MOCK_BENEFITS.filter((benefit) => benefit.facilityName === facility.name);
+  const hasBackendBenefits = benefits !== undefined;
 
   return (
     <article className="flex flex-col gap-4 bg-gray-50 px-4 py-5">
@@ -52,7 +55,19 @@ const FacilityDetail = ({ facility }: FacilityDetailProps) => {
       <section>
         <h2 className="mb-3 text-base font-bold text-gray-900">이 시설에서 신청할 수 있는 혜택</h2>
 
-        {relatedBenefits.length > 0 ? (
+        {benefits && benefits.length > 0 ? (
+          <div className="flex flex-col gap-3">
+            {benefits.map((benefit) => (
+              <article
+                key={benefit.servId}
+                className="rounded-2xl border border-gray-200 bg-white p-4"
+              >
+                <p className="text-base font-bold text-gray-900">{benefit.serviceName}</p>
+                <p className="mt-1 text-sm text-gray-500">{benefit.region}</p>
+              </article>
+            ))}
+          </div>
+        ) : !hasBackendBenefits && relatedBenefits.length > 0 ? (
           <div className="flex flex-col gap-3">
             {relatedBenefits.map((benefit) => (
               <BenefitCard

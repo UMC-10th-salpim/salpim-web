@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { authApi, getKakaoLoginErrorMessage, getKakaoRedirectUri } from '@/apis/auth';
+import { authApi, getKakaoLoginErrorMessage } from '@/apis/auth';
 import useUserStore from '@/store/userStore';
 
 const OAuthKakaoPage = () => {
@@ -21,7 +21,7 @@ const OAuthKakaoPage = () => {
     }
 
     authApi
-      .kakaoLogin(code, getKakaoRedirectUri())
+      .kakaoLogin(code)
       .then((result) => {
         if (result.isNewMember && result.nextStep === 'SIGNUP_REQUIRED' && result.signupToken) {
           sessionStorage.setItem('salpim-kakao-signup-token', result.signupToken);

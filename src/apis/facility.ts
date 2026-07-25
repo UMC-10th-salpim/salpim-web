@@ -2,45 +2,74 @@
 // 문서: https://developers.kakao.com/docs/latest/ko/local/dev-guide#search-by-keyword
 // 참고: 로컬 검색용 REST 키는 프론트 노출이 일반적으로 허용되나, 운영에서는 백엔드 프록시 권장.
 import client from './client';
-import { createErrorMessageGetter } from './errorMessage';
 import { FACILITY_CATEGORY_GROUPS } from '@/features/map/types';
 import type { Facility, FacilityMainCategory, MapCenter } from '@/features/map/types';
 
 const KAKAO_LOCAL_KEYWORD_URL = 'https://dapi.kakao.com/v2/local/search/keyword.json';
-const NEARBY_FACILITIES_URL = '/v1/facilities/nearby';
 const SEARCH_RADIUS_METERS = 3000;
 const RESULTS_PER_SUBCATEGORY = 5;
 
-export interface NearbyFacility {
-  facilityId: number;
+interface ApiResponse<T> {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: T;
+}
+
+export interface FacilityBenefit {
+  servId: string;
+  region: string;
+  serviceName: string;
+}
+
+export interface FacilityDetails {
   name: string;
-  facilityType: string;
   address: string;
-  distance: number;
-  phoneNumber: string;
-  operatingHours: string;
+  hour: string;
+  distanceText: string;
+  isMyCenter: boolean;
+  benefits: {
+    data: FacilityBenefit[];
+    hasNext: boolean;
+    nextCursor: string | null;
+    pageSize: number;
+    totalCount: number;
+  };
 }
 
-interface NearbyFacilitiesResponse {
-  facilities: NearbyFacility[];
+interface FacilityDetailsParams {
+  memberId: number;
+  facilityName: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  cursor?: string;
+  size?: number;
 }
 
-export const getNearbyFacilities = async (limit = 3): Promise<NearbyFacility[]> => {
-  const { data } = await client.get<NearbyFacilitiesResponse>(NEARBY_FACILITIES_URL, {
-    params: { limit },
+export const getFacilityDetails = async ({
+  memberId,
+  facilityName,
+  address,
+  latitude,
+  longitude,
+  cursor,
+  size = 10,
+}: FacilityDetailsParams): Promise<FacilityDetails> => {
+  const { data } = await client.get<ApiResponse<FacilityDetails>>('/map/details', {
+    params: {
+      memberId,
+      facilityName,
+      address,
+      latitude,
+      longitude,
+      ...(cursor ? { cursor } : {}),
+      size,
+    },
   });
-  return data.facilities;
+
+  return data.result;
 };
-
-const NEARBY_FACILITIES_ERROR_MESSAGES: Record<string, string> = {
-  FC001: '근처 혜택 시설을 찾을 수 없습니다',
-  GL001: '서버 오류가 발생했습니다',
-};
-
-const getNearbyFacilitiesMessage = createErrorMessageGetter(NEARBY_FACILITIES_ERROR_MESSAGES);
-
-export const getNearbyFacilitiesErrorMessage = (error: unknown) =>
-  getNearbyFacilitiesMessage(error, '근처 혜택 시설을 불러오지 못했습니다');
 
 // 카카오 로컬 검색에서 실제로 더 잘 매칭되는 키워드로 보정
 const SUBCATEGORY_SEARCH_KEYWORD: Record<string, string> = {
@@ -149,15 +178,4 @@ export const searchAllFacilities = async (center: MapCenter): Promise<Facility[]
     }
     return result.value;
   });
-};
-
-// TODO: 백엔드 엔드포인트가 정해지면 실제 경로로 교체
-export const sendFacilitiesToBackend = async (facilities: Facility[]): Promise<void> => {
-  try {
-    await client.post('/facilities', facilities);
-  } catch (error) {
-    if (import.meta.env.DEV) {
-      console.warn('[facility] 백엔드 전송 실패 (엔드포인트 미구현 상태일 수 있음)', error);
-    }
-  }
 };

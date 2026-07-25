@@ -11,12 +11,10 @@ interface ApiResponse<T> {
 }
 
 export interface PhoneVerificationSendResult {
-  phoneNumber: string;
   message: string;
 }
 
 export interface PhoneVerificationConfirmResult {
-  phoneNumber: string;
   verified: boolean;
   message: string;
 }
@@ -27,6 +25,7 @@ const PHONE_VERIFICATION_ERROR_MESSAGES: Record<string, string> = {
   PHONE003: '인증번호 요청 횟수를 초과했습니다. 잠시 후 다시 시도해주세요',
   PHONE005: '인증번호가 일치하지 않습니다',
   PHONE006: '인증번호가 만료되었습니다',
+  AUTH400_VERIFICATION: '인증번호가 일치하지 않습니다',
   GL001: '서버 오류가 발생했습니다',
 };
 
@@ -36,6 +35,7 @@ const SIGNUP_ERROR_MESSAGES: Record<string, string> = {
   ADDR004: '주소 변환 중 오류가 발생했습니다',
   MEMBER001: '필수 입력값이 누락되었습니다',
   KAKAO006: '유효하지 않은 회원가입 토큰입니다',
+  AUTH502_GEOCODING: '주소 좌표 조회에 실패했습니다',
   GL001: '서버 오류가 발생했습니다',
 };
 
@@ -43,6 +43,7 @@ const LOGIN_ERROR_MESSAGES: Record<string, string> = {
   LOGIN001: '전화번호와 비밀번호를 입력해주세요',
   PHONE001: '올바르지 않은 전화번호 형식입니다',
   LOGIN002: '전화번호 또는 비밀번호가 일치하지 않습니다',
+  AUTH404_LOGIN_MEMBER: '등록되지 않은 회원입니다',
   GL001: '서버 오류가 발생했습니다',
 };
 
@@ -50,6 +51,7 @@ const KAKAO_LOGIN_ERROR_MESSAGES: Record<string, string> = {
   KAKAO001: '카카오 인가 코드가 필요합니다',
   KAKAO003: '유효하지 않은 카카오 인가 코드입니다',
   KAKAO005: '카카오 사용자 정보 조회에 실패했습니다',
+  AUTH400_KAKAO_CODE: '카카오 인가 코드가 유효하지 않습니다',
   GL001: '서버 오류가 발생했습니다',
 };
 
@@ -61,23 +63,21 @@ export interface TokenResult {
 export interface KakaoLoginResult {
   isNewMember: boolean;
   nextStep: 'LOGIN_COMPLETE' | 'SIGNUP_REQUIRED';
-  memberId: number | null;
-  loginType: 'KAKAO';
-  name: string;
   accessToken: string | null;
   refreshToken: string | null;
   signupToken: string | null;
 }
 
 export interface AddressLocationResult {
-  regionId: number;
-  cityL: string;
-  cityS: string;
-  dong: string;
   roadAddress: string;
-  detailAddress: string;
   latitude: number;
   longitude: number;
+}
+
+export interface RegionResult {
+  regionId: number;
+  regionName: string;
+  fullRegionName: string;
 }
 
 interface SignupProfile {
@@ -94,13 +94,10 @@ interface SignupProfile {
 
 export interface LocalSignupRequest extends SignupProfile {
   password: string;
-  agreedTermIds: number[];
   passwordAnswer: string;
 }
 
-export interface KakaoSignupRequest extends SignupProfile {
-  agreedTermIds: number[];
-}
+export type KakaoSignupRequest = SignupProfile;
 
 const unwrap = <T>(response: ApiResponse<T>) => response.result;
 
@@ -131,15 +128,11 @@ export const getKakaoAuthorizeUrl = () => {
 
 export const authApi = {
   sendPhoneVerificationCode: async (phoneNumber: string): Promise<PhoneVerificationSendResult> => {
-    const { data } = await client.post<ApiResponse<{ phoneNumber: string }>>(
-      '/v1/signup/phone/send',
-      {
-        phoneNumber: normalizePhoneNumber(phoneNumber),
-      }
-    );
+    const { data } = await client.post<ApiResponse<unknown>>('/signup/phone/send', {
+      phoneNumber: normalizePhoneNumber(phoneNumber),
+    });
 
     return {
-      phoneNumber: data.result.phoneNumber,
       message: data.message,
     };
   },
@@ -148,58 +141,59 @@ export const authApi = {
     phoneNumber: string,
     verificationCode: string
   ): Promise<PhoneVerificationConfirmResult> => {
-    const { data } = await client.post<ApiResponse<{ phoneNumber: string; verified: boolean }>>(
-      '/v1/signup/phone/verify',
-      {
-        phoneNumber: normalizePhoneNumber(phoneNumber),
-        verificationCode,
-      }
-    );
+    const { data } = await client.post<ApiResponse<{ verified: boolean }>>('/signup/phone/verify', {
+      phoneNumber: normalizePhoneNumber(phoneNumber),
+      code: verificationCode,
+    });
 
     return {
-      phoneNumber: data.result.phoneNumber,
       verified: data.result.verified,
       message: data.message,
     };
   },
 
-  geocodeAddress: async (roadAddress: string, detailAddress: string) => {
+  geocodeAddress: async (roadAddress: string) => {
     const { data } = await client.post<ApiResponse<AddressLocationResult>>(
-      '/v1/signup/location/geocode',
-      {
-        roadAddress,
-        detailAddress,
-      }
+      '/signup/location/geocode',
+      { roadAddress }
     );
     return unwrap(data);
   },
 
+  resolveRegion: async (city: string, district: string, eupMyeonDong: string) => {
+    const { data } = await client.post<ApiResponse<RegionResult>>('/regions/resolve', {
+      city,
+      district,
+      eupMyeonDong,
+    });
+    return unwrap(data);
+  },
+
   signupLocal: async (request: LocalSignupRequest) => {
-    await client.post<void>('/v1/signup/local', {
+    await client.post<ApiResponse<unknown>>('/signup/local', {
       ...request,
       phoneNumber: normalizePhoneNumber(request.phoneNumber),
     });
   },
 
   loginLocal: async (phoneNumber: string, password: string) => {
-    const { data } = await client.post<TokenResult>('/v1/login/local', {
+    const { data } = await client.post<ApiResponse<TokenResult>>('/login/local', {
       phoneNumber: normalizePhoneNumber(phoneNumber),
       password,
     });
-    return data;
+    return unwrap(data);
   },
 
-  kakaoLogin: async (code: string, redirectUri: string) => {
-    const { data } = await client.post<ApiResponse<KakaoLoginResult>>('/v1/login/kakao', {
-      code,
-      redirectUri,
+  kakaoLogin: async (authorizationCode: string) => {
+    const { data } = await client.post<ApiResponse<KakaoLoginResult>>('/login/kakao', {
+      authorizationCode,
     });
     return unwrap(data);
   },
 
   signupKakao: async (signupToken: string, request: KakaoSignupRequest) => {
-    await client.post<void>(
-      '/v1/signup/kakao',
+    await client.post<ApiResponse<unknown>>(
+      '/signup/kakao',
       {
         ...request,
         phoneNumber: normalizePhoneNumber(request.phoneNumber),

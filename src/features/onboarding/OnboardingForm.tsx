@@ -105,8 +105,6 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
     );
   })();
 
-  // 화면 개발 중에는 인증 서버 없이 다음 단계를 확인할 수 있도록 개발 모드만 우회합니다.
-  const phoneVerificationPassed = import.meta.env.DEV || value.phoneVerified;
   const isValid =
     value.name.trim() !== '' &&
     value.birthYear !== '' &&
@@ -114,7 +112,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
     value.birthDay !== '' &&
     !hasInvalidBirthDate &&
     value.gender !== '' &&
-    phoneVerificationPassed;
+    value.phoneVerified;
 
   return (
     <>
