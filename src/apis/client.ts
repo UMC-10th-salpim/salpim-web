@@ -12,7 +12,9 @@ const client = axios.create({
 client.interceptors.request.use(
   (config) => {
     const accessToken = useUserStore.getState().accessToken;
-    if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
+    if (accessToken && !config.headers.Authorization) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)

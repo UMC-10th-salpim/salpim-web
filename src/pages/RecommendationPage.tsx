@@ -200,11 +200,15 @@ const RecommendationPage = () => {
             onClick={() => navigate('/map')}
             className="flex w-full items-center justify-between rounded-2xl bg-white px-5 py-4 !font-semibold shadow-sm"
           >
-            <span className="text-left">
-              <span className="block text-base font-semibold text-gray-900">00 복지관</span>
-              <span className="block text-sm text-gray-400">혜택 n개</span>
+            <span className="min-w-0 text-left">
+              <span className="block text-base font-semibold text-gray-900">
+                지도에서 가까운 시설 찾기
+              </span>
+              <span className="mt-1 block text-sm font-medium text-gray-500">
+                현재 위치 주변의 복지관, 주민센터, 병원을 확인해 보세요.
+              </span>
             </span>
-            <ChevronRight />
+            <ChevronRight className="ml-3 h-5 w-5 shrink-0 text-gray-400" />
           </button>
         </section>
       </main>
