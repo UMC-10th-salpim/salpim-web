@@ -16,7 +16,7 @@ interface AddressSelectorProps {
   onChange: (address: AddressInfo) => void;
   onBack: () => void;
   onNext: () => void;
-  onUseCurrentLocation?: () => void;
+  onUseCurrentLocation?: (latitude: number, longitude: number) => Promise<AddressResult>;
 }
 
 const SearchIcon = ({ className = '' }: { className?: string }) => (
@@ -49,26 +49,58 @@ const AddressSelector = ({
   const [query, setQuery] = useState(value.roadAddress);
   const [isSearchPageOpen, setIsSearchPageOpen] = useState(false);
   const [locationPermissionDenied, setLocationPermissionDenied] = useState(false);
+  const [locationError, setLocationError] = useState('');
+  const [isLocating, setIsLocating] = useState(false);
 
   const isValid = value.roadAddress.trim() !== '' && value.detail.trim() !== '';
 
-  const handleUseCurrentLocation = () => {
+  const getCurrentPosition = (options: PositionOptions) =>
+    new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, options);
+    });
+
+  const handleUseCurrentLocation = async () => {
     setLocationPermissionDenied(false);
+    setLocationError('');
 
     if (!navigator.geolocation) {
-      setLocationPermissionDenied(true);
+      setLocationError('현재 기기에서는 위치 정보를 사용할 수 없어요. 직접 주소를 입력해 주세요.');
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      () => onUseCurrentLocation?.(),
-      (error) => {
-        if (error.code === error.PERMISSION_DENIED) {
-          setLocationPermissionDenied(true);
+    setIsLocating(true);
+    try {
+      let position: GeolocationPosition;
+      try {
+        // GPS가 바로 잡히면 가장 정확한 좌표를 사용한다.
+        position = await getCurrentPosition({ enableHighAccuracy: true, timeout: 20_000, maximumAge: 0 });
+      } catch (error) {
+        if ((error as GeolocationPositionError).code === GeolocationPositionError.PERMISSION_DENIED) {
+          throw error;
         }
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
+        // 실내·저전력 모드에서는 GPS가 늦게 잡힐 수 있어, 네트워크 기반 위치를 한 번 더 시도한다.
+        position = await getCurrentPosition({ enableHighAccuracy: false, timeout: 10_000, maximumAge: 60_000 });
+      }
+
+      if (!onUseCurrentLocation) return;
+      const currentAddress = await onUseCurrentLocation(
+        position.coords.latitude,
+        position.coords.longitude
+      );
+      onChange({ ...currentAddress, detail: '' });
+      setQuery(currentAddress.roadAddress);
+    } catch (error) {
+      if ((error as GeolocationPositionError).code === GeolocationPositionError.PERMISSION_DENIED) {
+        setLocationPermissionDenied(true);
+      } else if (!window.isSecureContext) {
+        setLocationError('현재 위치는 HTTPS 주소에서만 사용할 수 있어요. HTTPS로 접속해 주세요.');
+      } else {
+        console.error('[address] current location setup failed', error);
+        setLocationError('현재 위치를 확인하지 못했어요. 위치 서비스와 네트워크를 확인해 주세요.');
+      }
+    } finally {
+      setIsLocating(false);
+    }
   };
 
   const openSearchPage = () => {
@@ -125,10 +157,11 @@ const AddressSelector = ({
           <button
             type="button"
             onClick={handleUseCurrentLocation}
+            disabled={isLocating}
             className="mx-auto flex h-[clamp(60px,8.88vh,70px)] w-[clamp(280px,82.67vw,310px)] translate-y-[clamp(40px,6.35vh,50px)] items-center justify-center gap-2 rounded-2xl border-[clamp(1px,0.254vh,2px)] border-[#FFB86B] bg-[#FFE3C2] py-0 font-[Pretendard] !text-[clamp(20px,3.05vh,24px)] !font-semibold text-[#8B5A2B] transition-colors hover:bg-[#FFDBB2]"
           >
             <LocationIcon className="h-6 w-6 shrink-0 text-[#8B5A2B]" />
-            현재 위치로 자동 설정
+            {isLocating ? '현재 위치 확인 중...' : '현재 위치로 자동 설정'}
           </button>
           {locationPermissionDenied && (
             <p
@@ -148,9 +181,17 @@ const AddressSelector = ({
               </span>
             </p>
           )}
+          {locationError && (
+            <p
+              role="alert"
+              className="mt-[clamp(8px,1.27vh,10px)] flex w-full translate-y-[clamp(40px,6.35vh,50px)] justify-center text-center font-[Pretendard] text-[clamp(15px,2.29vh,18px)] font-semibold leading-[1.35] text-[#FF4545]"
+            >
+              {locationError}
+            </p>
+          )}
           <p
             className={`mb-[clamp(50px,7.61vh,60px)] flex w-full translate-y-[clamp(40px,6.35vh,50px)] justify-center text-center font-[Pretendard] text-[clamp(16px,2.54vh,20px)] font-semibold text-black ${
-              locationPermissionDenied ? 'mt-1' : 'mt-[clamp(8px,1.27vh,10px)]'
+              locationPermissionDenied || locationError ? 'mt-1' : 'mt-[clamp(8px,1.27vh,10px)]'
             }`}
           >
             또는 직접 입력하기
