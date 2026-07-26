@@ -43,8 +43,8 @@ const LoginPage = () => {
 
   if (step === 'login') {
     return (
-      <div className="mx-auto flex h-dvh max-w-md flex-col overflow-hidden bg-brand-50 px-6 pb-8 pt-[clamp(16px,2.54vh,20px)]">
-        <div className="flex min-h-0 flex-1 flex-col justify-start overflow-y-auto">
+      <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-brand-50 px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))]">
+        <div className="flex flex-1 flex-col justify-start">
           <img
             src="/assets/Salpimi/Notebook.png"
             alt="살피미"
@@ -100,9 +100,9 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="mx-auto flex h-dvh max-w-md flex-col overflow-hidden bg-brand-50 px-6 pb-8 pt-8">
+    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-brand-50 px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))]">
       {/* 부제 + 로고·캐릭터 통합 이미지 (한 그룹, 세로 중앙) */}
-      <div className="flex min-h-0 flex-1 flex-col items-center justify-center text-center">
+      <div className="flex flex-1 flex-col items-center justify-center text-center">
         <p className="text-[clamp(22px,2.96vh,24px)] font-semibold leading-[1.5] text-[#613212]">
           노인 맞춤형
           <br />

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi, getKakaoAuthorizeUrl, getSignupErrorMessage } from '@/apis/auth';
+import { reverseGeocodeAddress } from '@/apis/address';
 import useUserStore from '@/store/userStore';
 import ProgressDots from '@/features/onboarding/ProgressDots';
 import OnboardingForm from '@/features/onboarding/OnboardingForm';
@@ -140,6 +141,7 @@ const SignUpPage = () => {
             onChange={setAddress}
             onBack={() => setStep((prev) => prev - 1)}
             onNext={next}
+            onUseCurrentLocation={reverseGeocodeAddress}
           />
         )}
         {step === 2 && <PasswordStep value={password} onChange={setPassword} onNext={next} />}
