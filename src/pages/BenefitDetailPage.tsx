@@ -11,7 +11,7 @@ const BenefitDetailPage = () => {
   if(!benefit) return <div>찾을 수 없다</div>;
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-[#FAF8F3] pb-20">
+    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-[#FAF8F3] pb-[calc(5rem+env(safe-area-inset-bottom))]">
       <HeaderBar title="혜택 자세히 보기"/>
       <BenefitDetail
         isOnline={benefit.isOnline}

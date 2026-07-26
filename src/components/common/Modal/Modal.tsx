@@ -26,14 +26,14 @@ const Modal = ({
   return (
     <div
       role="presentation"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-5"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/40 px-5 py-[max(1.25rem,env(safe-area-inset-top))]"
       onClick={onClose}
     >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? 'modal-title' : undefined}
-        className={`w-full max-w-sm rounded-[20px] border-2 border-[#FFD29E] bg-[#FFFCF8] p-5 shadow-lg ${className}`}
+        className={`max-h-full w-full max-w-sm overflow-y-auto rounded-[20px] border-2 border-[#FFD29E] bg-[#FFFCF8] p-5 shadow-lg ${className}`}
         onClick={(event) => event.stopPropagation()}
       >
         {title && (

@@ -11,7 +11,7 @@ const TermsDetail = ({ termKey, onClose }: TermsDetailProps) => {
   const content = TERMS_CONTENT[termKey];
 
   return (
-    <div className="fixed inset-0 z-50 mx-auto flex max-w-md flex-col bg-white">
+    <div className="fixed inset-0 z-50 mx-auto flex max-w-md flex-col bg-white pb-[env(safe-area-inset-bottom)] pt-[env(safe-area-inset-top)]">
       <OnboardingHeaderBar title={content.title} onBack={onClose} />
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-10">

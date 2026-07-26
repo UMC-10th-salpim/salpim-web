@@ -48,8 +48,8 @@ const FontSizePage = () => {
   };
 
   return (
-    <div className="min-h-dvh w-full bg-[#FAF8F3]">
-      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col overflow-hidden px-4 pb-12 pt-10 text-[#613212]">
+    <div className="min-h-[100svh] w-full bg-[#FAF8F3]">
+      <main className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col px-4 pb-[max(3rem,env(safe-area-inset-bottom))] pt-[max(2.5rem,env(safe-area-inset-top))] text-[#613212]">
         <section className="flex min-h-0 flex-1 flex-col">
           <img
             src="/assets/Salpimi/Talk.png"

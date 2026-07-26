@@ -11,7 +11,7 @@ const HelperPage = () => {
   if (!benefit) return <div>찾을 수 없다</div>
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-[#FAF8F3] pb-24">
+    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-[#FAF8F3] pb-[calc(6rem+env(safe-area-inset-bottom))]">
       <HeaderBar title="신청 도우미"/>
       <BenefitHelper isOnline={benefit.isOnline} url={benefit.url}/>
       <BottomNavigation />
