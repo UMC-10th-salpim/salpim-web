@@ -7,8 +7,9 @@ const decodeAccessToken = (accessToken: string | null): AccessTokenPayload | nul
   if (!accessToken) return null;
 
   try {
-    const payloadPart = accessToken.split('.')[1];
-    if (!payloadPart) return null;
+    const parts = accessToken.split('.');
+    if (parts.length !== 3 || parts.some((part) => !part)) return null;
+    const [, payloadPart] = parts;
 
     const normalized = payloadPart.replace(/-/g, '+').replace(/_/g, '/');
     const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
@@ -18,18 +19,25 @@ const decodeAccessToken = (accessToken: string | null): AccessTokenPayload | nul
   }
 };
 
+export const getAccessTokenExpiresAt = (accessToken: string | null): number | null => {
+  const payload = decodeAccessToken(accessToken);
+  const expiresAt = Number(payload?.exp);
+
+  return Number.isFinite(expiresAt) && expiresAt > 0 ? expiresAt * 1000 : null;
+};
+
 export const isAccessTokenValid = (accessToken: string | null): boolean => {
   const payload = decodeAccessToken(accessToken);
   if (!payload) return false;
 
   const memberId = Number(payload.sub);
-  const expiresAt = Number(payload.exp);
+  const expiresAt = getAccessTokenExpiresAt(accessToken);
 
   return (
     Number.isSafeInteger(memberId) &&
     memberId > 0 &&
-    Number.isFinite(expiresAt) &&
-    expiresAt * 1000 > Date.now()
+    expiresAt !== null &&
+    expiresAt > Date.now()
   );
 };
 

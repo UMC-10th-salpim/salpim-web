@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import useUserStore from '@/store/userStore';
-import { isAccessTokenValid } from '@/utils/jwt';
+import { getAccessTokenExpiresAt, isAccessTokenValid } from '@/utils/jwt';
+
+const MAX_TIMEOUT_MS = 2_147_483_647;
 
 const ProtectedRoute = () => {
   const location = useLocation();
@@ -10,7 +12,35 @@ const ProtectedRoute = () => {
   const isAuthenticated = isAccessTokenValid(accessToken);
 
   useEffect(() => {
-    if (accessToken && !isAuthenticated) logout();
+    if (!accessToken) return;
+
+    if (!isAuthenticated) {
+      logout();
+      return;
+    }
+
+    const expiresAt = getAccessTokenExpiresAt(accessToken);
+    if (expiresAt === null) {
+      logout();
+      return;
+    }
+
+    let timeoutId: number;
+
+    const logoutWhenExpired = () => {
+      const remainingTime = expiresAt - Date.now();
+
+      if (remainingTime <= 0) {
+        logout();
+        return;
+      }
+
+      timeoutId = window.setTimeout(logoutWhenExpired, Math.min(remainingTime, MAX_TIMEOUT_MS));
+    };
+
+    logoutWhenExpired();
+
+    return () => window.clearTimeout(timeoutId);
   }, [accessToken, isAuthenticated, logout]);
 
   if (!isAuthenticated) {
