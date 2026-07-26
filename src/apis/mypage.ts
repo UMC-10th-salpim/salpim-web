@@ -1,5 +1,24 @@
-// TODO: 마이페이지 관련 API 함수 구현
-export const mypageApi = {};
+import client from './client';
+
+interface ApiResponse<T> {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: T;
+}
+
+export interface MyPageInfo {
+  name: string;
+  sido: string;
+  sigungu: string;
+}
+
+export const mypageApi = {
+  getMyPage: async (): Promise<MyPageInfo> => {
+    const { data } = await client.get<ApiResponse<MyPageInfo>>('/users/me');
+    return data.result;
+  },
+};
 
 export interface MyProfile {
   name: string;
