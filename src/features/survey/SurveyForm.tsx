@@ -29,7 +29,7 @@ const SurveyForm = ({
   return (
     <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-brand-50/40 px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-4">
       {/*탭*/}
-      <div className='flex justify-center gap-4 mb-4'>
+      <div className='flex justify-center gap-4 mb-4 mx-11'>
         <button className='rounded-full px-4 py-3 text-xl font-semibold bg-[#FF8A3D] text-white'>
           살피미 추천
         </button>
