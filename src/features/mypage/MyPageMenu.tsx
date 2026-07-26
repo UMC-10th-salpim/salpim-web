@@ -68,15 +68,27 @@ const MyPageMenu = () => {
   const [confirmModal, setConfirmModal] = useState<'logout' | 'withdraw' | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [actionError, setActionError] = useState('');
-  const { data: profileSummary } = useQuery({
+  const {
+    data: profileSummary,
+    error: profileError,
+    isFetching: isProfileFetching,
+    refetch: refetchProfile,
+  } = useQuery({
     queryKey: ['mypage-summary', accessToken],
     queryFn: mypageApi.getSummary,
     enabled: Boolean(accessToken),
+    retry: false,
   });
   const displayName = profileSummary?.name || MOCK_PROFILE.name;
   const displayRegion =
     [profileSummary?.sido, profileSummary?.sigungu].filter(Boolean).join(' ') ||
     MOCK_PROFILE.region;
+  const profileErrorMessage = profileError
+    ? getApiErrorMessage(
+        profileError,
+        '내 정보를 서버에서 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
+      )
+    : '';
 
   const handleConfirm = async () => {
     if (!confirmModal || isProcessing) return;
@@ -122,6 +134,30 @@ const MyPageMenu = () => {
           <p className="mt-1 text-[17px] font-bold text-[#F07B32]">{displayRegion}</p>
         </div>
       </div>
+
+      {profileError && (
+        <section
+          role="alert"
+          className="rounded-[18px] border-2 border-[#F5B77C] bg-[#FFF7ED] px-4 py-3"
+        >
+          <p className="text-[17px] font-extrabold text-[#613212]">
+            회원 정보를 불러오지 못했어요.
+          </p>
+          <p className="mt-1 text-[15px] font-semibold leading-6 text-[#81746A]">
+            {profileErrorMessage}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              void refetchProfile();
+            }}
+            disabled={isProfileFetching}
+            className="mt-3 min-h-11 rounded-full bg-[#FF853E] px-5 text-[16px] font-extrabold text-white disabled:bg-[#F7C49F]"
+          >
+            {isProfileFetching ? '다시 불러오는 중...' : '다시 불러오기'}
+          </button>
+        </section>
+      )}
 
       <Section title="찜한 혜택 보러 가기">
         <MenuRow

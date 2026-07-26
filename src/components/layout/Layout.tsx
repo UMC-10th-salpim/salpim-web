@@ -6,7 +6,7 @@ const Layout = () => {
 
   return (
     <div className={`min-h-[100svh] bg-gray-100 ${fontSize === 'large' ? 'text-[110%]' : ''}`}>
-      <div className="mx-auto flex min-h-[100svh] w-full max-w-screen-sm flex-col bg-white">
+      <div className="mx-auto flex min-h-[100svh] w-full max-w-screen-sm flex-col bg-brand-50">
         <Outlet />
       </div>
     </div>
