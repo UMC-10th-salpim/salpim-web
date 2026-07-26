@@ -53,6 +53,14 @@ interface KakaoResponse {
   meta: { is_end: boolean; total_count: number };
 }
 
+interface KakaoCoordinateResponse {
+  documents: Array<{
+    road_address: KakaoRoadAddress | null;
+    address: KakaoJibunAddress | null;
+  }>;
+  meta: { total_count: number };
+}
+
 // 개발 편의용 목 데이터 (키가 없을 때 dev 모드에서만 사용)
 const mockSearch = (query: string, page: number): AddressSearchResponse => {
   const base = query.trim() || '서울특별시 중구 세종대로';
@@ -133,9 +141,16 @@ export const reverseGeocodeAddress = async (
       });
       if (!res.ok) throw new Error(`현재 위치 주소 변환 실패 (${res.status})`);
 
-      const data: KakaoResponse = await res.json();
-      const roadAddress = data.documents.find((document) => document.road_address)?.road_address;
+      const data: KakaoCoordinateResponse = await res.json();
+      const document = data.documents[0];
+      const roadAddress = document?.road_address;
       if (roadAddress) return toAddressResult(roadAddress);
+
+      const jibunAddress = document?.address?.address_name;
+      if (jibunAddress) {
+        const searchedRoadAddress = await searchRoadAddressByJibun(key, jibunAddress);
+        if (searchedRoadAddress) return searchedRoadAddress;
+      }
 
       throw new Error('현재 위치의 도로명 주소를 찾을 수 없습니다.');
     } catch (error) {
@@ -163,6 +178,24 @@ const toAddressResult = (roadAddress: KakaoRoadAddress): AddressResult => ({
   district: roadAddress.region_2depth_name,
   eupMyeonDong: roadAddress.region_3depth_name,
 });
+
+const searchRoadAddressByJibun = async (
+  key: string,
+  jibunAddress: string
+): Promise<AddressResult | null> => {
+  const params = new URLSearchParams({
+    query: jibunAddress,
+    size: '5',
+  });
+  const res = await fetch(`${KAKAO_LOCAL_URL}?${params.toString()}`, {
+    headers: { Authorization: `KakaoAK ${key}` },
+  });
+  if (!res.ok) throw new Error(`지번 주소 검색 실패 (${res.status})`);
+
+  const data: KakaoResponse = await res.json();
+  const roadAddress = data.documents.find((document) => document.road_address)?.road_address;
+  return roadAddress ? toAddressResult(roadAddress) : null;
+};
 
 const loadKakaoMapServices = () => {
   if (typeof window === 'undefined') {
@@ -205,20 +238,46 @@ const reverseGeocodeWithMapSdk = async (latitude: number, longitude: number): Pr
     const geocoder = new window.kakao.maps.services.Geocoder();
     geocoder.coord2Address(longitude, latitude, (result, status) => {
       const roadAddress = status === window.kakao.maps.services.Status.OK ? result[0]?.road_address : null;
-      if (!roadAddress) {
-        reject(new Error('현재 위치의 도로명 주소를 찾을 수 없습니다.'));
+      if (roadAddress) {
+        resolve(
+          toAddressResult({
+            address_name: roadAddress.address_name,
+            building_name: roadAddress.building_name,
+            region_1depth_name: roadAddress.region_1depth_name,
+            region_2depth_name: roadAddress.region_2depth_name,
+            region_3depth_name: roadAddress.region_3depth_name,
+          })
+        );
         return;
       }
 
-      resolve(
-        toAddressResult({
-          address_name: roadAddress.address_name,
-          building_name: roadAddress.building_name,
-          region_1depth_name: roadAddress.region_1depth_name,
-          region_2depth_name: roadAddress.region_2depth_name,
-          region_3depth_name: roadAddress.region_3depth_name,
-        })
-      );
+      const jibunAddress =
+        status === window.kakao.maps.services.Status.OK ? result[0]?.address?.address_name : undefined;
+      if (!jibunAddress) {
+        reject(new Error('현재 위치의 주소를 찾을 수 없습니다.'));
+        return;
+      }
+
+      geocoder.addressSearch(jibunAddress, (searchResult, searchStatus) => {
+        const searchedRoadAddress =
+          searchStatus === window.kakao.maps.services.Status.OK
+            ? searchResult.find((item) => item.road_address)?.road_address
+            : null;
+        if (!searchedRoadAddress) {
+          reject(new Error('현재 위치의 도로명 주소를 찾을 수 없습니다.'));
+          return;
+        }
+
+        resolve(
+          toAddressResult({
+            address_name: searchedRoadAddress.address_name,
+            building_name: searchedRoadAddress.building_name,
+            region_1depth_name: searchedRoadAddress.region_1depth_name,
+            region_2depth_name: searchedRoadAddress.region_2depth_name,
+            region_3depth_name: searchedRoadAddress.region_3depth_name,
+          })
+        );
+      });
     });
   });
 };

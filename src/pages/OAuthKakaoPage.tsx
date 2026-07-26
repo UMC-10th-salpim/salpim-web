@@ -7,6 +7,7 @@ const OAuthKakaoPage = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const setTokens = useUserStore((state) => state.setTokens);
+  const setName = useUserStore((state) => state.setName);
   const handled = useRef(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -40,6 +41,7 @@ const OAuthKakaoPage = () => {
 
         sessionStorage.removeItem('salpim-kakao-signup-token');
         setTokens(result.accessToken, result.refreshToken);
+        setName(result.name);
         navigate('/recommendation', { replace: true });
       })
       .catch((error: unknown) => {
@@ -47,7 +49,7 @@ const OAuthKakaoPage = () => {
           getKakaoLoginErrorMessage(error, '카카오 로그인에 실패했습니다. 다시 시도해 주세요.')
         );
       });
-  }, [params, navigate, setTokens]);
+  }, [params, navigate, setName, setTokens]);
 
   if (errorMessage) {
     return (

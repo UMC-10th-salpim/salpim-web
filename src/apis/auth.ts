@@ -63,6 +63,7 @@ export interface TokenResult {
 export interface KakaoLoginResult {
   isNewMember: boolean;
   nextStep: 'LOGIN_COMPLETE' | 'SIGNUP_REQUIRED';
+  name: string;
   accessToken: string | null;
   refreshToken: string | null;
   signupToken: string | null;
