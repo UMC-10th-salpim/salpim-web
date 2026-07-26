@@ -12,9 +12,15 @@ const USER_NAME = "김살핌";
 const BenefitPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const source = (location.state as { source? : 'survey' | 'search'})?.source ?? 'search';
+  const { source = 'search', keyword } =
+    (location.state as { source?: 'survey' | 'search'; keyword?: string }) ?? {};
 
-  const hasBenefits = MOCK_BENEFITS.length > 0;
+  // TODO: 백엔드 검색 API 연동 시 이 필터링 로직을 실제 API 호출로 교체
+  const filteredBenefits = keyword
+  ? MOCK_BENEFITS.filter((b) => b.title.includes(keyword))
+  : MOCK_BENEFITS;
+
+  const hasBenefits = filteredBenefits.length > 0;
 
   return (
     <div  className="mx-auto flex min-h-dvh max-w-md flex-col bg-[#FAF8F3] pb-24">
@@ -28,20 +34,20 @@ const BenefitPage = () => {
               <img src="/characters/salpimi_Good.png" alt="" className="absolute top-6 -left-px w-28 h-28"/>
               <div className="flex flex-col items-center gap-1">
                 <span className="text-[23px] font-semibold text-[#613212]">
-                  {USER_NAME}님이 원하시는 혜택 <br/> {MOCK_BENEFITS.length}가지를 찾았어요!
+                  {USER_NAME}님이 원하시는 혜택 <br/> {filteredBenefits.length}가지를 찾았어요!
                 </span>
                 <span className="text-base font-medium text-center text-[#FF8A3D]">살피미와 함께 확인해요</span>
               </div>
             </div> 
 
             <span className="text-2xl font-extrabold text-[#613212] pl-[24px] pb-2">
-              {MOCK_BENEFITS.length}가지 혜택 보기
+              {filteredBenefits.length}가지 혜택 보기
             </span>
 
             <div className="flex flex-col gap-1">
-              {MOCK_BENEFITS.map((benefit, index) => {
+              {filteredBenefits.map((benefit, index) => {
                 const isFirst = index === 0;
-                const isLast = index === MOCK_BENEFITS.length -1;
+                const isLast = index === filteredBenefits.length -1;
 
                 const roundedStyle = isFirst
                   ? 'rounded-t-[32px] rounded-b-none'
