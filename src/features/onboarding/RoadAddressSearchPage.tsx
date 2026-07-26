@@ -122,13 +122,13 @@ const RoadAddressSearchPage = ({
               if (event.key === 'Enter') submitSearch();
             }}
             placeholder="도로명 또는 건물명"
-            className="min-w-0 flex-1 px-2 font-[Pretendard] text-[clamp(18px,2.79vh,22px)] font-medium text-[#2B2B2B] outline-none placeholder:text-[#9A9A9A]"
+            className="min-w-0 flex-1 px-2 font-[Pretendard] !text-[clamp(18px,2.79vh,22px)] font-medium text-[#2B2B2B] outline-none placeholder:!text-[clamp(18px,2.79vh,22px)] placeholder:text-[#9A9A9A]"
           />
           <button
             type="button"
             onClick={submitSearch}
             disabled={!query.trim() || status === 'loading'}
-            className="flex h-[clamp(36px,5.08vh,40px)] shrink-0 items-center border-l border-[#F97316] pl-3 pr-1 font-[Pretendard] text-[clamp(21px,3.05vh,24px)] font-bold text-[#613212] disabled:opacity-45"
+            className="flex h-[clamp(36px,5.08vh,40px)] shrink-0 items-center border-l border-[#F97316] pl-3 pr-1 font-[Pretendard] !text-[clamp(21px,3.05vh,24px)] !font-semibold text-[#613212] disabled:opacity-45"
           >
             검색
           </button>
@@ -164,12 +164,12 @@ const RoadAddressSearchPage = ({
                         type="button"
                         onClick={() => setSelectedResult(result)}
                         aria-pressed={selected}
-                        className={`flex min-h-[clamp(46px,6.6vh,52px)] w-full items-center gap-2 px-1 text-left transition-colors ${
+                        className={`flex min-h-[clamp(46px,6.6vh,52px)] w-full items-center gap-2 px-1 text-left !font-semibold transition-colors ${
                           selected ? 'bg-[#FFF3E6]' : 'hover:bg-[#FFF8F1]'
                         }`}
                       >
                         <PinIcon className="h-6 w-6 shrink-0 text-[#2B2B2B]" />
-                        <span className="min-w-0 font-[Pretendard] text-[clamp(17px,2.54vh,20px)] font-medium text-[#2B2B2B]">
+                        <span className="min-w-0 font-[Pretendard] text-[clamp(17px,2.54vh,20px)] font-semibold text-[#2B2B2B]">
                           {result.roadAddress}
                           {result.buildingName ? ` (${result.buildingName})` : ''}
                         </span>
@@ -182,7 +182,7 @@ const RoadAddressSearchPage = ({
                 <button
                   type="button"
                   onClick={() => void runSearch(searchedQuery, page + 1)}
-                  className="flex h-[clamp(48px,7.11vh,56px)] shrink-0 items-center justify-center gap-2 border-t border-[#E3E3E3] font-[Pretendard] text-[clamp(18px,2.79vh,22px)] font-semibold text-[#777777]"
+                  className="flex h-[clamp(48px,7.11vh,56px)] shrink-0 items-center justify-center gap-2 border-t border-[#E3E3E3] font-[Pretendard] !text-[clamp(18px,2.79vh,22px)] !font-semibold text-[#777777]"
                 >
                   더 많은 결과 보기
                   <span className="text-[24px] leading-none" aria-hidden>

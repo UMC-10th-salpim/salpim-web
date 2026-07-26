@@ -16,7 +16,9 @@ const DEFAULT_CENTER: MapCenter = { lat: 37.5665, lng: 126.978 };
 
 const MapPage = () => {
   const navigate = useNavigate();
-  const [selectedMainCategory, setSelectedMainCategory] = useState<FacilityMainCategory | null>(null);
+  const [selectedMainCategory, setSelectedMainCategory] = useState<FacilityMainCategory | null>(
+    null
+  );
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [openCategorySheet, setOpenCategorySheet] = useState<FacilityMainCategory | null>(null);
   const [selectedFacilityId, setSelectedFacilityId] = useState<string | null>(null);
@@ -54,7 +56,8 @@ const MapPage = () => {
     return facilities.filter((facility) => facility.subCategory === selectedSubCategory);
   }, [facilities, selectedSubCategory]);
 
-  const selectedFacility = filteredFacilities.find((facility) => facility.id === selectedFacilityId) ?? null;
+  const selectedFacility =
+    filteredFacilities.find((facility) => facility.id === selectedFacilityId) ?? null;
 
   const handleOpenCategory = (category: FacilityMainCategory) => {
     setOpenCategorySheet(category);
@@ -99,7 +102,9 @@ const MapPage = () => {
           <FacilitySummarySheet
             facility={selectedFacility}
             onClose={() => setSelectedFacilityId(null)}
-            onViewDetail={(facility) => navigate(`/facility/${facility.id}`, { state: { facility } })}
+            onViewDetail={(facility) =>
+              navigate(`/facility/${facility.id}`, { state: { facility } })
+            }
           />
         )}
       </div>

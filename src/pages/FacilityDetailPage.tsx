@@ -1,11 +1,12 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { facilityApi, getMemberIdFromAccessToken } from '@/apis/facility';
 import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
 import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
+import { getFacilityDetails } from '@/apis/facility';
 import FacilityDetail from '@/features/map/FacilityDetail';
 import type { Facility } from '@/features/map/types';
 import useUserStore from '@/store/userStore';
+import { getMemberIdFromAccessToken } from '@/utils/jwt';
 
 const FacilityDetailPage = () => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const FacilityDetailPage = () => {
     queryFn: ({ pageParam }) => {
       if (!facility || !memberId) throw new Error('시설 상세 조회에 필요한 정보가 없습니다.');
 
-      return facilityApi.getDetails({
+      return getFacilityDetails({
         memberId,
         facilityName: facility.name,
         address: facility.address,

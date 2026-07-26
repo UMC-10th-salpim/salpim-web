@@ -149,11 +149,7 @@ const EditProfile = () => {
 
       const [coordinates, region] = await Promise.all([
         authApi.geocodeAddress(roadAddress),
-        authApi.resolveRegion({
-          city: addressInfo.city || null,
-          district: addressInfo.district || null,
-          eupMyeonDong: addressInfo.eupMyeonDong,
-        }),
+        authApi.resolveRegion(addressInfo.city, addressInfo.district, addressInfo.eupMyeonDong),
       ]);
 
       await mypageApi.updateProfile({

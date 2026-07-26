@@ -9,36 +9,6 @@ const KAKAO_LOCAL_KEYWORD_URL = 'https://dapi.kakao.com/v2/local/search/keyword.
 const SEARCH_RADIUS_METERS = 3000;
 const RESULTS_PER_SUBCATEGORY = 5;
 
-// 카카오 로컬 검색에서 실제로 더 잘 매칭되는 키워드로 보정
-const SUBCATEGORY_SEARCH_KEYWORD: Record<string, string> = {
-  보건소: '보건소',
-  병원: '병원',
-  약국: '약국',
-  '치매 센터': '치매안심센터',
-  주민센터: '행정복지센터',
-  복지관: '노인복지관',
-  동행센터: '동행센터',
-  경로당: '경로당',
-  문화센터: '문화센터',
-  평생교육원: '평생교육원',
-  일자리센터: '노인일자리센터',
-};
-
-interface KakaoKeywordDoc {
-  id: string;
-  place_name: string;
-  address_name: string;
-  road_address_name: string;
-  phone: string;
-  x: string; // 경도(lng)
-  y: string; // 위도(lat)
-  distance: string; // 반경 검색 시 미터 단위 문자열
-}
-
-interface KakaoKeywordResponse {
-  documents: KakaoKeywordDoc[];
-}
-
 interface ApiResponse<T> {
   isSuccess: boolean;
   code: string;
@@ -77,6 +47,60 @@ export interface FacilityDetailsParams {
   longitude: number;
   cursor?: string;
   size?: number;
+}
+
+export const getFacilityDetails = async ({
+  memberId,
+  facilityName,
+  address,
+  latitude,
+  longitude,
+  cursor,
+  size = 10,
+}: FacilityDetailsParams): Promise<FacilityDetails> => {
+  const { data } = await client.get<ApiResponse<FacilityDetails>>('/map/details', {
+    params: {
+      memberId,
+      facilityName,
+      address,
+      latitude,
+      longitude,
+      ...(cursor ? { cursor } : {}),
+      size,
+    },
+  });
+
+  return data.result;
+};
+
+// 카카오 로컬 검색에서 실제로 더 잘 매칭되는 키워드로 보정
+const SUBCATEGORY_SEARCH_KEYWORD: Record<string, string> = {
+  보건소: '보건소',
+  병원: '병원',
+  약국: '약국',
+  '치매 센터': '치매안심센터',
+  주민센터: '행정복지센터',
+  복지관: '노인복지관',
+  동행센터: '동행센터',
+  경로당: '경로당',
+  문화센터: '문화센터',
+  평생교육원: '평생교육원',
+  일자리센터: '노인일자리센터',
+};
+
+interface KakaoKeywordDoc {
+  id: string;
+  place_name: string;
+  address_name: string;
+  road_address_name: string;
+  phone: string;
+  x: string; // 경도(lng)
+  y: string; // 위도(lat)
+  distance: string; // 반경 검색 시 미터 단위 문자열
+}
+
+interface KakaoKeywordResponse {
+  documents: KakaoKeywordDoc[];
 }
 
 const formatDistance = (meters: string): string => {
@@ -149,37 +173,11 @@ export const searchAllFacilities = async (center: MapCenter): Promise<Facility[]
 
   return settled.flatMap((result) => {
     if (result.status === 'rejected') {
-      console.warn('[facility] 일부 카테고리 검색 실패', result.reason);
+      if (import.meta.env.DEV) {
+        console.warn('[facility] 일부 카테고리 검색 실패', result.reason);
+      }
       return [];
     }
     return result.value;
   });
-};
-
-export const getMemberIdFromAccessToken = (accessToken: string | null): number | null => {
-  if (!accessToken) return null;
-
-  try {
-    const encodedPayload = accessToken.split('.')[1];
-    if (!encodedPayload) return null;
-
-    const base64 = encodedPayload.replace(/-/g, '+').replace(/_/g, '/');
-    const payload = JSON.parse(atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, '='))) as Record<
-      string,
-      unknown
-    >;
-    const rawMemberId = payload.memberId ?? payload.member_id ?? payload.id ?? payload.sub;
-    const memberId = Number(rawMemberId);
-
-    return Number.isSafeInteger(memberId) && memberId > 0 ? memberId : null;
-  } catch {
-    return null;
-  }
-};
-
-export const facilityApi = {
-  getDetails: async (params: FacilityDetailsParams) => {
-    const { data } = await client.get<ApiResponse<FacilityDetails>>('/map/details', { params });
-    return data.result;
-  },
 };

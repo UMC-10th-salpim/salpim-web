@@ -1,4 +1,4 @@
-import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
+import OnboardingHeaderBar from './ui/OnboardingHeaderBar';
 import { TERMS_CONTENT } from './termsContent';
 import type { TermKey } from './termsContent';
 
@@ -12,7 +12,7 @@ const TermsDetail = ({ termKey, onClose }: TermsDetailProps) => {
 
   return (
     <div className="fixed inset-0 z-50 mx-auto flex max-w-md flex-col bg-white">
-      <HeaderBar title={content.title} onBack={onClose} />
+      <OnboardingHeaderBar title={content.title} onBack={onClose} />
 
       <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-10">
         {content.intro && (
