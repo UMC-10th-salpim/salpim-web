@@ -46,4 +46,5 @@ interface KakaoSdk {
 
 interface Window {
   Kakao: KakaoSdk;
+  kakao?: typeof kakao;
 }
