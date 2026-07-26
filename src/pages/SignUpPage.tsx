@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi, getKakaoAuthorizeUrl, getSignupErrorMessage } from '@/apis/auth';
-import { reverseGeocodeAddress } from '@/apis/address';
+import { ensureAddressRegion, reverseGeocodeAddress } from '@/apis/address';
 import useUserStore from '@/store/userStore';
 import ProgressDots from '@/features/onboarding/ProgressDots';
 import OnboardingForm from '@/features/onboarding/OnboardingForm';
@@ -74,11 +74,12 @@ const SignUpPage = () => {
 
     try {
       const birthDate = `${info.birthYear}-${info.birthMonth.padStart(2, '0')}-${info.birthDay.padStart(2, '0')}`;
+      const completeAddress = await ensureAddressRegion(address);
       const location = await authApi.geocodeAddress(address.roadAddress);
       const region = await authApi.resolveRegion(
-        address.city,
-        address.district,
-        address.eupMyeonDong
+        completeAddress.city,
+        completeAddress.district,
+        completeAddress.eupMyeonDong
       );
 
       const signupProfile = {
