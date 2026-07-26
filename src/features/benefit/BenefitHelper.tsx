@@ -104,7 +104,7 @@ const BenefitHelper = ({isOnline, url}:BenefitHelperProps) => {
           
           {/* 신청하기*/}
           <Button
-            rounded="full" disabled={!isOnline} className="h-16 mx-[14px] font-semibold text-[32px]" onClick={()=>url && window.open(url, '_blank')}>신청하기</Button>
+            rounded="full" disabled={!isOnline} className="h-16 mx-[14px] font-semibold text-[32px]" onClick={()=>url && window.open(url, '_blank')}>사이트 바로가기</Button>
         </div>
     )
 }

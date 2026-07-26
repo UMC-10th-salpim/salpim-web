@@ -49,7 +49,7 @@ button,
 input,
 textarea,
 select {
-  font: inherit;
+  font-family: inherit;
   letter-spacing: inherit;
 }
 
