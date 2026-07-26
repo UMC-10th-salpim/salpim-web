@@ -40,7 +40,6 @@ export interface FacilityDetails {
 }
 
 export interface FacilityDetailsParams {
-  memberId: number;
   facilityName: string;
   address: string;
   latitude: number;
@@ -50,7 +49,6 @@ export interface FacilityDetailsParams {
 }
 
 export const getFacilityDetails = async ({
-  memberId,
   facilityName,
   address,
   latitude,
@@ -60,7 +58,6 @@ export const getFacilityDetails = async ({
 }: FacilityDetailsParams): Promise<FacilityDetails> => {
   const { data } = await client.get<ApiResponse<FacilityDetails>>('/map/details', {
     params: {
-      memberId,
       facilityName,
       address,
       latitude,

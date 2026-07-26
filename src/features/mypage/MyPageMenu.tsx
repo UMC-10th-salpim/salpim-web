@@ -124,7 +124,11 @@ const MyPageMenu = () => {
     <main className="mypage-content gap-7">
       {/* 인사 카드 */}
       <div className="mypage-card flex items-center gap-4 px-5 py-4">
-        <img src="/characters/salpimi.png" alt="살피미" className="w-[72px] shrink-0" />
+        <img
+          src="/characters/salpimi_Hi.png"
+          alt="인사하는 살피미"
+          className="h-[72px] w-[72px] shrink-0 object-contain"
+        />
         <div>
           <p className="text-[22px] font-extrabold leading-8 text-[#3F2A1D]">
             안녕하세요,

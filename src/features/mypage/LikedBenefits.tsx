@@ -42,7 +42,11 @@ const LikedBenefits = () => {
       ) : (
         <>
           <div className="mypage-card flex items-center gap-4 px-4 py-3.5">
-            <img src="/characters/salpimi.png" alt="살피미" className="w-[70px] shrink-0" />
+            <img
+              src="/characters/salpimi_Love.png"
+              alt="하트를 들고 있는 살피미"
+              className="h-[70px] w-[70px] shrink-0 object-contain"
+            />
             <p className="text-[19px] font-extrabold leading-7 text-[#613212]">
               찜해 둔 혜택 {likedBenefits.length}개예요!
               <br />

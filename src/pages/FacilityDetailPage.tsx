@@ -1,27 +1,25 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import axios from 'axios';
 import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
 import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
 import { getFacilityDetails } from '@/apis/facility';
 import FacilityDetail from '@/features/map/FacilityDetail';
 import type { Facility } from '@/features/map/types';
 import useUserStore from '@/store/userStore';
-import { getMemberIdFromAccessToken } from '@/utils/jwt';
 
 const FacilityDetailPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const facility = (location.state as { facility?: Facility } | null)?.facility;
   const accessToken = useUserStore((state) => state.accessToken);
-  const memberId = getMemberIdFromAccessToken(accessToken);
 
   const detailsQuery = useInfiniteQuery({
-    queryKey: ['facility-details', memberId, facility?.id],
+    queryKey: ['facility-details', facility?.id],
     queryFn: ({ pageParam }) => {
-      if (!facility || !memberId) throw new Error('시설 상세 조회에 필요한 정보가 없습니다.');
+      if (!facility || !accessToken) throw new Error('시설 상세 조회에 필요한 정보가 없습니다.');
 
       return getFacilityDetails({
-        memberId,
         facilityName: facility.name,
         address: facility.address,
         latitude: facility.lat,
@@ -33,7 +31,9 @@ const FacilityDetailPage = () => {
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) =>
       lastPage.benefits.hasNext ? (lastPage.benefits.nextCursor ?? undefined) : undefined,
-    enabled: Boolean(facility && memberId),
+    enabled: Boolean(facility && accessToken),
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 
   if (!facility) {
@@ -54,15 +54,19 @@ const FacilityDetailPage = () => {
 
   const firstPage = detailsQuery.data?.pages[0];
   const benefits = detailsQuery.data?.pages.flatMap((page) => page.benefits.data) ?? [];
+  const errorCode = axios.isAxiosError(detailsQuery.error)
+    ? (detailsQuery.error.response?.data as { code?: string } | undefined)?.code
+    : undefined;
+  const isOutsideMyServiceCenter = errorCode === 'MAP400_3';
   const loadError =
-    memberId === null
+    !accessToken
       ? '로그인 정보를 확인할 수 없어 시설 상세 정보를 불러오지 못했어요.'
-      : detailsQuery.isError
+      : detailsQuery.isError && !isOutsideMyServiceCenter
         ? '시설 상세 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
         : null;
 
   return (
-    <main className="min-h-[100svh] bg-gray-50 pb-[calc(5rem+env(safe-area-inset-bottom))]">
+    <main className="mx-auto min-h-[100svh] w-full max-w-md bg-[#FAF8F3] pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
       <HeaderBar title="시설 자세히 보기" />
       <FacilityDetail
         facility={facility}
