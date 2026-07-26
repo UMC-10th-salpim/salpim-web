@@ -27,20 +27,18 @@ export interface AddressSearchResponse {
   totalCount: number;
 }
 
-interface KakaoRoadAddress {
+interface KakaoRegionAddress {
   address_name: string;
-  building_name: string;
   region_1depth_name: string;
   region_2depth_name: string;
   region_3depth_name: string;
 }
 
-interface KakaoJibunAddress {
-  address_name: string;
-  region_1depth_name: string;
-  region_2depth_name: string;
-  region_3depth_name: string;
+interface KakaoRoadAddress extends KakaoRegionAddress {
+  building_name: string;
 }
+
+type KakaoJibunAddress = KakaoRegionAddress;
 
 interface KakaoDoc {
   address_name: string;
@@ -99,14 +97,18 @@ export const searchAddress = async (query: string, page = 1): Promise<AddressSea
 
   const data: KakaoResponse = await res.json();
   const results: AddressResult[] = data.documents.map((doc) => {
-    const region = doc.address ?? doc.road_address;
-
     return {
       roadAddress: doc.road_address?.address_name || doc.address_name,
       buildingName: doc.road_address?.building_name || undefined,
-      city: region?.region_1depth_name ?? '',
-      district: region?.region_2depth_name ?? '',
-      eupMyeonDong: region?.region_3depth_name ?? '',
+      city: firstNonEmpty(doc.address?.region_1depth_name, doc.road_address?.region_1depth_name),
+      district: firstNonEmpty(
+        doc.address?.region_2depth_name,
+        doc.road_address?.region_2depth_name
+      ),
+      eupMyeonDong: firstNonEmpty(
+        doc.address?.region_3depth_name,
+        doc.road_address?.region_3depth_name
+      ),
     };
   });
 
@@ -144,7 +146,7 @@ export const reverseGeocodeAddress = async (
       const data: KakaoCoordinateResponse = await res.json();
       const document = data.documents[0];
       const roadAddress = document?.road_address;
-      if (roadAddress) return toAddressResult(roadAddress);
+      if (roadAddress) return toAddressResult(roadAddress, document.address);
 
       const jibunAddress = document?.address?.address_name;
       if (jibunAddress) {
@@ -171,13 +173,53 @@ export const reverseGeocodeAddress = async (
   }
 };
 
-const toAddressResult = (roadAddress: KakaoRoadAddress): AddressResult => ({
+const firstNonEmpty = (...values: Array<string | null | undefined>): string =>
+  values.find((value) => value?.trim())?.trim() ?? '';
+
+const toAddressResult = (
+  roadAddress: KakaoRoadAddress,
+  jibunAddress?: KakaoJibunAddress | null
+): AddressResult => ({
   roadAddress: roadAddress.address_name,
   buildingName: roadAddress.building_name || undefined,
-  city: roadAddress.region_1depth_name,
-  district: roadAddress.region_2depth_name,
-  eupMyeonDong: roadAddress.region_3depth_name,
+  city: firstNonEmpty(jibunAddress?.region_1depth_name, roadAddress.region_1depth_name),
+  district: firstNonEmpty(jibunAddress?.region_2depth_name, roadAddress.region_2depth_name),
+  eupMyeonDong: firstNonEmpty(
+    jibunAddress?.region_3depth_name,
+    roadAddress.region_3depth_name
+  ),
 });
+
+const hasCompleteRegion = (address: AddressResult) =>
+  Boolean(address.city.trim() && address.district.trim() && address.eupMyeonDong.trim());
+
+/**
+ * 이전 검색 결과나 일부 도로명 주소 응답에 읍·면·동이 빠져 있어도
+ * 회원가입 직전에 주소를 다시 조회해 백엔드 필수 지역값을 완성한다.
+ */
+export const ensureAddressRegion = async (address: AddressResult): Promise<AddressResult> => {
+  if (hasCompleteRegion(address)) return address;
+
+  const response = await searchAddress(address.roadAddress, 1);
+  const normalizedRoadAddress = address.roadAddress.replace(/\s+/g, ' ').trim();
+  const exactResult = response.results.find(
+    (result) => result.roadAddress.replace(/\s+/g, ' ').trim() === normalizedRoadAddress
+  );
+  const completedResult =
+    (exactResult && hasCompleteRegion(exactResult) ? exactResult : undefined) ??
+    response.results.find(hasCompleteRegion);
+
+  if (!completedResult) {
+    throw new Error('선택한 주소의 읍·면·동 정보를 확인하지 못했습니다.');
+  }
+
+  return {
+    ...address,
+    city: firstNonEmpty(address.city, completedResult.city),
+    district: firstNonEmpty(address.district, completedResult.district),
+    eupMyeonDong: firstNonEmpty(address.eupMyeonDong, completedResult.eupMyeonDong),
+  };
+};
 
 const searchRoadAddressByJibun = async (
   key: string,
@@ -193,8 +235,10 @@ const searchRoadAddressByJibun = async (
   if (!res.ok) throw new Error(`지번 주소 검색 실패 (${res.status})`);
 
   const data: KakaoResponse = await res.json();
-  const roadAddress = data.documents.find((document) => document.road_address)?.road_address;
-  return roadAddress ? toAddressResult(roadAddress) : null;
+  const document = data.documents.find((item) => item.road_address);
+  return document?.road_address
+    ? toAddressResult(document.road_address, document.address)
+    : null;
 };
 
 const loadKakaoMapServices = () => {
@@ -238,44 +282,51 @@ const reverseGeocodeWithMapSdk = async (latitude: number, longitude: number): Pr
     const geocoder = new window.kakao.maps.services.Geocoder();
     geocoder.coord2Address(longitude, latitude, (result, status) => {
       const roadAddress = status === window.kakao.maps.services.Status.OK ? result[0]?.road_address : null;
+      const jibunRegion = status === window.kakao.maps.services.Status.OK ? result[0]?.address : null;
       if (roadAddress) {
         resolve(
-          toAddressResult({
-            address_name: roadAddress.address_name,
-            building_name: roadAddress.building_name,
-            region_1depth_name: roadAddress.region_1depth_name,
-            region_2depth_name: roadAddress.region_2depth_name,
-            region_3depth_name: roadAddress.region_3depth_name,
-          })
+          toAddressResult(
+            {
+              address_name: roadAddress.address_name,
+              building_name: roadAddress.building_name,
+              region_1depth_name: roadAddress.region_1depth_name,
+              region_2depth_name: roadAddress.region_2depth_name,
+              region_3depth_name: roadAddress.region_3depth_name,
+            },
+            jibunRegion
+          )
         );
         return;
       }
 
-      const jibunAddress =
-        status === window.kakao.maps.services.Status.OK ? result[0]?.address?.address_name : undefined;
-      if (!jibunAddress) {
+      const jibunAddressName = jibunRegion?.address_name;
+      if (!jibunAddressName) {
         reject(new Error('현재 위치의 주소를 찾을 수 없습니다.'));
         return;
       }
 
-      geocoder.addressSearch(jibunAddress, (searchResult, searchStatus) => {
-        const searchedRoadAddress =
+      geocoder.addressSearch(jibunAddressName, (searchResult, searchStatus) => {
+        const searchedDocument =
           searchStatus === window.kakao.maps.services.Status.OK
-            ? searchResult.find((item) => item.road_address)?.road_address
+            ? searchResult.find((item) => item.road_address)
             : null;
+        const searchedRoadAddress = searchedDocument?.road_address;
         if (!searchedRoadAddress) {
           reject(new Error('현재 위치의 도로명 주소를 찾을 수 없습니다.'));
           return;
         }
 
         resolve(
-          toAddressResult({
-            address_name: searchedRoadAddress.address_name,
-            building_name: searchedRoadAddress.building_name,
-            region_1depth_name: searchedRoadAddress.region_1depth_name,
-            region_2depth_name: searchedRoadAddress.region_2depth_name,
-            region_3depth_name: searchedRoadAddress.region_3depth_name,
-          })
+          toAddressResult(
+            {
+              address_name: searchedRoadAddress.address_name,
+              building_name: searchedRoadAddress.building_name,
+              region_1depth_name: searchedRoadAddress.region_1depth_name,
+              region_2depth_name: searchedRoadAddress.region_2depth_name,
+              region_3depth_name: searchedRoadAddress.region_3depth_name,
+            },
+            searchedDocument.address
+          )
         );
       });
     });
