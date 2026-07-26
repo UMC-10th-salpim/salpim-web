@@ -19,6 +19,47 @@ interface AddressSelectorProps {
   onUseCurrentLocation?: (latitude: number, longitude: number) => Promise<AddressResult>;
 }
 
+interface LocationCoordinates {
+  latitude: number;
+  longitude: number;
+}
+
+interface CachedLocation extends LocationCoordinates {
+  savedAt: number;
+}
+
+const LOCATION_CACHE_KEY = 'salpim-last-location';
+const LOCATION_CACHE_MAX_AGE_MS = 30 * 60 * 1000;
+
+const readCachedLocation = (): LocationCoordinates | null => {
+  try {
+    const stored = localStorage.getItem(LOCATION_CACHE_KEY);
+    if (!stored) return null;
+
+    const cached = JSON.parse(stored) as CachedLocation;
+    const isValid =
+      Number.isFinite(cached.latitude) &&
+      Number.isFinite(cached.longitude) &&
+      Number.isFinite(cached.savedAt) &&
+      Date.now() - cached.savedAt <= LOCATION_CACHE_MAX_AGE_MS;
+
+    return isValid ? { latitude: cached.latitude, longitude: cached.longitude } : null;
+  } catch {
+    return null;
+  }
+};
+
+const saveCachedLocation = (coordinates: LocationCoordinates) => {
+  try {
+    localStorage.setItem(
+      LOCATION_CACHE_KEY,
+      JSON.stringify({ ...coordinates, savedAt: Date.now() } satisfies CachedLocation)
+    );
+  } catch {
+    // 저장 공간을 사용할 수 없어도 현재 위치 설정은 계속 진행한다.
+  }
+};
+
 const SearchIcon = ({ className = '' }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" className={className}>
     <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2.2" />
@@ -59,6 +100,57 @@ const AddressSelector = ({
       navigator.geolocation.getCurrentPosition(resolve, reject, options);
     });
 
+  const requestLocationCoordinates = async (): Promise<LocationCoordinates> => {
+    try {
+      // 데스크톱과 Safari에서 빠르게 잡히는 네트워크 기반 위치를 먼저 사용한다.
+      const position = await getCurrentPosition({
+        enableHighAccuracy: false,
+        timeout: 20_000,
+        maximumAge: LOCATION_CACHE_MAX_AGE_MS,
+      });
+      const coordinates = {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude,
+      };
+      saveCachedLocation(coordinates);
+      return coordinates;
+    } catch (firstError) {
+      if (
+        (firstError as GeolocationPositionError).code ===
+        GeolocationPositionError.PERMISSION_DENIED
+      ) {
+        throw firstError;
+      }
+
+      try {
+        // 일반 위치가 없을 때만 새 고정밀 좌표를 한 번 더 요청한다.
+        const position = await getCurrentPosition({
+          enableHighAccuracy: true,
+          timeout: 30_000,
+          maximumAge: 0,
+        });
+        const coordinates = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
+        saveCachedLocation(coordinates);
+        return coordinates;
+      } catch (secondError) {
+        if (
+          (secondError as GeolocationPositionError).code ===
+          GeolocationPositionError.PERMISSION_DENIED
+        ) {
+          throw secondError;
+        }
+
+        // 브라우저 위치 서비스가 잠시 불안정하면 마지막 정상 좌표를 재사용한다.
+        const cachedLocation = readCachedLocation();
+        if (cachedLocation) return cachedLocation;
+        throw secondError;
+      }
+    }
+  };
+
   const handleUseCurrentLocation = async () => {
     setLocationPermissionDenied(false);
     setLocationError('');
@@ -69,26 +161,9 @@ const AddressSelector = ({
     }
 
     setIsLocating(true);
+    let coordinates: LocationCoordinates;
     try {
-      let position: GeolocationPosition;
-      try {
-        // GPS가 바로 잡히면 가장 정확한 좌표를 사용한다.
-        position = await getCurrentPosition({ enableHighAccuracy: true, timeout: 20_000, maximumAge: 0 });
-      } catch (error) {
-        if ((error as GeolocationPositionError).code === GeolocationPositionError.PERMISSION_DENIED) {
-          throw error;
-        }
-        // 실내·저전력 모드에서는 GPS가 늦게 잡힐 수 있어, 네트워크 기반 위치를 한 번 더 시도한다.
-        position = await getCurrentPosition({ enableHighAccuracy: false, timeout: 10_000, maximumAge: 60_000 });
-      }
-
-      if (!onUseCurrentLocation) return;
-      const currentAddress = await onUseCurrentLocation(
-        position.coords.latitude,
-        position.coords.longitude
-      );
-      onChange({ ...currentAddress, detail: '' });
-      setQuery(currentAddress.roadAddress);
+      coordinates = await requestLocationCoordinates();
     } catch (error) {
       if ((error as GeolocationPositionError).code === GeolocationPositionError.PERMISSION_DENIED) {
         setLocationPermissionDenied(true);
@@ -98,6 +173,21 @@ const AddressSelector = ({
         console.error('[address] current location setup failed', error);
         setLocationError('현재 위치를 확인하지 못했어요. 위치 서비스와 네트워크를 확인해 주세요.');
       }
+      setIsLocating(false);
+      return;
+    }
+
+    try {
+      if (!onUseCurrentLocation) return;
+      const currentAddress = await onUseCurrentLocation(
+        coordinates.latitude,
+        coordinates.longitude
+      );
+      onChange({ ...currentAddress, detail: '' });
+      setQuery(currentAddress.roadAddress);
+    } catch (error) {
+      console.error('[address] reverse geocoding failed', error);
+      setLocationError('현재 위치의 주소를 변환하지 못했어요. 잠시 후 다시 시도해 주세요.');
     } finally {
       setIsLocating(false);
     }

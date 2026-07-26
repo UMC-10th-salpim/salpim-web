@@ -23,6 +23,7 @@ const KAKAO_SIGNUP_TOKEN_KEY = 'salpim-kakao-signup-token';
 const SignUpPage = () => {
   const navigate = useNavigate();
   const setTokens = useUserStore((state) => state.setTokens);
+  const setName = useUserStore((state) => state.setName);
   const [step, setStep] = useState(0);
   const [kakaoSignupToken] = useState(() => sessionStorage.getItem(KAKAO_SIGNUP_TOKEN_KEY));
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -94,6 +95,7 @@ const SignUpPage = () => {
 
       if (kakaoSignupToken) {
         await authApi.signupKakao(kakaoSignupToken, signupProfile);
+        setName(signupProfile.name);
         sessionStorage.removeItem(KAKAO_SIGNUP_TOKEN_KEY);
         window.location.href = getKakaoAuthorizeUrl();
         return;
@@ -107,6 +109,7 @@ const SignUpPage = () => {
 
       const tokens = await authApi.loginLocal(info.phone, password.password);
       setTokens(tokens.accessToken, tokens.refreshToken);
+      setName(signupProfile.name);
       navigate('/recommendation', { replace: true });
     } catch (error) {
       setSubmitError(
