@@ -105,7 +105,7 @@ const handleKakaoShare = () => {
         {!isOnline && (
           <div className="flex flex-col gap-2">
             <span className="pl-4 font-bold text-[#613212] text-2xl">가까운 기관에서 도움받기</span>
-          
+
             <div className="bg-[#FBE3BF] rounded-4xl p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="rounded-full bg-[#FAFAFA] w-16 h-16 flex items-center justift-center pl-3">
@@ -121,7 +121,7 @@ const handleKakaoShare = () => {
             </div>
 
             {/* TODO: 백엔드 연동 시 시설 좌표(위도/경도) 데이터를 받아서 /map으로 navigate state 전달 */}
-            <div 
+            <div
               className="flex items-center gap-1 cursor-pointer"
               onClick={()=>navigate('/map')}
             >

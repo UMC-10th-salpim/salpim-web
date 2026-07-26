@@ -1,4 +1,3 @@
-import { MOCK_PASSWORD } from '@/apis/mypage';
 import { primaryButton } from '@/features/onboarding/styles';
 
 interface FindPasswordResultProps {
@@ -11,17 +10,11 @@ const FindPasswordResult = ({ onChangePassword }: FindPasswordResultProps) => {
       <h2 className="text-[22px] font-extrabold text-[#43230F]">본인 확인이 완료됐어요!</h2>
 
       <div className="mypage-card self-center p-5">
-        <p className="mb-3 text-[17px] font-extrabold text-[#FF7A32]">현재 비밀번호</p>
-        <div className="flex gap-2">
-          {MOCK_PASSWORD.split('').map((digit, index) => (
-            <span
-              key={index}
-              className="flex h-12 w-10 items-center justify-center rounded-lg bg-[#FFEBD1] text-xl font-extrabold text-[#613212]"
-            >
-              {digit}
-            </span>
-          ))}
-        </div>
+        <p className="text-[17px] font-extrabold leading-7 text-[#FF7A32]">
+          안전을 위해 기존 비밀번호는 보여드리지 않아요.
+          <br />
+          바로 새 비밀번호를 설정해 주세요.
+        </p>
       </div>
 
       <button

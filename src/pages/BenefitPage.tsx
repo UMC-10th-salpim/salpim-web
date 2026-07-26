@@ -32,7 +32,7 @@ const BenefitPage = () => {
                 </span>
                 <span className="text-base font-medium text-center text-[#FF8A3D]">살피미와 함께 확인해요</span>
               </div>
-            </div> 
+            </div>
 
             <span className="text-2xl font-extrabold text-[#613212] pl-[24px] pb-2">
               {MOCK_BENEFITS.length}가지 혜택 보기

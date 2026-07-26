@@ -12,14 +12,14 @@ interface SurveyFormProps {
   userName?: string;
 };
 
-const SurveyForm = ({ 
+const SurveyForm = ({
   current,
   currentValue,
   answered,
   step,
   onChange,
   onNext,
-  userName = 'OO' 
+  userName = 'OO'
 }: SurveyFormProps) => {
   const navigate = useNavigate();
 

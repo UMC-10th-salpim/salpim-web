@@ -101,7 +101,7 @@ const BenefitHelper = ({isOnline, url}:BenefitHelperProps) => {
 
             <div className="bg-[#FFEDD5] rounded-full px-[17px] py-[18px] text-center font-semibold text-xl"> ➌ 결과는 2026년 7월 15일에 알려줘요</div>
           </div>
-          
+
           {/* 신청하기*/}
           <Button
             rounded="full" disabled={!isOnline} className="h-16 mx-[14px] font-semibold text-[32px]" onClick={()=>url && window.open(url, '_blank')}>신청하기</Button>

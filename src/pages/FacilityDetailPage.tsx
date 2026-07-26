@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
 import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
 import { getFacilityDetails } from '@/apis/facility';
@@ -14,22 +14,26 @@ const FacilityDetailPage = () => {
   const facility = (location.state as { facility?: Facility } | null)?.facility;
   const accessToken = useUserStore((state) => state.accessToken);
   const memberId = getMemberIdFromAccessToken(accessToken);
-  const {
-    data: facilityDetails,
-    error: facilityDetailsError,
-    isLoading: facilityDetailsLoading,
-  } = useQuery({
+
+  const detailsQuery = useInfiniteQuery({
     queryKey: ['facility-details', memberId, facility?.id],
-    queryFn: () =>
-      getFacilityDetails({
-        memberId: memberId ?? 0,
-        facilityName: facility?.name ?? '',
-        address: facility?.address ?? '',
-        latitude: facility?.lat ?? 0,
-        longitude: facility?.lng ?? 0,
-      }),
+    queryFn: ({ pageParam }) => {
+      if (!facility || !memberId) throw new Error('시설 상세 조회에 필요한 정보가 없습니다.');
+
+      return getFacilityDetails({
+        memberId,
+        facilityName: facility.name,
+        address: facility.address,
+        latitude: facility.lat,
+        longitude: facility.lng,
+        cursor: pageParam,
+        size: 10,
+      });
+    },
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: (lastPage) =>
+      lastPage.benefits.hasNext ? (lastPage.benefits.nextCursor ?? undefined) : undefined,
     enabled: Boolean(facility && memberId),
-    retry: false,
   });
 
   if (!facility) {
@@ -48,30 +52,33 @@ const FacilityDetailPage = () => {
     );
   }
 
-  const resolvedFacility: Facility = facilityDetails
-    ? {
-        ...facility,
-        name: facilityDetails.name,
-        address: facilityDetails.address,
-        operatingHours: facilityDetails.hour,
-        distanceFromHome: facilityDetails.distanceText,
-      }
-    : facility;
+  const firstPage = detailsQuery.data?.pages[0];
+  const benefits = detailsQuery.data?.pages.flatMap((page) => page.benefits.data) ?? [];
+  const loadError =
+    memberId === null
+      ? '로그인 정보를 확인할 수 없어 시설 상세 정보를 불러오지 못했어요.'
+      : detailsQuery.isError
+        ? '시설 상세 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
+        : null;
 
   return (
     <main className="min-h-screen bg-gray-50 pb-20">
       <HeaderBar title="시설 자세히 보기" />
-      {facilityDetailsLoading && (
-        <p role="status" className="bg-gray-50 px-4 pt-4 text-sm text-gray-500">
-          시설 정보를 불러오고 있어요...
-        </p>
-      )}
-      {facilityDetailsError && (
-        <p role="alert" className="bg-gray-50 px-4 pt-4 text-sm text-red-500">
-          시설 상세 정보를 불러오지 못해 지도 검색 정보를 표시합니다.
-        </p>
-      )}
-      <FacilityDetail facility={resolvedFacility} benefits={facilityDetails?.benefits.data} />
+      <FacilityDetail
+        facility={facility}
+        details={firstPage}
+        benefits={benefits}
+        isLoading={detailsQuery.isLoading}
+        errorMessage={loadError}
+        onRetry={() => {
+          void detailsQuery.refetch();
+        }}
+        hasNextPage={detailsQuery.hasNextPage}
+        isFetchingNextPage={detailsQuery.isFetchingNextPage}
+        onLoadMore={() => {
+          void detailsQuery.fetchNextPage();
+        }}
+      />
       <BottomNavigation />
     </main>
   );
