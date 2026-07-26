@@ -65,7 +65,7 @@ const BenefitSearchPage = () => {
   const goResults = () => navigate('/benefits', {state: {source : 'search'}});
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-white pb-24">
+    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-white pb-[calc(6rem+env(safe-area-inset-bottom))]">
       <HeaderBar title="혜택 안내" onBack={() => navigate(-1)} />
 
       <div className="flex flex-col gap-6 px-5 pt-2">

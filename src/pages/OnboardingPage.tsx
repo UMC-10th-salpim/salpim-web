@@ -138,8 +138,8 @@ const OnboardingPage = () => {
   const handleNext = () => (isLast ? finish() : setStep((prev) => prev + 1));
 
   return (
-    <div className="h-dvh w-full bg-brand-50">
-      <div className="relative mx-auto flex h-dvh max-w-md flex-col overflow-hidden bg-brand-50">
+    <div className="min-h-[100svh] w-full bg-brand-50">
+      <div className="relative mx-auto flex min-h-[100svh] max-w-md flex-col bg-brand-50">
         {/* 진행 표시 */}
         <div
           className={`flex shrink-0 justify-center px-6 ${
@@ -201,9 +201,7 @@ const OnboardingPage = () => {
           // 일반 슬라이드: 내용은 남는 공간에서 세로 중앙 정렬(길면 스크롤) + 하단 고정 버튼
           <>
             <div
-              className={`min-h-0 flex-1 ${
-                step === 1 ? 'overflow-hidden px-8' : 'overflow-y-auto px-6'
-              }`}
+              className={`min-h-0 flex-1 overflow-y-auto ${step === 1 ? 'px-8' : 'px-6'}`}
             >
               <div
                 className={`flex min-h-full flex-col items-center text-center ${

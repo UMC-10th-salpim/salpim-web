@@ -16,7 +16,7 @@ const BottomSheet = ({ open, onClose, children, className = '' }: BottomSheetPro
       <div
         role="dialog"
         aria-modal="true"
-        className={`animate-slide-up relative z-10 w-full max-w-screen-sm rounded-t-3xl bg-white px-5 pb-8 pt-3 shadow-lg ${className}`}
+        className={`animate-slide-up relative z-10 max-h-[calc(100svh-env(safe-area-inset-top))] w-full max-w-screen-sm overflow-y-auto rounded-t-3xl bg-white px-5 pb-[max(2rem,env(safe-area-inset-bottom))] pt-3 shadow-lg ${className}`}
       >
         <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-gray-200" />
         {children}
