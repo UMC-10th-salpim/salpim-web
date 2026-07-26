@@ -1,20 +1,33 @@
 import { useState } from 'react';
-import { SECURITY_QUESTION, MOCK_SECURITY_ANSWER } from '@/apis/mypage';
+import { getApiErrorMessage } from '@/apis/auth';
+import { SECURITY_QUESTION, mypageApi } from '@/apis/mypage';
 import { inputStyle, primaryButton } from '@/features/onboarding/styles';
 
 interface FindPasswordQuestionProps {
-  onVerified: () => void;
+  onVerified: (recoveryAnswer: string) => void;
 }
 
 const FindPasswordQuestion = ({ onVerified }: FindPasswordQuestionProps) => {
   const [answer, setAnswer] = useState('');
-  const [error, setError] = useState(false);
+  const [error, setError] = useState('');
+  const [verifying, setVerifying] = useState(false);
 
-  const handleSubmit = () => {
-    if (answer.trim() === MOCK_SECURITY_ANSWER) {
-      onVerified();
-    } else {
-      setError(true);
+  const handleSubmit = async () => {
+    if (verifying) return;
+    setVerifying(true);
+    setError('');
+
+    try {
+      const isVerified = await mypageApi.verifyRecoveryAnswer(answer.trim());
+      if (!isVerified) {
+        setError('답변이 일치하지 않아요.');
+        return;
+      }
+      onVerified(answer.trim());
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError, '답변을 확인하지 못했어요.'));
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -27,13 +40,13 @@ const FindPasswordQuestion = ({ onVerified }: FindPasswordQuestionProps) => {
           value={answer}
           onChange={(event) => {
             setAnswer(event.target.value);
-            setError(false);
+            setError('');
           }}
           placeholder="답변을 적어 주세요."
           aria-label="답변"
         />
         {error && (
-          <p className="mt-2 text-[16px] font-bold text-red-500">답변이 일치하지 않아요.</p>
+          <p className="mt-2 text-[16px] font-bold text-red-500">{error}</p>
         )}
       </div>
 
@@ -52,11 +65,13 @@ const FindPasswordQuestion = ({ onVerified }: FindPasswordQuestionProps) => {
 
       <button
         type="button"
-        onClick={handleSubmit}
-        disabled={!answer.trim()}
+        onClick={() => {
+          void handleSubmit();
+        }}
+        disabled={!answer.trim() || verifying}
         className={`${primaryButton} !min-h-14 !flex-none !text-[22px]`}
       >
-        새 비밀번호로 바꾸기
+        {verifying ? '확인 중...' : '새 비밀번호로 바꾸기'}
       </button>
     </main>
   );

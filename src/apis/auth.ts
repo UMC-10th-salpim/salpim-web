@@ -112,6 +112,9 @@ export const getLoginErrorMessage = createErrorMessageGetter(LOGIN_ERROR_MESSAGE
 
 export const getKakaoLoginErrorMessage = createErrorMessageGetter(KAKAO_LOGIN_ERROR_MESSAGES);
 
+// 마이페이지 등 공통 화면에서 서버 message를 그대로 노출할 때 사용한다.
+export const getApiErrorMessage = createErrorMessageGetter({});
+
 const normalizePhoneNumber = (phoneNumber: string) => phoneNumber.replace(/\D/g, '');
 
 export const getKakaoRedirectUri = () =>

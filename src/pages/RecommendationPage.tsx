@@ -116,7 +116,7 @@ const RecommendationPage = () => {
 
     let cancelled = false;
     mypageApi
-      .getMyPage()
+      .getSummary()
       .then((profile) => {
         if (!cancelled && profile.name.trim()) setName(profile.name.trim());
       })

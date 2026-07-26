@@ -22,22 +22,24 @@ export interface FacilityBenefit {
   serviceName: string;
 }
 
+export interface FacilityBenefitPage {
+  data: FacilityBenefit[];
+  hasNext: boolean;
+  nextCursor: string | null;
+  pageSize: number;
+  totalCount: number;
+}
+
 export interface FacilityDetails {
   name: string;
   address: string;
-  hour: string;
+  hour: string | null;
   distanceText: string;
   isMyCenter: boolean;
-  benefits: {
-    data: FacilityBenefit[];
-    hasNext: boolean;
-    nextCursor: string | null;
-    pageSize: number;
-    totalCount: number;
-  };
+  benefits: FacilityBenefitPage;
 }
 
-interface FacilityDetailsParams {
+export interface FacilityDetailsParams {
   memberId: number;
   facilityName: string;
   address: string;

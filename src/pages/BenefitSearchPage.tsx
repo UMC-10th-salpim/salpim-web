@@ -62,7 +62,7 @@ const BenefitSearchPage = () => {
     );
 
   // TODO: 검색 조건을 결과 페이지로 전달 (쿼리스트링/스토어)
-  const goResults = () => navigate('/benefits');
+  const goResults = () => navigate('/benefits', {state: {source : 'search'}});
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-white pb-24">
