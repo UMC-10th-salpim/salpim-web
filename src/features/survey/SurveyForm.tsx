@@ -12,14 +12,14 @@ interface SurveyFormProps {
   userName?: string;
 };
 
-const SurveyForm = ({ 
+const SurveyForm = ({
   current,
   currentValue,
   answered,
   step,
   onChange,
   onNext,
-  userName = 'OO' 
+  userName = 'OO'
 }: SurveyFormProps) => {
   const navigate = useNavigate();
 
@@ -27,7 +27,7 @@ const SurveyForm = ({
     step === 0 ? `안녕하세요 ${userName}님!\n${current.question}` : current.question;
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-brand-50/40 px-4 pb-26 pt-4">
+    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-brand-50/40 px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-4">
       {/*탭*/}
       <div className='flex justify-center gap-4 mb-4 mx-11'>
         <button className='rounded-full px-4 py-3 text-xl font-semibold bg-[#FF8A3D] text-white'>

@@ -1,40 +1,32 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { authApi, getApiErrorMessage } from '@/apis/auth';
+import { authApi, getLoginErrorMessage } from '@/apis/auth';
 import OnboardingButton from '@/features/onboarding/ui/OnboardingButton';
 import OnboardingInput from '@/features/onboarding/ui/OnboardingInput';
 import useUserStore from '@/store/userStore';
+import { formatPhone } from '@/utils/phone';
 
 // 버튼 높이/간격을 뷰포트 높이에 맞춰 동적으로 (최소값 보장)
-const buttonSize = 'py-[max(1rem,1.9vh)] !text-lg !font-semibold';
+const buttonSize = 'py-[max(1rem,1.9vh)] !text-2xl !font-semibold';
 const landingButtonBase = 'aspect-[310/80] py-0 !font-semibold';
 const landingButtonSize = `${landingButtonBase} !text-[32px]`;
 const kakaoButtonSize = `${landingButtonBase} !text-[clamp(28px,3.69vh,30px)]`;
 const kakaoLogoSize = 'h-[clamp(36px,4.93vh,40px)] w-[clamp(36px,4.93vh,40px)]';
 
-// 숫자만 남기고 010-1234-5678 형태로 자동 하이픈
-const formatPhone = (value: string) => {
-  const digits = value.replace(/\D/g, '').slice(0, 11);
-  if (digits.length < 4) return digits;
-  if (digits.length < 8) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
-};
-
 const LoginPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [step] = useState<'landing' | 'login'>(() =>
-    searchParams.get('step') === 'login' ? 'login' : 'landing'
-  );
+  const step: 'landing' | 'login' = searchParams.get('step') === 'login' ? 'login' : 'landing';
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState('');
   const setTokens = useUserStore((state) => state.setTokens);
   const isPasswordValid = /^\d{6}$/.test(password);
+  const isLoginFormFilled = phone.replace(/\D/g, '').length === 11 && isPasswordValid;
 
   const handleLogin = async () => {
-    if (!phone || !isPasswordValid || isLoggingIn) return;
+    if (!isLoginFormFilled || isLoggingIn) return;
     setIsLoggingIn(true);
     setLoginError('');
 
@@ -43,7 +35,7 @@ const LoginPage = () => {
       setTokens(tokens.accessToken, tokens.refreshToken);
       navigate('/recommendation', { replace: true });
     } catch (error) {
-      setLoginError(getApiErrorMessage(error, '로그인하지 못했어요. 다시 확인해 주세요.'));
+      setLoginError(getLoginErrorMessage(error, '로그인하지 못했어요. 다시 확인해 주세요.'));
     } finally {
       setIsLoggingIn(false);
     }
@@ -51,8 +43,8 @@ const LoginPage = () => {
 
   if (step === 'login') {
     return (
-      <div className="mx-auto flex h-dvh max-w-md flex-col overflow-hidden bg-brand-50 px-6 pb-8 pt-[clamp(16px,2.54vh,20px)]">
-        <div className="flex min-h-0 flex-1 flex-col justify-start overflow-y-auto">
+      <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-brand-50 px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1.25rem,env(safe-area-inset-top))]">
+        <div className="flex flex-1 flex-col justify-start">
           <img
             src="/assets/Salpimi/Notebook.png"
             alt="살피미"
@@ -82,28 +74,35 @@ const LoginPage = () => {
               placeholder="숫자 6자리를 입력해 주세요"
             />
           </div>
+          <div className="mt-10 flex shrink-0 gap-3">
+            <OnboardingButton
+              className={`flex-1 !bg-brand-500 !text-white ${buttonSize}`}
+              onClick={() => navigate('/', { replace: true })}
+            >
+              이전
+            </OnboardingButton>
+            <OnboardingButton
+              className={`flex-1 !text-white ${buttonSize}`}
+              onClick={() => void handleLogin()}
+              disabled={!isLoginFormFilled || isLoggingIn}
+            >
+              {isLoggingIn ? '로그인 중...' : '시작하기'}
+            </OnboardingButton>
+          </div>
           {loginError && (
             <p role="alert" className="mt-3 text-center text-sm font-semibold text-red-500">
               {loginError}
             </p>
           )}
         </div>
-
-        <OnboardingButton
-          className={`shrink-0 ${buttonSize}`}
-          onClick={() => void handleLogin()}
-          disabled={!phone || !isPasswordValid || isLoggingIn}
-        >
-          {isLoggingIn ? '로그인 중...' : '시작하기'}
-        </OnboardingButton>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto flex h-dvh max-w-md flex-col overflow-hidden bg-brand-50 px-6 pb-8 pt-8">
+    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-brand-50 px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))]">
       {/* 부제 + 로고·캐릭터 통합 이미지 (한 그룹, 세로 중앙) */}
-      <div className="flex min-h-0 flex-1 flex-col items-center justify-center text-center">
+      <div className="flex flex-1 flex-col items-center justify-center text-center">
         <p className="text-[clamp(22px,2.96vh,24px)] font-semibold leading-[1.5] text-[#613212]">
           노인 맞춤형
           <br />

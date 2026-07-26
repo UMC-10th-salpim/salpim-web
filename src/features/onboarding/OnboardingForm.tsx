@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { authApi, getApiErrorMessage } from '@/apis/auth';
+import { authApi, getPhoneVerificationErrorMessage } from '@/apis/auth';
+import { formatPhone } from '@/utils/phone';
 import { inputStyle, labelStyle, primaryButton, secondaryButton } from './styles';
 
 const personalInfoInputStyle = (hasValue: boolean) =>
@@ -21,14 +22,6 @@ interface OnboardingFormProps {
   onNext: () => void;
   onBack: () => void;
 }
-
-// 숫자만 남기고 010-1234-5678 형태로 자동 하이픈
-const formatPhone = (value: string) => {
-  const digits = value.replace(/\D/g, '').slice(0, 11);
-  if (digits.length < 4) return digits;
-  if (digits.length < 8) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-  return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`;
-};
 
 const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps) => {
   // 문자 인증 상태 (발송 → 코드 입력 → 확인 → 완료)
@@ -58,14 +51,14 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
     setPhoneMessage('');
 
     try {
-      await authApi.sendPhoneVerificationCode(value.phone);
+      const result = await authApi.sendPhoneVerificationCode(value.phone);
       setCodeSent(true);
       setCode('');
-      setPhoneMessage('인증번호를 보냈어요. 5분 안에 입력해 주세요.');
+      setPhoneMessage(result.message);
       setPhoneMessageType('info');
     } catch (error) {
       setCodeSent(false);
-      setPhoneMessage(getApiErrorMessage(error, '인증번호를 보내지 못했어요.'));
+      setPhoneMessage(getPhoneVerificationErrorMessage(error, '인증번호를 보내지 못했어요.'));
       setPhoneMessageType('error');
     } finally {
       setPhoneRequest('idle');
@@ -78,13 +71,13 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
     setPhoneMessage('');
 
     try {
-      const verified = await authApi.verifyPhoneCode(value.phone, code);
-      onChange({ ...value, phoneVerified: verified });
-      setPhoneMessage(verified ? '인증이 완료되었어요.' : '인증번호를 다시 확인해 주세요.');
-      setPhoneMessageType(verified ? 'success' : 'error');
+      const result = await authApi.verifyPhoneCode(value.phone, code);
+      onChange({ ...value, phoneVerified: result.verified });
+      setPhoneMessage(result.verified ? result.message : '인증번호를 다시 확인해 주세요.');
+      setPhoneMessageType(result.verified ? 'success' : 'error');
     } catch (error) {
       onChange({ ...value, phoneVerified: false });
-      setPhoneMessage(getApiErrorMessage(error, '인증번호를 확인하지 못했어요.'));
+      setPhoneMessage(getPhoneVerificationErrorMessage(error, '인증번호를 확인하지 못했어요.'));
       setPhoneMessageType('error');
     } finally {
       setPhoneRequest('idle');
@@ -112,8 +105,6 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
     );
   })();
 
-  // 화면 개발 중에는 인증 서버 없이 다음 단계를 확인할 수 있도록 개발 모드만 우회합니다.
-  const phoneVerificationPassed = import.meta.env.DEV || value.phoneVerified;
   const isValid =
     value.name.trim() !== '' &&
     value.birthYear !== '' &&
@@ -121,7 +112,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
     value.birthDay !== '' &&
     !hasInvalidBirthDate &&
     value.gender !== '' &&
-    phoneVerificationPassed;
+    value.phoneVerified;
 
   return (
     <>

@@ -8,16 +8,24 @@ import FindPasswordResult from '@/features/mypage/password/FindPasswordResult';
 const PasswordFindPage = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState<'question' | 'result'>('question');
+  const [recoveryAnswer, setRecoveryAnswer] = useState('');
 
   return (
     <div className="mypage-screen mx-auto max-w-md">
       <HeaderBar title="비밀번호 찾기" />
 
       {step === 'question' ? (
-        <FindPasswordQuestion onVerified={() => setStep('result')} />
+        <FindPasswordQuestion
+          onVerified={(verifiedAnswer) => {
+            setRecoveryAnswer(verifiedAnswer);
+            setStep('result');
+          }}
+        />
       ) : (
         <FindPasswordResult
-          onChangePassword={() => navigate('/mypage/password', { state: { skipToNew: true } })}
+          onChangePassword={() =>
+            navigate('/mypage/password', { state: { skipToNew: true, recoveryAnswer } })
+          }
         />
       )}
 

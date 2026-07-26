@@ -1,28 +1,42 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Keypad from '@/components/common/Keypad/Keypad';
-import { MOCK_PASSWORD } from '@/apis/mypage';
+import { getApiErrorMessage } from '@/apis/auth';
+import { mypageApi } from '@/apis/mypage';
 
 interface CurrentPasswordStepProps {
-  onVerified: () => void;
+  onVerified: (currentPassword: string) => void;
 }
 
 const CurrentPasswordStep = ({ onVerified }: CurrentPasswordStepProps) => {
   const navigate = useNavigate();
   const [value, setValue] = useState('');
-  const [error, setError] = useState(false);
+  const [error, setError] = useState('');
+  const [verifying, setVerifying] = useState(false);
 
   const handleChange = (next: string) => {
     setValue(next);
-    setError(false);
+    setError('');
   };
 
-  const handleSubmit = () => {
-    if (value === MOCK_PASSWORD) {
-      onVerified();
-    } else {
-      setError(true);
+  const handleSubmit = async () => {
+    if (verifying) return;
+    setVerifying(true);
+    setError('');
+
+    try {
+      const isVerified = await mypageApi.verifyCurrentPassword(value);
+      if (!isVerified) {
+        setError('비밀번호가 일치하지 않아요.');
+        setValue('');
+        return;
+      }
+      onVerified(value);
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError, '비밀번호를 확인하지 못했어요.'));
       setValue('');
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -35,10 +49,18 @@ const CurrentPasswordStep = ({ onVerified }: CurrentPasswordStepProps) => {
       </h2>
 
       <div aria-live="polite" className="min-h-6 text-center">
-        {error && <p className="text-[16px] font-bold text-red-500">비밀번호가 일치하지 않아요.</p>}
+        {error && <p className="text-[16px] font-bold text-red-500">{error}</p>}
       </div>
 
-      <Keypad value={value} onChange={handleChange} onSubmit={handleSubmit} submitLabel="다음" />
+      <Keypad
+        value={value}
+        onChange={handleChange}
+        onSubmit={() => {
+          void handleSubmit();
+        }}
+        disabled={verifying}
+        submitLabel={verifying ? '확인 중...' : '다음'}
+      />
 
       <div className="mt-auto border-t border-[#E8E0D8] pt-3 text-center">
         <p className="mb-2 text-[16px] font-semibold text-[#8A817A]">비밀번호를 잊으셨나요?</p>

@@ -61,7 +61,7 @@ const SurveyPage = () => {
   }
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-[#FAF8F3]">
+    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-[#FAF8F3]">
       <HeaderBar title="혜택 안내" onBack={handleBack}/>
       <SurveyForm
         current={current}

@@ -23,7 +23,7 @@ const BenefitPage = () => {
   const hasBenefits = filteredBenefits.length > 0;
 
   return (
-    <div  className="mx-auto flex min-h-dvh max-w-md flex-col bg-[#FAF8F3] pb-24">
+    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-[#FAF8F3] pb-[calc(6rem+env(safe-area-inset-bottom))]">
       <HeaderBar title="혜택 결과" />
 
       <div className="p-4 flex flex-col gap-4 flex-1">
@@ -38,7 +38,7 @@ const BenefitPage = () => {
                 </span>
                 <span className="text-base font-medium text-center text-[#FF8A3D]">살피미와 함께 확인해요</span>
               </div>
-            </div> 
+            </div>
 
             <span className="text-2xl font-extrabold text-[#613212] pl-[24px] pb-2">
               {filteredBenefits.length}가지 혜택 보기

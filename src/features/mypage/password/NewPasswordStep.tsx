@@ -1,19 +1,31 @@
 import { useState } from 'react';
 import Keypad from '@/components/common/Keypad/Keypad';
 import Modal from '@/components/common/Modal/Modal';
+import { getApiErrorMessage } from '@/apis/auth';
+import { mypageApi } from '@/apis/mypage';
+import type { PasswordVerificationMethod } from '@/apis/mypage';
 
 interface NewPasswordStepProps {
   onSaved: () => void;
+  verificationMethod: PasswordVerificationMethod;
+  currentPassword?: string;
+  recoveryAnswer?: string;
 }
 
-const NewPasswordStep = ({ onSaved }: NewPasswordStepProps) => {
+const NewPasswordStep = ({
+  onSaved,
+  verificationMethod,
+  currentPassword,
+  recoveryAnswer,
+}: NewPasswordStepProps) => {
   const [value, setValue] = useState('');
   const [firstValue, setFirstValue] = useState('');
   const [phase, setPhase] = useState<'new' | 'confirm'>('new');
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (phase === 'new') {
       setFirstValue(value);
       setValue('');
@@ -28,8 +40,23 @@ const NewPasswordStep = ({ onSaved }: NewPasswordStepProps) => {
       return;
     }
 
-    // TODO: 새 비밀번호 저장 API 연동
-    setSaved(true);
+    if (saving) return;
+    setSaving(true);
+    setError('');
+
+    try {
+      await mypageApi.changePassword({
+        verificationMethod,
+        currentPassword,
+        recoveryAnswer,
+        newPassword: value,
+      });
+      setSaved(true);
+    } catch (requestError) {
+      setError(getApiErrorMessage(requestError, '비밀번호를 변경하지 못했어요.'));
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -56,8 +83,11 @@ const NewPasswordStep = ({ onSaved }: NewPasswordStepProps) => {
           setValue(nextValue);
           setError('');
         }}
-        onSubmit={handleSubmit}
-        submitLabel="다음"
+        onSubmit={() => {
+          void handleSubmit();
+        }}
+        disabled={saving}
+        submitLabel={saving ? '저장 중...' : '다음'}
       />
 
       <Modal

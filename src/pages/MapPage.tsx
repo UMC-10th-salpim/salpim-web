@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
 import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
-import { searchAllFacilities, sendFacilitiesToBackend } from '@/apis/facility';
+import { searchAllFacilities } from '@/apis/facility';
 import CategoryFilterSheet from '@/features/map/CategoryFilterSheet';
 import FacilitySummarySheet from '@/features/map/FacilitySummarySheet';
 import FilterBar from '@/features/map/FilterBar';
@@ -16,7 +16,9 @@ const DEFAULT_CENTER: MapCenter = { lat: 37.5665, lng: 126.978 };
 
 const MapPage = () => {
   const navigate = useNavigate();
-  const [selectedMainCategory, setSelectedMainCategory] = useState<FacilityMainCategory | null>(null);
+  const [selectedMainCategory, setSelectedMainCategory] = useState<FacilityMainCategory | null>(
+    null
+  );
   const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
   const [openCategorySheet, setOpenCategorySheet] = useState<FacilityMainCategory | null>(null);
   const [selectedFacilityId, setSelectedFacilityId] = useState<string | null>(null);
@@ -43,11 +45,7 @@ const MapPage = () => {
     queryKey: ['facilities', center.lat, center.lng],
     queryFn: async () => {
       const realFacilities = await searchAllFacilities(center);
-      const result = realFacilities.length > 0 ? realFacilities : getMockFacilitiesNear(center);
-
-      void sendFacilitiesToBackend(result);
-
-      return result;
+      return realFacilities.length > 0 ? realFacilities : getMockFacilitiesNear(center);
     },
     enabled: centerReady,
   });
@@ -58,7 +56,8 @@ const MapPage = () => {
     return facilities.filter((facility) => facility.subCategory === selectedSubCategory);
   }, [facilities, selectedSubCategory]);
 
-  const selectedFacility = filteredFacilities.find((facility) => facility.id === selectedFacilityId) ?? null;
+  const selectedFacility =
+    filteredFacilities.find((facility) => facility.id === selectedFacilityId) ?? null;
 
   const handleOpenCategory = (category: FacilityMainCategory) => {
     setOpenCategorySheet(category);
@@ -81,7 +80,7 @@ const MapPage = () => {
   };
 
   return (
-    <main className="flex h-screen flex-col bg-gray-50">
+    <main className="flex h-[100svh] flex-col bg-gray-50">
       <HeaderBar title="주변 혜택 시설" />
 
       <div className="relative flex flex-1 flex-col overflow-hidden pb-16">
@@ -103,7 +102,9 @@ const MapPage = () => {
           <FacilitySummarySheet
             facility={selectedFacility}
             onClose={() => setSelectedFacilityId(null)}
-            onViewDetail={(facility) => navigate(`/facility/${facility.id}`, { state: { facility } })}
+            onViewDetail={(facility) =>
+              navigate(`/facility/${facility.id}`, { state: { facility } })
+            }
           />
         )}
       </div>

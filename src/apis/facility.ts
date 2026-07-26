@@ -9,6 +9,70 @@ const KAKAO_LOCAL_KEYWORD_URL = 'https://dapi.kakao.com/v2/local/search/keyword.
 const SEARCH_RADIUS_METERS = 3000;
 const RESULTS_PER_SUBCATEGORY = 5;
 
+interface ApiResponse<T> {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: T;
+}
+
+export interface FacilityBenefit {
+  servId: string;
+  region: string;
+  serviceName: string;
+}
+
+export interface FacilityBenefitPage {
+  data: FacilityBenefit[];
+  hasNext: boolean;
+  nextCursor: string | null;
+  pageSize: number;
+  totalCount: number;
+}
+
+export interface FacilityDetails {
+  name: string;
+  address: string;
+  hour: string | null;
+  distanceText: string;
+  isMyCenter: boolean;
+  benefits: FacilityBenefitPage;
+}
+
+export interface FacilityDetailsParams {
+  memberId: number;
+  facilityName: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  cursor?: string;
+  size?: number;
+}
+
+export const getFacilityDetails = async ({
+  memberId,
+  facilityName,
+  address,
+  latitude,
+  longitude,
+  cursor,
+  size = 10,
+}: FacilityDetailsParams): Promise<FacilityDetails> => {
+  const { data } = await client.get<ApiResponse<FacilityDetails>>('/map/details', {
+    params: {
+      memberId,
+      facilityName,
+      address,
+      latitude,
+      longitude,
+      ...(cursor ? { cursor } : {}),
+      size,
+    },
+  });
+
+  return data.result;
+};
+
 // 카카오 로컬 검색에서 실제로 더 잘 매칭되는 키워드로 보정
 const SUBCATEGORY_SEARCH_KEYWORD: Record<string, string> = {
   보건소: '보건소',
@@ -109,18 +173,11 @@ export const searchAllFacilities = async (center: MapCenter): Promise<Facility[]
 
   return settled.flatMap((result) => {
     if (result.status === 'rejected') {
-      console.warn('[facility] 일부 카테고리 검색 실패', result.reason);
+      if (import.meta.env.DEV) {
+        console.warn('[facility] 일부 카테고리 검색 실패', result.reason);
+      }
       return [];
     }
     return result.value;
   });
-};
-
-// TODO: 백엔드 엔드포인트가 정해지면 실제 경로로 교체
-export const sendFacilitiesToBackend = async (facilities: Facility[]): Promise<void> => {
-  try {
-    await client.post('/facilities', facilities);
-  } catch (error) {
-    console.warn('[facility] 백엔드 전송 실패 (엔드포인트 미구현 상태일 수 있음)', error);
-  }
 };

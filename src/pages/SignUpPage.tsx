@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authApi, getApiErrorMessage, getKakaoAuthorizeUrl } from '@/apis/auth';
+import { authApi, getKakaoAuthorizeUrl, getSignupErrorMessage } from '@/apis/auth';
+import { ensureAddressRegion, reverseGeocodeAddress } from '@/apis/address';
 import useUserStore from '@/store/userStore';
 import ProgressDots from '@/features/onboarding/ProgressDots';
 import OnboardingForm from '@/features/onboarding/OnboardingForm';
@@ -22,6 +23,7 @@ const KAKAO_SIGNUP_TOKEN_KEY = 'salpim-kakao-signup-token';
 const SignUpPage = () => {
   const navigate = useNavigate();
   const setTokens = useUserStore((state) => state.setTokens);
+  const setName = useUserStore((state) => state.setName);
   const [step, setStep] = useState(0);
   const [kakaoSignupToken] = useState(() => sessionStorage.getItem(KAKAO_SIGNUP_TOKEN_KEY));
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -55,6 +57,16 @@ const SignUpPage = () => {
   const isKakaoSignup = Boolean(kakaoSignupToken);
   const next = () => setStep((previous) => (isKakaoSignup && previous === 1 ? 4 : previous + 1));
 
+  // 카카오 가입 화면을 벗어날 때(성공 소비 전 이탈) 남은 가입 토큰을 정리해 노출 시간을 최소화한다.
+  // - 정상 완료: 리다이렉트 전에 이미 removeItem 되므로 여기서는 no-op.
+  // - 실패(catch): 컴포넌트가 언마운트되지 않아 cleanup이 실행되지 않으므로 재시도용 토큰이 유지된다.
+  // 토큰은 이미 마운트 시 state로 읽어두므로(StrictMode 이중 마운트 포함) 진행 중 흐름에는 영향이 없다.
+  useEffect(() => {
+    return () => {
+      sessionStorage.removeItem(KAKAO_SIGNUP_TOKEN_KEY);
+    };
+  }, []);
+
   const finish = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
@@ -62,28 +74,29 @@ const SignUpPage = () => {
 
     try {
       const birthDate = `${info.birthYear}-${info.birthMonth.padStart(2, '0')}-${info.birthDay.padStart(2, '0')}`;
-      const [coordinates, region] = await Promise.all([
-        authApi.geocodeAddress(address.roadAddress),
-        authApi.resolveRegion({
-          city: address.city || null,
-          district: address.district || null,
-          eupMyeonDong: address.eupMyeonDong,
-        }),
-      ]);
+      const completeAddress = await ensureAddressRegion(address);
+      const location = await authApi.geocodeAddress(address.roadAddress);
+      const region = await authApi.resolveRegion(
+        completeAddress.city,
+        completeAddress.district,
+        completeAddress.eupMyeonDong
+      );
 
       const signupProfile = {
         name: info.name.trim(),
         birthDate,
         gender: info.gender === 'male' ? ('MALE' as const) : ('FEMALE' as const),
         phoneNumber: info.phone,
-        roadAddress: coordinates.roadAddress,
+        roadAddress: location.roadAddress,
         detailAddress: address.detail.trim(),
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude,
+        latitude: location.latitude,
+        longitude: location.longitude,
         regionId: region.regionId,
       };
+
       if (kakaoSignupToken) {
         await authApi.signupKakao(kakaoSignupToken, signupProfile);
+        setName(signupProfile.name);
         sessionStorage.removeItem(KAKAO_SIGNUP_TOKEN_KEY);
         window.location.href = getKakaoAuthorizeUrl();
         return;
@@ -97,10 +110,11 @@ const SignUpPage = () => {
 
       const tokens = await authApi.loginLocal(info.phone, password.password);
       setTokens(tokens.accessToken, tokens.refreshToken);
+      setName(signupProfile.name);
       navigate('/recommendation', { replace: true });
     } catch (error) {
       setSubmitError(
-        getApiErrorMessage(error, '회원가입을 완료하지 못했어요. 다시 시도해 주세요.')
+        getSignupErrorMessage(error, '회원가입을 완료하지 못했어요. 다시 시도해 주세요.')
       );
     } finally {
       setIsSubmitting(false);
@@ -108,8 +122,8 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="h-dvh w-full bg-brand-50">
-      <div className="mx-auto flex h-dvh max-w-md flex-col overflow-hidden bg-brand-50 px-6 pb-8 pt-6">
+    <div className="min-h-[100svh] w-full bg-brand-50">
+      <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-brand-50 px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
         {step < (isKakaoSignup ? KAKAO_TOTAL_STEPS : LOCAL_TOTAL_STEPS) && (
           <ProgressDots
             total={isKakaoSignup ? KAKAO_TOTAL_STEPS : LOCAL_TOTAL_STEPS}
@@ -131,6 +145,7 @@ const SignUpPage = () => {
             onChange={setAddress}
             onBack={() => setStep((prev) => prev - 1)}
             onNext={next}
+            onUseCurrentLocation={reverseGeocodeAddress}
           />
         )}
         {step === 2 && <PasswordStep value={password} onChange={setPassword} onNext={next} />}

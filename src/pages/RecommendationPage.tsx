@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HomeBottomNavigation from '@/features/home/HomeBottomNavigation';
+import useUserStore from '@/store/userStore';
+import { mypageApi } from '@/apis/mypage';
 
-// TODO: 로그인 사용자 이름 연동 (스토어/회원 API)
-const USER_NAME = 'OOO';
 const DEADLINE_BENEFITS = [
   { id: 1, title: 'OOO 지원금 신청', daysLeft: 2, progress: 5 },
   { id: 2, title: 'OOO 생활비 지원', daysLeft: 5, progress: 3 },
@@ -106,10 +106,31 @@ const DeadlineCard = ({ title, daysLeft, progress, activeIndex, onDetail }: Dead
 
 const RecommendationPage = () => {
   const navigate = useNavigate();
+  const accessToken = useUserStore((state) => state.accessToken);
+  const userName = useUserStore((state) => state.name);
+  const setName = useUserStore((state) => state.setName);
   const [activeDeadlineIndex, setActiveDeadlineIndex] = useState(0);
 
+  useEffect(() => {
+    if (!accessToken) return;
+
+    let cancelled = false;
+    mypageApi
+      .getSummary()
+      .then((profile) => {
+        if (!cancelled && profile.name.trim()) setName(profile.name.trim());
+      })
+      .catch((error: unknown) => {
+        if (import.meta.env.DEV) console.error('[recommendation] profile load failed', error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [accessToken, setName]);
+
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-brand-50 pb-24">
+    <div className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col bg-brand-50 pb-[calc(6rem+env(safe-area-inset-bottom))]">
       {/* 헤더 */}
       <header className="sticky top-0 z-30 flex items-center justify-between bg-brand-50 px-5 py-4">
         <span className="text-2xl font-bold text-brand-600">살핌</span>
@@ -135,7 +156,7 @@ const RecommendationPage = () => {
             <p className="text-[clamp(22px,3.05vh,24px)] font-bold leading-[1.25] text-[#613212]">
               안녕하세요,
               <br />
-              {USER_NAME} 님!
+              {userName || '회원'} 님!
             </p>
             <p className="mt-1 text-[clamp(14px,1.9vh,15px)] text-[#FF8A3D]">
               오늘도 살피미가 함께 해요
@@ -200,11 +221,15 @@ const RecommendationPage = () => {
             onClick={() => navigate('/map')}
             className="flex w-full items-center justify-between rounded-2xl bg-white px-5 py-4 !font-semibold shadow-sm"
           >
-            <span className="text-left">
-              <span className="block text-base font-semibold text-gray-900">00 복지관</span>
-              <span className="block text-sm text-gray-400">혜택 n개</span>
+            <span className="min-w-0 text-left">
+              <span className="block text-base font-semibold text-gray-900">
+                지도에서 가까운 시설 찾기
+              </span>
+              <span className="mt-1 block text-sm font-medium text-gray-500">
+                현재 위치 주변의 복지관, 주민센터, 병원을 확인해 보세요.
+              </span>
             </span>
-            <ChevronRight />
+            <ChevronRight className="ml-3 h-5 w-5 shrink-0 text-gray-400" />
           </button>
         </section>
       </main>
