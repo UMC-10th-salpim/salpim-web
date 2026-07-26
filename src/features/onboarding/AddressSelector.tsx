@@ -48,8 +48,28 @@ const AddressSelector = ({
 }: AddressSelectorProps) => {
   const [query, setQuery] = useState(value.roadAddress);
   const [isSearchPageOpen, setIsSearchPageOpen] = useState(false);
+  const [locationPermissionDenied, setLocationPermissionDenied] = useState(false);
 
   const isValid = value.roadAddress.trim() !== '' && value.detail.trim() !== '';
+
+  const handleUseCurrentLocation = () => {
+    setLocationPermissionDenied(false);
+
+    if (!navigator.geolocation) {
+      setLocationPermissionDenied(true);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      () => onUseCurrentLocation?.(),
+      (error) => {
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocationPermissionDenied(true);
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
 
   const openSearchPage = () => {
     if (!query.trim()) return;
@@ -104,13 +124,35 @@ const AddressSelector = ({
           {/* 현재 위치 자동 설정 */}
           <button
             type="button"
-            onClick={onUseCurrentLocation}
-            className="mx-auto flex h-[clamp(60px,8.88vh,70px)] w-[clamp(280px,82.67vw,310px)] translate-y-[clamp(40px,6.35vh,50px)] items-center justify-center gap-2 rounded-2xl border-[clamp(1px,0.254vh,2px)] border-[#FFB86B] bg-[#FFE3C2] py-0 font-[Pretendard] text-[clamp(20px,3.05vh,24px)] font-semibold text-[#8B5A2B] transition-colors hover:bg-[#FFDBB2]"
+            onClick={handleUseCurrentLocation}
+            className="mx-auto flex h-[clamp(60px,8.88vh,70px)] w-[clamp(280px,82.67vw,310px)] translate-y-[clamp(40px,6.35vh,50px)] items-center justify-center gap-2 rounded-2xl border-[clamp(1px,0.254vh,2px)] border-[#FFB86B] bg-[#FFE3C2] py-0 font-[Pretendard] !text-[clamp(20px,3.05vh,24px)] !font-semibold text-[#8B5A2B] transition-colors hover:bg-[#FFDBB2]"
           >
             <LocationIcon className="h-6 w-6 shrink-0 text-[#8B5A2B]" />
             현재 위치로 자동 설정
           </button>
-          <p className="mb-[clamp(50px,7.61vh,60px)] mt-[clamp(8px,1.27vh,10px)] flex w-full translate-y-[clamp(40px,6.35vh,50px)] justify-center text-center font-[Pretendard] text-[clamp(16px,2.54vh,20px)] font-semibold text-black">
+          {locationPermissionDenied && (
+            <p
+              role="alert"
+              className="mt-[clamp(8px,1.27vh,10px)] flex w-full translate-y-[clamp(40px,6.35vh,50px)] items-start justify-center gap-2 font-[Pretendard] text-[clamp(17px,2.54vh,20px)] font-semibold leading-[1.35] text-[#FF4545]"
+            >
+              <span
+                aria-hidden
+                className="mt-0.5 flex size-[clamp(24px,3.55vh,28px)] shrink-0 items-center justify-center rounded-full bg-[#FF4545] text-lg font-bold leading-none text-white"
+              >
+                ×
+              </span>
+              <span>
+                위치 권한이 거부되었어요.
+                <br />
+                직접 주소를 입력해 주세요.
+              </span>
+            </p>
+          )}
+          <p
+            className={`mb-[clamp(50px,7.61vh,60px)] flex w-full translate-y-[clamp(40px,6.35vh,50px)] justify-center text-center font-[Pretendard] text-[clamp(16px,2.54vh,20px)] font-semibold text-black ${
+              locationPermissionDenied ? 'mt-1' : 'mt-[clamp(8px,1.27vh,10px)]'
+            }`}
+          >
             또는 직접 입력하기
           </p>
 
@@ -125,14 +167,14 @@ const AddressSelector = ({
                 if (event.key === 'Enter') openSearchPage();
               }}
               placeholder="도로명 주소 입력"
-              className="min-w-0 flex-1 text-2xl text-gray-900 outline-none placeholder:text-gray-400"
+              className="min-w-0 flex-1 !text-2xl text-gray-900 outline-none placeholder:!text-2xl placeholder:text-gray-400"
               aria-label="도로명 주소 검색"
             />
             <button
               type="button"
               onClick={openSearchPage}
               disabled={!query.trim()}
-              className="flex h-[clamp(30px,4.57vh,36px)] shrink-0 items-center text-2xl font-bold text-[#613212]"
+              className="flex h-[clamp(30px,4.57vh,36px)] shrink-0 items-center !text-2xl !font-semibold text-[#613212]"
             >
               검색
             </button>

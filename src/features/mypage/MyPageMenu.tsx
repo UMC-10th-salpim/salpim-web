@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import Modal from '@/components/common/Modal/Modal';
 import ScrollMoreIndicator from '@/components/common/ScrollMoreIndicator/ScrollMoreIndicator';
 import Toggle from '@/components/common/Toggle/Toggle';
 import TermsDetail from '@/features/onboarding/TermsDetail';
 import useSettingsStore from '@/store/settingsStore';
 import useUserStore from '@/store/userStore';
-import { MOCK_PROFILE } from '@/apis/mypage';
+import { MOCK_PROFILE, mypageApi } from '@/apis/mypage';
+import { getApiErrorMessage } from '@/apis/auth';
 
 interface MenuRowProps {
   icon: string;
@@ -57,17 +59,53 @@ const Section = ({ title, children }: SectionProps) => (
 const MyPageMenu = () => {
   const navigate = useNavigate();
   const logout = useUserStore((state) => state.logout);
+  const accessToken = useUserStore((state) => state.accessToken);
   const fontSize = useSettingsStore((state) => state.fontSize);
   const deadlineAlertEnabled = useSettingsStore((state) => state.deadlineAlertEnabled);
   const toggleDeadlineAlert = useSettingsStore((state) => state.toggleDeadlineAlert);
 
   const [showTerms, setShowTerms] = useState(false);
   const [confirmModal, setConfirmModal] = useState<'logout' | 'withdraw' | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [actionError, setActionError] = useState('');
+  const { data: profileSummary } = useQuery({
+    queryKey: ['mypage-summary', accessToken],
+    queryFn: mypageApi.getSummary,
+    enabled: Boolean(accessToken),
+  });
+  const displayName = profileSummary?.name || MOCK_PROFILE.name;
+  const displayRegion =
+    [profileSummary?.sido, profileSummary?.sigungu].filter(Boolean).join(' ') ||
+    MOCK_PROFILE.region;
 
-  const handleConfirm = () => {
-    logout();
-    setConfirmModal(null);
-    navigate('/login');
+  const handleConfirm = async () => {
+    if (!confirmModal || isProcessing) return;
+
+    if (confirmModal === 'logout') {
+      logout();
+      setConfirmModal(null);
+      navigate('/login');
+      return;
+    }
+
+    setIsProcessing(true);
+    setActionError('');
+
+    try {
+      await mypageApi.withdraw();
+      logout();
+      setConfirmModal(null);
+      navigate('/login', { replace: true });
+    } catch (error) {
+      setActionError(getApiErrorMessage(error, '탈퇴하지 못했어요. 잠시 후 다시 시도해 주세요.'));
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const openConfirmModal = (type: 'logout' | 'withdraw') => {
+    setActionError('');
+    setConfirmModal(type);
   };
 
   return (
@@ -79,9 +117,9 @@ const MyPageMenu = () => {
           <p className="text-[22px] font-extrabold leading-8 text-[#3F2A1D]">
             안녕하세요,
             <br />
-            {MOCK_PROFILE.name} 님!
+            {displayName} 님!
           </p>
-          <p className="mt-1 text-[17px] font-bold text-[#F07B32]">{MOCK_PROFILE.region}</p>
+          <p className="mt-1 text-[17px] font-bold text-[#F07B32]">{displayRegion}</p>
         </div>
       </div>
 
@@ -180,14 +218,14 @@ const MyPageMenu = () => {
       <div className="flex flex-col gap-3 pt-1">
         <button
           type="button"
-          onClick={() => setConfirmModal('logout')}
+          onClick={() => openConfirmModal('logout')}
           className="mypage-primary-action"
         >
           로그아웃하기
         </button>
         <button
           type="button"
-          onClick={() => setConfirmModal('withdraw')}
+          onClick={() => openConfirmModal('withdraw')}
           className="mypage-primary-action"
         >
           탈퇴하기
@@ -199,13 +237,26 @@ const MyPageMenu = () => {
       <Modal
         open={confirmModal !== null}
         title={confirmModal === 'logout' ? '로그아웃하시겠어요?' : '정말 탈퇴하시겠어요?'}
-        confirmText={confirmModal === 'logout' ? '로그아웃' : '탈퇴하기'}
-        onConfirm={handleConfirm}
-        onClose={() => setConfirmModal(null)}
+        confirmText={
+          isProcessing ? '처리 중...' : confirmModal === 'logout' ? '로그아웃' : '탈퇴하기'
+        }
+        onConfirm={() => {
+          void handleConfirm();
+        }}
+        onClose={() => {
+          if (isProcessing) return;
+          setConfirmModal(null);
+          setActionError('');
+        }}
       >
         {confirmModal === 'logout'
           ? '다시 로그인하면 이용하실 수 있어요.'
           : '탈퇴하면 저장된 정보가 모두 사라져요.'}
+        {actionError && (
+          <p role="alert" className="mt-2 text-sm font-bold text-red-500">
+            {actionError}
+          </p>
+        )}
       </Modal>
 
       <ScrollMoreIndicator />

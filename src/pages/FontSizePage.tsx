@@ -68,7 +68,7 @@ const FontSizePage = () => {
               type="button"
               aria-pressed={!isLarge}
               onClick={() => setFontSize('medium')}
-              className={`aspect-[160/136] rounded-[32px] text-[clamp(32px,4.43vh,36px)] font-semibold shadow-[0_4px_8px_rgba(97,50,18,0.15)] transition-colors ${
+              className={`aspect-[160/136] rounded-[32px] !text-[clamp(32px,4.43vh,36px)] !font-semibold shadow-[0_4px_8px_rgba(97,50,18,0.15)] transition-colors ${
                 !isLarge ? 'bg-[#FFB800] text-[#292929]' : 'bg-[#FFF0D8] text-[#292929]'
               }`}
             >
@@ -78,7 +78,7 @@ const FontSizePage = () => {
               type="button"
               aria-pressed={isLarge}
               onClick={() => setFontSize('large')}
-              className={`aspect-[160/136] rounded-[32px] text-[clamp(40px,5.42vh,44px)] font-semibold shadow-[0_4px_8px_rgba(97,50,18,0.15)] transition-colors ${
+              className={`aspect-[160/136] rounded-[32px] !text-[clamp(40px,5.42vh,44px)] !font-semibold shadow-[0_4px_8px_rgba(97,50,18,0.15)] transition-colors ${
                 isLarge ? 'bg-[#FFB800] text-[#292929]' : 'bg-[#FFF0D8] text-[#292929]'
               }`}
             >
@@ -102,7 +102,7 @@ const FontSizePage = () => {
         <button
           type="button"
           onClick={handleSave}
-          className="mt-6 h-[clamp(72px,9.85vh,80px)] w-full shrink-0 rounded-xl bg-[#FF843D] text-[clamp(28px,3.69vh,30px)] font-medium text-white"
+          className="mt-6 h-[clamp(72px,9.85vh,80px)] w-full shrink-0 rounded-xl bg-[#FF843D] !text-[clamp(28px,3.69vh,30px)] !font-semibold text-white"
         >
           저장하기
         </button>

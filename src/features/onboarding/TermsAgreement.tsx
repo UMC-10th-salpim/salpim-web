@@ -71,10 +71,10 @@ const TermsAgreement = ({ value, onChange, onSubmit }: TermsAgreementProps) => {
           <button
             type="button"
             onClick={toggleAll}
-            className="flex w-full items-center gap-3 rounded-2xl border-[3px] border-brand-200 bg-white px-5 py-4 text-left"
+            className="flex w-full items-center gap-3 rounded-2xl border-[3px] border-brand-200 bg-white px-5 py-4 text-left !font-semibold"
           >
             <CheckBox checked={allChecked} />
-            <span className="text-2xl font-bold text-gray-900">전체 동의</span>
+            <span className="text-2xl font-semibold text-gray-900">전체 동의</span>
           </button>
 
           {/* 개별 약관 */}
@@ -91,10 +91,10 @@ const TermsAgreement = ({ value, onChange, onSubmit }: TermsAgreementProps) => {
                 <button
                   type="button"
                   onClick={() => toggle(key)}
-                  className="flex flex-1 items-center gap-3 text-left"
+                  className="flex flex-1 items-center gap-3 text-left !font-semibold"
                 >
                   <CheckBox checked={value[key]} />
-                  <span className="flex min-w-0 flex-1 items-center gap-1 font-bold leading-[1.25] tracking-[-0.06em] text-gray-800">
+                  <span className="flex min-w-0 flex-1 items-center gap-1 font-semibold leading-[1.25] tracking-[-0.06em] text-gray-800">
                     <span className="shrink-0 !text-[clamp(18px,2.54vh,20px)]">[필수]</span>
                     <span className="min-w-0 flex-1 !text-[clamp(18px,2.54vh,20px)]">{label}</span>
                   </span>
@@ -102,7 +102,7 @@ const TermsAgreement = ({ value, onChange, onSubmit }: TermsAgreementProps) => {
                 <button
                   type="button"
                   onClick={() => setOpenTerm(key)}
-                  className="shrink-0 rounded-full bg-brand-200/70 px-3 py-1 text-sm text-gray-900"
+                  className="shrink-0 rounded-full bg-brand-200/70 px-3 py-1 !text-sm !font-semibold text-gray-900"
                 >
                   보기 &gt;
                 </button>

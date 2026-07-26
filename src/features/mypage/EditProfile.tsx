@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { searchAddress } from '@/apis/address';
 import type { AddressResult } from '@/apis/address';
-import { MOCK_PROFILE } from '@/apis/mypage';
+import { authApi, getApiErrorMessage } from '@/apis/auth';
+import { MOCK_PROFILE, mypageApi } from '@/apis/mypage';
 import Modal from '@/components/common/Modal/Modal';
 import ScrollMoreIndicator from '@/components/common/ScrollMoreIndicator/ScrollMoreIndicator';
 import { primaryButton } from '@/features/onboarding/styles';
+import useUserStore from '@/store/userStore';
 
 const formatPhone = (value: string) => {
   const digits = value.replace(/\D/g, '').slice(0, 11);
@@ -16,6 +19,8 @@ const formatPhone = (value: string) => {
 
 const EditProfile = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const accessToken = useUserStore((state) => state.accessToken);
 
   const [name, setName] = useState(MOCK_PROFILE.name);
   const [birthYear, setBirthYear] = useState(MOCK_PROFILE.birthYear);
@@ -24,23 +29,69 @@ const EditProfile = () => {
   const [gender, setGender] = useState<'female' | 'male'>(MOCK_PROFILE.gender);
   const [phone, setPhone] = useState(MOCK_PROFILE.phone);
   const [verified, setVerified] = useState(true);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [phoneVerificationToken, setPhoneVerificationToken] = useState('');
+  const [codeSent, setCodeSent] = useState(false);
+  const [verifyingPhone, setVerifyingPhone] = useState(false);
 
   const [roadAddress, setRoadAddress] = useState(MOCK_PROFILE.roadAddress);
   const [detail, setDetail] = useState(MOCK_PROFILE.detail);
   const [query, setQuery] = useState(MOCK_PROFILE.roadAddress);
   const [results, setResults] = useState<AddressResult[]>([]);
   const [searching, setSearching] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState<AddressResult | null>(null);
 
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState('');
+  const { data: profileSummary } = useQuery({
+    queryKey: ['mypage-summary', accessToken],
+    queryFn: mypageApi.getSummary,
+    enabled: Boolean(accessToken),
+  });
+
+  useEffect(() => {
+    if (profileSummary?.name) setName(profileSummary.name);
+  }, [profileSummary?.name]);
 
   const handlePhoneChange = (raw: string) => {
     setPhone(formatPhone(raw));
     setVerified(false);
+    setCodeSent(false);
+    setVerificationCode('');
+    setPhoneVerificationToken('');
+    setFormError('');
   };
 
-  const handleVerify = () => {
-    // TODO: 인증번호 발송/확인 API 연동
-    setVerified(true);
+  const handleSendVerificationCode = async () => {
+    if (verifyingPhone) return;
+    setVerifyingPhone(true);
+    setFormError('');
+
+    try {
+      await mypageApi.sendPhoneVerificationCode(phone);
+      setCodeSent(true);
+    } catch (error) {
+      setFormError(getApiErrorMessage(error, '인증번호를 보내지 못했어요. 다시 시도해 주세요.'));
+    } finally {
+      setVerifyingPhone(false);
+    }
+  };
+
+  const handleVerifyCode = async () => {
+    if (!verificationCode.trim() || verifyingPhone) return;
+    setVerifyingPhone(true);
+    setFormError('');
+
+    try {
+      const token = await mypageApi.verifyPhoneCode(phone, verificationCode.trim());
+      setPhoneVerificationToken(token);
+      setVerified(true);
+    } catch (error) {
+      setFormError(getApiErrorMessage(error, '인증번호가 일치하지 않아요.'));
+    } finally {
+      setVerifyingPhone(false);
+    }
   };
 
   const handleUseCurrentLocation = () => {
@@ -62,9 +113,10 @@ const EditProfile = () => {
     }
   };
 
-  const selectResult = (addr: string) => {
-    setRoadAddress(addr);
-    setQuery(addr);
+  const selectResult = (address: AddressResult) => {
+    setRoadAddress(address.roadAddress);
+    setQuery(address.roadAddress);
+    setSelectedAddress(address);
     setResults([]);
   };
 
@@ -77,9 +129,52 @@ const EditProfile = () => {
     roadAddress.trim() !== '' &&
     detail.trim() !== '';
 
-  const handleSave = () => {
-    // TODO: 개인정보 수정 API 연동
-    setSaved(true);
+  const handleSave = async () => {
+    if (!isValid || saving) return;
+    setSaving(true);
+    setFormError('');
+
+    try {
+      let addressInfo = selectedAddress;
+      if (!addressInfo) {
+        const addressSearch = await searchAddress(roadAddress, 1);
+        addressInfo =
+          addressSearch.results.find((item) => item.roadAddress === roadAddress) ??
+          addressSearch.results[0] ??
+          null;
+      }
+      if (!addressInfo?.eupMyeonDong) {
+        throw new Error('행정구역을 확인할 수 없습니다.');
+      }
+
+      const [coordinates, region] = await Promise.all([
+        authApi.geocodeAddress(roadAddress),
+        authApi.resolveRegion(addressInfo.city, addressInfo.district, addressInfo.eupMyeonDong),
+      ]);
+
+      await mypageApi.updateProfile({
+        name: name.trim(),
+        birthDate: `${birthYear}-${birthMonth.padStart(2, '0')}-${birthDay.padStart(2, '0')}`,
+        gender: gender === 'male' ? 'MALE' : 'FEMALE',
+        roadAddress: coordinates.roadAddress,
+        detailAddress: detail.trim(),
+        latitude: Number(coordinates.latitude.toFixed(7)),
+        longitude: Number(coordinates.longitude.toFixed(7)),
+        regionId: region.regionId,
+        ...(phoneVerificationToken
+          ? {
+              phoneNumber: phone.replace(/\D/g, ''),
+              phoneVerificationToken,
+            }
+          : {}),
+      });
+      await queryClient.invalidateQueries({ queryKey: ['mypage-summary'] });
+      setSaved(true);
+    } catch (error) {
+      setFormError(getApiErrorMessage(error, '개인정보를 저장하지 못했어요. 다시 확인해 주세요.'));
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -174,13 +269,36 @@ const EditProfile = () => {
           />
           <button
             type="button"
-            onClick={handleVerify}
+            onClick={() => {
+              void handleSendVerificationCode();
+            }}
             disabled={verified}
             className="min-h-[52px] shrink-0 rounded-[999px] bg-[#FF853E] px-4 text-[17px] font-extrabold text-white transition-colors hover:bg-[#EB6F27] disabled:cursor-not-allowed disabled:bg-[#FFE2B9] disabled:text-[#FF7A32]"
           >
-            {verified ? '인증 완료' : '인증하기'}
+            {verified ? '인증 완료' : codeSent ? '재전송' : '인증하기'}
           </button>
         </div>
+        {codeSent && !verified && (
+          <div className="mt-2 flex gap-2">
+            <input
+              className="mypage-field mypage-pill min-w-0 flex-1"
+              value={verificationCode}
+              onChange={(event) => setVerificationCode(event.target.value.replace(/\D/g, ''))}
+              placeholder="인증번호 입력"
+              inputMode="numeric"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                void handleVerifyCode();
+              }}
+              disabled={!verificationCode.trim() || verifyingPhone}
+              className="min-h-[52px] shrink-0 rounded-[999px] bg-[#FF853E] px-4 text-[17px] font-extrabold text-white disabled:opacity-50"
+            >
+              확인
+            </button>
+          </div>
+        )}
       </div>
 
       <div>
@@ -239,7 +357,7 @@ const EditProfile = () => {
               <li key={`${result.roadAddress}-${index}`}>
                 <button
                   type="button"
-                  onClick={() => selectResult(result.roadAddress)}
+                  onClick={() => selectResult(result)}
                   className="min-h-12 w-full rounded-xl px-2 py-2.5 text-left text-[16px] font-semibold text-gray-800 hover:bg-[#FFF7EC]"
                 >
                   {result.roadAddress}
@@ -266,12 +384,20 @@ const EditProfile = () => {
 
       <button
         type="button"
-        onClick={handleSave}
-        disabled={!isValid}
+        onClick={() => {
+          void handleSave();
+        }}
+        disabled={!isValid || saving}
         className={`${primaryButton} !min-h-14 !flex-none !text-[22px]`}
       >
-        저장하기
+        {saving ? '저장 중...' : '저장하기'}
       </button>
+
+      {formError && (
+        <p role="alert" className="text-center text-sm font-bold text-red-500">
+          {formError}
+        </p>
+      )}
 
       <Modal
         open={saved}

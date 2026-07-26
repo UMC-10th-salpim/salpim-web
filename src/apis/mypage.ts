@@ -1,5 +1,87 @@
-// TODO: 마이페이지 관련 API 함수 구현
-export const mypageApi = {};
+import client from './client';
+
+interface ApiResponse<T> {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: T;
+}
+
+export interface MyPageSummary {
+  name: string;
+  sido: string;
+  sigungu: string;
+}
+
+export interface UpdateProfileRequest {
+  name: string;
+  birthDate: string;
+  gender: 'MALE' | 'FEMALE';
+  roadAddress: string;
+  detailAddress: string;
+  latitude: number;
+  longitude: number;
+  regionId: number;
+  phoneNumber?: string;
+  phoneVerificationToken?: string;
+}
+
+export type PasswordVerificationMethod = 'CURRENT_PASSWORD' | 'RECOVERY_ANSWER';
+
+export interface ChangePasswordRequest {
+  verificationMethod: PasswordVerificationMethod;
+  currentPassword?: string;
+  recoveryAnswer?: string;
+  newPassword: string;
+}
+
+export const mypageApi = {
+  getSummary: async () => {
+    const { data } = await client.get<ApiResponse<MyPageSummary>>('/users/me');
+    return data.result;
+  },
+
+  updateProfile: async (request: UpdateProfileRequest) => {
+    await client.put<ApiResponse<null>>('/users/me', request);
+  },
+
+  sendPhoneVerificationCode: async (phoneNumber: string) => {
+    await client.post<ApiResponse<null>>('/users/me/phone-verification/send', { phoneNumber });
+  },
+
+  verifyPhoneCode: async (phoneNumber: string, code: string) => {
+    const { data } = await client.post<ApiResponse<{ phoneVerificationToken: string }>>(
+      '/users/me/phone-verification/verify',
+      { phoneNumber, code }
+    );
+    return data.result.phoneVerificationToken;
+  },
+
+  verifyCurrentPassword: async (currentPassword: string) => {
+    const { data } = await client.post<ApiResponse<{ isVerified: boolean }>>(
+      '/users/me/password/verify',
+      { currentPassword }
+    );
+    return data.result.isVerified;
+  },
+
+  verifyRecoveryAnswer: async (recoveryAnswer: string) => {
+    const { data } = await client.post<ApiResponse<{ isVerified: boolean }>>(
+      '/users/me/password/recovery/verify',
+      { recoveryAnswer }
+    );
+    return data.result.isVerified;
+  },
+
+  changePassword: async (request: ChangePasswordRequest) => {
+    await client.put<ApiResponse<null>>('/users/me/password', request);
+  },
+
+  withdraw: async () => {
+    const { data } = await client.delete<ApiResponse<null>>('/members/me');
+    return data;
+  },
+};
 
 export interface MyProfile {
   name: string;
@@ -27,5 +109,3 @@ export const MOCK_PROFILE: MyProfile = {
 
 // 회원가입 시 등록한 비밀번호 찾기용 보안 질문 (온보딩과 동일한 질문)
 export const SECURITY_QUESTION = '내가 가장 좋아하는 계절은?';
-export const MOCK_SECURITY_ANSWER = '겨울';
-export const MOCK_PASSWORD = '333333';
