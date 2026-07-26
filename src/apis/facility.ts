@@ -39,6 +39,46 @@ interface KakaoKeywordResponse {
   documents: KakaoKeywordDoc[];
 }
 
+interface ApiResponse<T> {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result: T;
+}
+
+export interface FacilityBenefit {
+  servId: string;
+  region: string;
+  serviceName: string;
+}
+
+export interface FacilityBenefitPage {
+  data: FacilityBenefit[];
+  hasNext: boolean;
+  nextCursor: string | null;
+  pageSize: number;
+  totalCount: number;
+}
+
+export interface FacilityDetails {
+  name: string;
+  address: string;
+  hour: string | null;
+  distanceText: string;
+  isMyCenter: boolean;
+  benefits: FacilityBenefitPage;
+}
+
+export interface FacilityDetailsParams {
+  memberId: number;
+  facilityName: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  cursor?: string;
+  size?: number;
+}
+
 const formatDistance = (meters: string): string => {
   const value = Number(meters) || 0;
   return value >= 1000 ? `${(value / 1000).toFixed(1)}km` : `${value}m`;
@@ -116,11 +156,30 @@ export const searchAllFacilities = async (center: MapCenter): Promise<Facility[]
   });
 };
 
-// TODO: 백엔드 엔드포인트가 정해지면 실제 경로로 교체
-export const sendFacilitiesToBackend = async (facilities: Facility[]): Promise<void> => {
+export const getMemberIdFromAccessToken = (accessToken: string | null): number | null => {
+  if (!accessToken) return null;
+
   try {
-    await client.post('/facilities', facilities);
-  } catch (error) {
-    console.warn('[facility] 백엔드 전송 실패 (엔드포인트 미구현 상태일 수 있음)', error);
+    const encodedPayload = accessToken.split('.')[1];
+    if (!encodedPayload) return null;
+
+    const base64 = encodedPayload.replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, '='))) as Record<
+      string,
+      unknown
+    >;
+    const rawMemberId = payload.memberId ?? payload.member_id ?? payload.id ?? payload.sub;
+    const memberId = Number(rawMemberId);
+
+    return Number.isSafeInteger(memberId) && memberId > 0 ? memberId : null;
+  } catch {
+    return null;
   }
+};
+
+export const facilityApi = {
+  getDetails: async (params: FacilityDetailsParams) => {
+    const { data } = await client.get<ApiResponse<FacilityDetails>>('/map/details', { params });
+    return data.result;
+  },
 };

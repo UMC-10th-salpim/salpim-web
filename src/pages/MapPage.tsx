@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
 import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
-import { searchAllFacilities, sendFacilitiesToBackend } from '@/apis/facility';
+import { searchAllFacilities } from '@/apis/facility';
 import CategoryFilterSheet from '@/features/map/CategoryFilterSheet';
 import FacilitySummarySheet from '@/features/map/FacilitySummarySheet';
 import FilterBar from '@/features/map/FilterBar';
@@ -43,11 +43,7 @@ const MapPage = () => {
     queryKey: ['facilities', center.lat, center.lng],
     queryFn: async () => {
       const realFacilities = await searchAllFacilities(center);
-      const result = realFacilities.length > 0 ? realFacilities : getMockFacilitiesNear(center);
-
-      void sendFacilitiesToBackend(result);
-
-      return result;
+      return realFacilities.length > 0 ? realFacilities : getMockFacilitiesNear(center);
     },
     enabled: centerReady,
   });

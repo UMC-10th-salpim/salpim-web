@@ -79,7 +79,7 @@ export const getKakaoAuthorizeUrl = () => {
 
 export const authApi = {
   sendPhoneVerificationCode: async (phoneNumber: string) => {
-    const { data } = await client.post<ApiResponse<null>>('/v1/signup/phone/send', {
+    const { data } = await client.post<ApiResponse<null>>('/signup/phone/send', {
       phoneNumber,
     });
     return data;
@@ -87,14 +87,14 @@ export const authApi = {
 
   verifyPhoneCode: async (phoneNumber: string, code: string) => {
     const { data } = await client.post<ApiResponse<{ verified: boolean }>>(
-      '/v1/signup/phone/verify',
+      '/signup/phone/verify',
       { phoneNumber, code }
     );
     return unwrap(data).verified;
   },
 
   geocodeAddress: async (roadAddress: string) => {
-    const { data } = await client.post<ApiResponse<GeocodeResult>>('/v1/signup/location/geocode', {
+    const { data } = await client.post<ApiResponse<GeocodeResult>>('/signup/location/geocode', {
       roadAddress,
     });
     return unwrap(data);
@@ -102,18 +102,18 @@ export const authApi = {
 
   resolveRegion: async (request: RegionResolveRequest) => {
     const { data } = await client.post<ApiResponse<RegionResolveResult>>(
-      '/v1/regions/resolve',
+      '/regions/resolve',
       request
     );
     return unwrap(data);
   },
 
   signupLocal: async (request: LocalSignupRequest) => {
-    await client.post<ApiResponse<null>>('/v1/signup/local', request);
+    await client.post<ApiResponse<null>>('/signup/local', request);
   },
 
   loginLocal: async (phoneNumber: string, password: string) => {
-    const { data } = await client.post<ApiResponse<TokenResult>>('/v1/login/local', {
+    const { data } = await client.post<ApiResponse<TokenResult>>('/login/local', {
       phoneNumber,
       password,
     });
@@ -121,14 +121,14 @@ export const authApi = {
   },
 
   kakaoLogin: async (authorizationCode: string) => {
-    const { data } = await client.post<ApiResponse<KakaoLoginResult>>('/v1/login/kakao', {
+    const { data } = await client.post<ApiResponse<KakaoLoginResult>>('/login/kakao', {
       authorizationCode,
     });
     return unwrap(data);
   },
 
   signupKakao: async (signupToken: string, request: KakaoSignupRequest) => {
-    await client.post<ApiResponse<null>>('/v1/signup/kakao', request, {
+    await client.post<ApiResponse<null>>('/signup/kakao', request, {
       headers: { Authorization: `Bearer ${signupToken}` },
     });
   },
