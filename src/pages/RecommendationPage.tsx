@@ -130,7 +130,7 @@ const RecommendationPage = () => {
   }, [accessToken, setName]);
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-brand-50 pb-24">
+    <div className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col bg-brand-50 pb-[calc(6rem+env(safe-area-inset-bottom))]">
       {/* 헤더 */}
       <header className="sticky top-0 z-30 flex items-center justify-between bg-brand-50 px-5 py-4">
         <span className="text-2xl font-bold text-brand-600">살핌</span>

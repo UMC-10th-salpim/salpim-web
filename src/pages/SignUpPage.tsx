@@ -121,8 +121,8 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="h-dvh w-full bg-brand-50">
-      <div className="mx-auto flex h-dvh max-w-md flex-col overflow-hidden bg-brand-50 px-6 pb-8 pt-6">
+    <div className="min-h-[100svh] w-full bg-brand-50">
+      <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-brand-50 px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
         {step < (isKakaoSignup ? KAKAO_TOTAL_STEPS : LOCAL_TOTAL_STEPS) && (
           <ProgressDots
             total={isKakaoSignup ? KAKAO_TOTAL_STEPS : LOCAL_TOTAL_STEPS}

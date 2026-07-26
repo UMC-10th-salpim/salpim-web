@@ -53,7 +53,7 @@ const OAuthKakaoPage = () => {
 
   if (errorMessage) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-brand-50 px-6">
+      <main className="flex min-h-[100svh] items-center justify-center bg-brand-50 px-6">
         <section className="w-full max-w-md rounded-3xl bg-white p-6 text-center shadow-sm">
           <h1 className="text-2xl font-semibold text-[#613212]">카카오 로그인 실패</h1>
           <p role="alert" className="mt-3 text-lg font-medium leading-7 text-red-500">
@@ -75,7 +75,7 @@ const OAuthKakaoPage = () => {
     <main
       role="status"
       aria-live="polite"
-      className="flex min-h-dvh items-center justify-center bg-brand-50"
+      className="flex min-h-[100svh] items-center justify-center bg-brand-50"
     >
       <div className="flex flex-col items-center gap-3">
         <span className="h-9 w-9 animate-spin rounded-full border-4 border-brand-100 border-t-brand-500" />

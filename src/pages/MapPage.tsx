@@ -80,7 +80,7 @@ const MapPage = () => {
   };
 
   return (
-    <main className="flex h-screen flex-col bg-gray-50">
+    <main className="flex h-[100svh] flex-col bg-gray-50">
       <HeaderBar title="주변 혜택 시설" />
 
       <div className="relative flex flex-1 flex-col overflow-hidden pb-16">

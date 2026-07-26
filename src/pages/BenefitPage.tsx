@@ -17,7 +17,7 @@ const BenefitPage = () => {
   const hasBenefits = MOCK_BENEFITS.length > 0;
 
   return (
-    <div  className="mx-auto flex min-h-dvh max-w-md flex-col bg-[#FAF8F3] pb-24">
+    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-[#FAF8F3] pb-[calc(6rem+env(safe-area-inset-bottom))]">
       <HeaderBar title="혜택 결과" />
 
       <div className="p-4 flex flex-col gap-4 flex-1">

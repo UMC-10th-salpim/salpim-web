@@ -35,14 +35,20 @@ html,
 body {
   min-width: 320px;
   min-height: 100%;
+  min-height: 100svh;
   margin: 0;
   background-color: var(--salpim-page);
   word-break: keep-all;
   letter-spacing: -0.06em;
 }
 
+body {
+  overflow-x: hidden;
+}
+
 #root {
-  min-height: 100dvh;
+  min-height: 100vh;
+  min-height: 100svh;
 }
 
 button,
@@ -61,7 +67,7 @@ button {
 .mypage-screen {
   display: flex;
   width: 100%;
-  min-height: 100dvh;
+  min-height: 100svh;
   flex-direction: column;
   background: var(--salpim-page);
   padding-bottom: calc(88px + env(safe-area-inset-bottom));
