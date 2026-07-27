@@ -3,24 +3,71 @@ import BenefitEmptyState from "@/features/benefit/BenefitEmptyState";
 import HeaderBar from "@/components/common/HeaderBar/HeaderBar";
 import Button from "@/components/common/Button/Button";
 import BottomNavigation from "@/components/common/BottomNavigation/BottomNavigation";
-import { MOCK_BENEFITS } from "@/apis/benefit";
+import { benefitApi, getBenefitIcon } from "@/apis/benefit";
 import { useNavigate, useLocation } from "react-router-dom";
+import useUserStore from "@/store/userStore";
+import {useEffect, useState} from "react";
 
-// TODO : 로그인 사용자 이름 연동하기
-const USER_NAME = "김살핌";
+// 이렇게 보내줘야함
+interface LocationState {
+  source?: 'survey' | 'search';
+  keyword?: string;
+  optionId?: number; // survey
+  regionIds?: number[]; // search
+  categoryIds?: number[]; // search
+  sort?: 'popular' | 'deadline'; // search
+}
 
 const BenefitPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { source = 'search', keyword } =
-    (location.state as { source?: 'survey' | 'search'; keyword?: string }) ?? {};
+  const { source = 'search', keyword, optionId, regionIds, categoryIds, sort } =
+    (location.state as LocationState) ?? {};
 
-  // TODO: 백엔드 검색 API 연동 시 이 필터링 로직을 실제 API 호출로 교체
-  const filteredBenefits = keyword
-  ? MOCK_BENEFITS.filter((b) => b.title.includes(keyword))
-  : MOCK_BENEFITS;
+  const userName = useUserStore((state)=> state.name);
+  const [benefits, setBenefits] = useState<{benefitId: number; benefitTitle: string; benefitCategory: string }[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const hasBenefits = filteredBenefits.length > 0;
+  useEffect(()=> {
+    const fetchBenefits = async () => {
+      setIsLoading(true);
+      try {
+        if (source === 'survey' && optionId === undefined){
+          console.warn('설문 결과 조회에 optionId가 없다');
+        }
+
+        const result = source === 'survey'
+          ? await benefitApi.getRecommendationResult({optionId : optionId ?? 0})
+          : await benefitApi.searchBenefits({
+              searchKey : keyword,
+              regionIds : regionIds ?? [],
+              categoryIds,
+              sort,
+          });
+        setBenefits(result.data);
+        setTotalCount(result.totalCount);
+      } catch (error) {
+        console.error('혜택 목록 조회 실패', error);
+        setBenefits([]);
+        setTotalCount(0);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchBenefits();
+  }, [source, keyword, optionId, regionIds, categoryIds, sort]);
+
+  const hasBenefits = totalCount > 0;
+
+  // 로딩 수정
+  if (isLoading) {
+    return (
+      <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center bg-[#FAF8F3]">
+        <span className="text-lg font-semibold text-[#613212]">혜택을 찾고 있어요...</span>
+      </div>
+    )
+  }
 
   return (
     <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-[#FAF8F3] pb-[calc(6rem+env(safe-area-inset-bottom))]">
@@ -34,20 +81,20 @@ const BenefitPage = () => {
               <img src="/characters/salpimi_Good.png" alt="" className="absolute top-6 -left-px w-28 h-28"/>
               <div className="flex flex-col items-center gap-1">
                 <span className="text-[23px] font-semibold text-[#613212]">
-                  {USER_NAME}님이 원하시는 혜택 <br/> {filteredBenefits.length}가지를 찾았어요!
+                  {userName}님이 원하시는 혜택 <br/> {totalCount}가지를 찾았어요!
                 </span>
                 <span className="text-base font-medium text-center text-[#FF8A3D]">살피미와 함께 확인해요</span>
               </div>
             </div>
 
             <span className="text-2xl font-extrabold text-[#613212] pl-[24px] pb-2">
-              {filteredBenefits.length}가지 혜택 보기
+              {totalCount}가지 혜택 보기
             </span>
 
             <div className="flex flex-col gap-1">
-              {filteredBenefits.map((benefit, index) => {
+              {benefits.map((benefit, index) => {
                 const isFirst = index === 0;
-                const isLast = index === filteredBenefits.length -1;
+                const isLast = index === benefits.length -1;
 
                 const roundedStyle = isFirst
                   ? 'rounded-t-[32px] rounded-b-none'
@@ -57,11 +104,11 @@ const BenefitPage = () => {
 
                 return (
                     <BenefitCard
-                      id={benefit.id}
-                      key={benefit.id}
-                      category={benefit.category}
-                      icon={benefit.icon}
-                      title={benefit.title}
+                      id={benefit.benefitId}
+                      key={benefit.benefitId}
+                      category={benefit.benefitCategory}
+                      icon={getBenefitIcon(benefit.benefitCategory)}
+                      title={benefit.benefitTitle}
                       className={roundedStyle}
                     />
                   );
