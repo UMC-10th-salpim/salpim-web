@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ScrollMoreIndicator from '@/components/common/ScrollMoreIndicator/ScrollMoreIndicator';
 import HomeBottomNavigation from '@/features/home/HomeBottomNavigation';
 import useUserStore from '@/store/userStore';
 import { mypageApi } from '@/apis/mypage';
@@ -234,6 +235,7 @@ const RecommendationPage = () => {
         </section>
       </main>
 
+      <ScrollMoreIndicator />
       <HomeBottomNavigation />
     </div>
   );

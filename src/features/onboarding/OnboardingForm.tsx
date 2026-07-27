@@ -143,7 +143,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
               <div className="flex items-center gap-[clamp(1px,0.54vw,2px)]">
                 <div className="flex min-w-0 flex-1 items-center gap-[clamp(1px,0.54vw,2px)]">
                   <input
-                    className={`${personalInfoInputStyle(value.birthYear !== '')} min-w-[clamp(84px,25.34vw,95px)] flex-1 !px-2 !text-[23px]`}
+                    className={`${personalInfoInputStyle(value.birthYear !== '')} min-w-[clamp(84px,25.34vw,95px)] flex-1 !pl-5 !pr-2 !text-[23px]`}
                     value={value.birthYear}
                     onChange={(event) => update('birthYear', event.target.value.replace(/\D/g, ''))}
                     inputMode="numeric"
