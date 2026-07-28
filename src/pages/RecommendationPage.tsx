@@ -119,7 +119,8 @@ const RecommendationPage = () => {
     mypageApi
       .getSummary()
       .then((profile) => {
-        if (!cancelled && profile.name.trim()) setName(profile.name.trim());
+        const profileName = typeof profile.name === 'string' ? profile.name.trim() : '';
+        if (!cancelled && profileName) setName(profileName);
       })
       .catch((error: unknown) => {
         if (import.meta.env.DEV) console.error('[recommendation] profile load failed', error);
