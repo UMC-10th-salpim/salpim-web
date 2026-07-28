@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { authApi, getPhoneVerificationErrorMessage } from '@/apis/auth';
+import { MAX_SIGNUP_AGE, validateBirthDate } from '@/utils/birthDate';
 import { formatPhone } from '@/utils/phone';
 import { inputStyle, labelStyle, primaryButton, secondaryButton } from './styles';
 
@@ -84,33 +85,17 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
     }
   };
 
-  const hasCompleteBirthDate =
-    value.birthYear.length === 4 && value.birthMonth !== '' && value.birthDay !== '';
-  const hasInvalidBirthDate = (() => {
-    if (!hasCompleteBirthDate) return false;
-
-    const year = Number(value.birthYear);
-    const month = Number(value.birthMonth);
-    const day = Number(value.birthDay);
-    const birthDate = new Date(year, month - 1, day);
-    const today = new Date();
-
-    today.setHours(0, 0, 0, 0);
-
-    return (
-      birthDate.getFullYear() !== year ||
-      birthDate.getMonth() !== month - 1 ||
-      birthDate.getDate() !== day ||
-      birthDate >= today
-    );
-  })();
+  const birthDateValidation = validateBirthDate(
+    value.birthYear,
+    value.birthMonth,
+    value.birthDay
+  );
+  const hasInvalidBirthDate =
+    birthDateValidation === 'invalid' || birthDateValidation === 'too-old';
 
   const isValid =
     value.name.trim() !== '' &&
-    value.birthYear !== '' &&
-    value.birthMonth !== '' &&
-    value.birthDay !== '' &&
-    !hasInvalidBirthDate &&
+    birthDateValidation === 'valid' &&
     value.gender !== '' &&
     value.phoneVerified;
 
@@ -150,6 +135,8 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
                     maxLength={4}
                     placeholder="YYYY"
                     aria-label="년"
+                    aria-invalid={hasInvalidBirthDate}
+                    aria-describedby={hasInvalidBirthDate ? 'birth-date-error' : undefined}
                   />
                   <span className="text-2xl font-medium text-gray-700">년</span>
                 </div>
@@ -164,6 +151,8 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
                     maxLength={2}
                     placeholder="MM"
                     aria-label="월"
+                    aria-invalid={hasInvalidBirthDate}
+                    aria-describedby={hasInvalidBirthDate ? 'birth-date-error' : undefined}
                   />
                   <span className="text-2xl font-medium text-gray-700">월</span>
                 </div>
@@ -176,13 +165,21 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
                     maxLength={2}
                     placeholder="DD"
                     aria-label="일"
+                    aria-invalid={hasInvalidBirthDate}
+                    aria-describedby={hasInvalidBirthDate ? 'birth-date-error' : undefined}
                   />
                   <span className="text-2xl font-medium text-gray-700">일</span>
                 </div>
               </div>
               {hasInvalidBirthDate && (
-                <p role="alert" className="mt-2 px-2 text-sm font-normal text-red-500 opacity-80">
-                  유효하지 않은 생년월일입니다. 생년월일을 확인해주세요!
+                <p
+                  id="birth-date-error"
+                  role="alert"
+                  className="mt-2 px-2 text-sm font-normal text-red-500 opacity-80"
+                >
+                  {birthDateValidation === 'too-old'
+                    ? `만 ${MAX_SIGNUP_AGE}세를 초과하는 생년월일은 입력할 수 없습니다.`
+                    : '유효하지 않은 생년월일입니다. 생년월일을 확인해주세요!'}
                 </p>
               )}
             </div>

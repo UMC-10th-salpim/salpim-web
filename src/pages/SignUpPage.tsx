@@ -15,6 +15,7 @@ import type { SecurityData } from '@/features/onboarding/SecurityQuestionStep';
 import TermsAgreement from '@/features/onboarding/TermsAgreement';
 import type { TermsData } from '@/features/onboarding/TermsAgreement';
 import SummaryStep from '@/features/onboarding/SummaryStep';
+import { validateBirthDate } from '@/utils/birthDate';
 
 const LOCAL_TOTAL_STEPS = 4; // 진행 표시 점 개수 (약관 동의/요약 화면 제외)
 const KAKAO_TOTAL_STEPS = 2;
@@ -69,6 +70,12 @@ const SignUpPage = () => {
 
   const finish = async () => {
     if (isSubmitting) return;
+
+    if (validateBirthDate(info.birthYear, info.birthMonth, info.birthDay) !== 'valid') {
+      setStep(0);
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitError('');
 
