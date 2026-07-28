@@ -16,6 +16,7 @@ const FontSizePage = () => {
   const [fontSize, setFontSize] = useState<FontSize>(() => {
     return localStorage.getItem(FONT_SIZE_STORAGE_KEY) === 'large' ? 'large' : 'medium';
   });
+  const [kakaoLoginError, setKakaoLoginError] = useState('');
 
   const next = searchParams.get('next') as NextPage | null;
   const isLarge = fontSize === 'large';
@@ -32,9 +33,19 @@ const FontSizePage = () => {
 
   const handleSave = () => {
     localStorage.setItem(FONT_SIZE_STORAGE_KEY, fontSize);
+    setKakaoLoginError('');
 
     if (next === 'kakao') {
-      window.location.href = getKakaoAuthorizeUrl();
+      try {
+        window.location.href = getKakaoAuthorizeUrl();
+      } catch (error) {
+        if (import.meta.env.DEV) {
+          console.error('[kakao] invalid authorization configuration', error);
+        }
+        setKakaoLoginError(
+          '카카오 로그인 설정을 확인하지 못했어요. 잠시 후 다시 시도해 주세요.'
+        );
+      }
       return;
     }
 
@@ -106,6 +117,11 @@ const FontSizePage = () => {
         >
           저장하기
         </button>
+        {kakaoLoginError && (
+          <p role="alert" className="mt-3 text-center text-sm font-semibold text-red-500">
+            {kakaoLoginError}
+          </p>
+        )}
       </main>
     </div>
   );

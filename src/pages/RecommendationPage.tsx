@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ScrollMoreIndicator from '@/components/common/ScrollMoreIndicator/ScrollMoreIndicator';
 import HomeBottomNavigation from '@/features/home/HomeBottomNavigation';
 import useUserStore from '@/store/userStore';
 import { mypageApi } from '@/apis/mypage';
@@ -118,7 +119,8 @@ const RecommendationPage = () => {
     mypageApi
       .getSummary()
       .then((profile) => {
-        if (!cancelled && profile.name.trim()) setName(profile.name.trim());
+        const profileName = typeof profile.name === 'string' ? profile.name.trim() : '';
+        if (!cancelled && profileName) setName(profileName);
       })
       .catch((error: unknown) => {
         if (import.meta.env.DEV) console.error('[recommendation] profile load failed', error);
@@ -234,6 +236,7 @@ const RecommendationPage = () => {
         </section>
       </main>
 
+      <ScrollMoreIndicator />
       <HomeBottomNavigation />
     </div>
   );
