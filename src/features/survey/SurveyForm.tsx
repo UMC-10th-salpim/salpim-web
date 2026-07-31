@@ -4,10 +4,10 @@ import { useNavigate } from 'react-router-dom';
 
 interface SurveyFormProps {
   current : SurveyQuestion;
-  currentValue : string |string[];
+  currentValue : number | number[];
   answered: boolean;
   step : number;
-  onChange : (value: string | string[]) => void;
+  onChange : (value: number | number []) => void;
   onNext: () => void;
   userName?: string;
 };
