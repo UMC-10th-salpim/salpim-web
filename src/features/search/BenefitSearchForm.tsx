@@ -10,7 +10,11 @@ const BenefitSearchForm = () => {
 
   const handleSearch = () => {
     if (!keyword.trim()) return;
-    navigate('/benefits', {state: { source : 'search', keyword}});
+    if (!city || !district) {
+      alert('지역을 선택해 주세요.');
+      return;
+    }
+    navigate('/benefits', {state: { source : 'search', keyword, city, district}});
   }
 
   const handleConditionSearch = () => {
@@ -33,7 +37,7 @@ const BenefitSearchForm = () => {
   const [district, setDistrict] = useState('');
   const [isRegionPickerOpen, setIsRegionPickerOpen] = useState(false);
   const [interests, setInterests] = useState<string[]>([]);
-  const [sort, setSort] = useState<Sort>(null);
+  const [sort, setSort] = useState<Sort>('popular');
 
   const toggleInterest = (interest: string) => {
     setInterests((prev)=>
@@ -142,7 +146,7 @@ const BenefitSearchForm = () => {
         <div className='flex gap-2 mx-2'>
           <button
             type='button'
-            onClick={()=> setSort(sort === 'popular' ? null : 'popular')}
+            onClick={()=> setSort('popular')}
             className={`rounded-full border border-3 px-3 py-3 text-xl font-semibold transition-colors ${
               sort === 'popular'
                 ? 'border-[#FF8A3D] bg-[#FF8A3D] text-white'
@@ -153,7 +157,7 @@ const BenefitSearchForm = () => {
           </button>
           <button
             type='button'
-            onClick={()=>setSort(sort === 'deadline' ? null : 'deadline')}
+            onClick={()=>setSort('deadline')}
             className={`rounded-full border border-3 px-3 py-3 text-xl font-semibold transition-colors ${
               sort === 'deadline'
                 ? 'border-[#FF8A3D] bg-[#FF8A3D] text-white'
@@ -168,7 +172,11 @@ const BenefitSearchForm = () => {
         <button 
           type='button'
           onClick={handleConditionSearch}
-          className='rounded-full bg-[#FF8A3D] py-[14px] px-[81.5px] text-3xl font-semibold text-white mx-[14.5px]'
+          className={`rounded-full py-[14px] px-[81.5px] text-3xl font-semibold mx-[14.5px] transition-colors ${
+            city && district
+            ? 'bg-[#FF8A3D] text-white'
+            : 'bg-[#DDDDDD] text-[#FAF8F3] cursor-not-allowed'
+          }`}
         >
           결과 확인하기
         </button>
