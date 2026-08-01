@@ -107,7 +107,6 @@ const slides: IntroSlide[] = [
   },
 ];
 
-const buttonStyle = 'w-full py-4 !text-2xl !font-semibold';
 const introButtonStyle =
   'h-[clamp(68px,9.85vh,80px)] max-w-[157px] flex-1 py-0 !text-2xl !font-semibold';
 const helpButtonStyle =
@@ -191,9 +190,14 @@ const OnboardingPage = () => {
               aria-hidden
               className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[clamp(112px,17vh,138px)] bg-[linear-gradient(to_bottom,transparent_0%,#FAF8F3_100%)]"
             />
-            <div className="absolute inset-x-6 bottom-[clamp(20px,3.05vh,24px)] z-20">
-              <OnboardingButton className={buttonStyle} onClick={finish}>
-                시작하기
+            <div
+              className={`absolute inset-x-0 bottom-[clamp(35px,5.79vh,47px)] z-20 flex justify-center px-6 ${introButtonGap}`}
+            >
+              <OnboardingButton className={helpButtonStyle} onClick={finish}>
+                건너뛰기
+              </OnboardingButton>
+              <OnboardingButton className={helpButtonStyle} onClick={handleNext}>
+                다음
               </OnboardingButton>
             </div>
           </>
