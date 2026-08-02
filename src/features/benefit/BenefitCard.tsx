@@ -21,7 +21,7 @@ const BenefitCard = ({id, category, icon, title, className=''} : BenefitCardProp
     <div>
       <Card className={`flex items-center gap-3 !bg-[#FBE3BF] !shadow-none !border-none ${className}`}>
         <div className="w-16 h-16 rounded-full bg-[#FAF8F3] flex items-center justify-center shrink-0">
-          <img src={icon} alt="" className="w-10 h-10" /> 
+          {icon && <img src={icon} alt="" className="w-10 h-10" />}
         </div>
                
         <div className="flex flex-col flex-1 items-start">

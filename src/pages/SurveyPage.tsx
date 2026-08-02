@@ -3,7 +3,7 @@ import HeaderBar from "@/components/common/HeaderBar/HeaderBar";
 import SurveyForm from "@/features/survey/SurveyForm";
 import { SECOND_QUESTIONS, surveyApi, type SurveyQuestion, type SurveyAnswers } from "@/apis/survey";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import useUserStore from "@/store/userStore";
 
 // 1 단계 질문
@@ -34,7 +34,7 @@ const SurveyPage = () => {
   const isLast = step === questions.length - 1;
   const currentValue = answers[current.id] ?? 0;
   const answered = currentValue !== 0;
-
+  const latesRequestRef = useRef(0);
   const [isLoadingSecond, setIsLoadingSecond] = useState(false);
 
   const handleChange = async (value: number | number[]) => {
@@ -43,12 +43,14 @@ const SurveyPage = () => {
     // 1단계 선택 시 2단계 질문 설정
     if (step===0) {
       const categoryId = value as number;
+      const requestId = ++latesRequestRef.current;
       setIsLoadingSecond(true);
 
       try {
         const options = await surveyApi.getSecondQuestionOptions(categoryId);
-        const questionText = SECOND_QUESTIONS[categoryId]?.question ?? '';
+        if (requestId !== latesRequestRef.current) return;
 
+        const questionText = SECOND_QUESTIONS[categoryId]?.question ?? '';
         setSecondQuestion({
           id : `category_${categoryId}_detail`,
           question : questionText,
@@ -64,7 +66,9 @@ const SurveyPage = () => {
         // TODO : API 실패 시 mock 데이터 사용
         setSecondQuestion(SECOND_QUESTIONS[categoryId] ?? null);
       } finally {
-        setIsLoadingSecond(false);
+        if (requestId === latesRequestRef.current) {
+          setIsLoadingSecond(false);
+        }
       }
     }
   };
