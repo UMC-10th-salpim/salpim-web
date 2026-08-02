@@ -2,8 +2,8 @@ import type {QuestionOption} from '@/apis/survey';
 
 interface QuestionCardProps {
   options: QuestionOption[];
-  value: string | string[];
-  onChange: (value: string | string[]) => void;
+  value: number | number[];
+  onChange: (value: number | number[]) => void;
   multiple?: boolean;
   className?: string;
 }
@@ -15,16 +15,16 @@ const QuestionCard = ({
   multiple = false,
   className = '',
 }: QuestionCardProps) => {
-  const isSelected = (optionValue: string) =>
-    multiple ? (value as string[]).includes(optionValue) : value === optionValue;
+  const isSelected = (optionValue: number) =>
+    multiple ? (value as number[]).includes(optionValue) : value === optionValue;
 
-  const handleSelect = (optionValue: string) => {
+  const handleSelect = (optionValue: number) => {
     if (!multiple) {
-      onChange(value === optionValue ? '' : optionValue);
+      onChange(value === optionValue ? 0 : optionValue);
       return;
     }
 
-    const current = value as string[];
+    const current = value as number[];
     const next = current.includes(optionValue)
       ? current.filter((item) => item !== optionValue)
       : [...current, optionValue];

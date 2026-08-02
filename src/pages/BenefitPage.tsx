@@ -30,11 +30,16 @@ const BenefitPage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(()=> {
+    let ignore = false;
     const fetchBenefits = async () => {
       setIsLoading(true);
       try {
         if (source === 'survey' && optionId === undefined){
-          console.warn('설문 결과 조회에 optionId가 없다');
+          if(!ignore) {
+            setBenefits([]);
+            setTotalCount(0);
+          }
+          return;
         }
 
         const result = source === 'survey'
@@ -45,19 +50,23 @@ const BenefitPage = () => {
               categoryIds,
               sort,
           });
+        if (ignore) return;
         setBenefits(result.data);
         setTotalCount(result.totalCount);
       } catch (error) {
+        if (ignore) return;
         console.error('혜택 목록 조회 실패', error);
         setBenefits([]);
         setTotalCount(0);
       } finally {
-        setIsLoading(false);
+        if (!ignore) setIsLoading(false);
       }
     };
     fetchBenefits();
+    return () => {ignore = true;};
   }, [source, keyword, optionId, regionIds, categoryIds, sort]);
 
+  const isMissingOptionId = source === 'survey' && optionId === undefined;
   const hasBenefits = totalCount > 0;
 
   // 로딩 수정
@@ -74,14 +83,18 @@ const BenefitPage = () => {
       <HeaderBar title="혜택 결과" />
 
       <div className="p-4 flex flex-col gap-4 flex-1">
-        {hasBenefits ? (
+        { isMissingOptionId ? (
+          <div className="flex flex-col items-center justify-center gap-2 py-200">
+            <span className="text-lg font-semibold text-[#613212]"> 잘못된 접근입니다. 설문을 다시 진행해 주세요.</span>
+          </div>
+        ) : hasBenefits ? (
           <>
             {/* 상단 베너*/}
             <div className="relative bg-[#FFF7ED] rounded-4xl flex items-center border-3 border-[#E8B16A] py-[11px] pl-[114px] pr-8">
               <img src="/characters/salpimi_Good.png" alt="" className="absolute top-6 -left-px w-28 h-28"/>
               <div className="flex flex-col items-center gap-1">
                 <span className="text-[23px] font-semibold text-[#613212]">
-                  {userName}님이 원하시는 혜택 <br/> {totalCount}가지를 찾았어요!
+                  {userName ?? '회원'}님이 원하시는 혜택 <br/> {totalCount}가지를 찾았어요!
                 </span>
                 <span className="text-base font-medium text-center text-[#FF8A3D]">살피미와 함께 확인해요</span>
               </div>

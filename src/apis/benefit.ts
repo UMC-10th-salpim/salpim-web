@@ -87,7 +87,7 @@ export const CATEGORY_ICONS : {keyword: string; icon: string}[] = [
   { keyword: '배움', icon: '/icons/benefit/mask.png' },
 ]
 
-const DEFAULT_BENEFIT_ICON = '/icons/benefit/hospital.png';
+const DEFAULT_BENEFIT_ICON = '';
 
 export const getBenefitIcon = (category: string): string => {
   const matched = CATEGORY_ICONS.find((item) => category.includes(item.keyword));
