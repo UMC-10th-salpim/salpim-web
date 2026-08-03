@@ -78,6 +78,8 @@ const BenefitPage = () => {
     fetchBenefits();
     return () => {ignore = true;}
   }, [source, keyword, optionId, regionIds, categoryIds, sort, searchResult]);
+  
+  const isMissingOptionId = source === 'survey' && optionId === undefined;
   const hasBenefits = totalCount > 0;
 
   // 로딩 수정
