@@ -1,16 +1,11 @@
 import { useEffect, useState } from 'react';
-
-const REGIONS_DATA: Record<string, string[]> = {
-  서울특별시: ['종로구', '중구', '용산구', '성동구', '광진구', '동대문구', '중랑구'],
-  부산광역시: ['중구', '서구', '동구', '영도구', '부산진구', '동래구'],
-  경기도: ['수원시', '성남시', '고양시', '용인시', '부천시', '안산시'],
-};
+import { regionApi, type Region } from '@/apis/region';
 
 interface RegionPickerModalProps {
   isOpen: boolean;
-  initialCity: string;
-  initialDistrict: string;
-  onConfirm : (city: string, district: string) => void;
+  initialCity: Region | null;
+  initialDistrict: Region | null;
+  onConfirm : (city: Region, district: Region) => void;
   onCancel: () => void;
 }
 
@@ -22,8 +17,10 @@ export default function Dropdown({
   onCancel,
 }: RegionPickerModalProps) {
   const [tab, setTab] = useState<'city'|'district'>('city');
-  const [draftCity, setDraftCity] = useState(initialCity);
-  const [draftDistrict, setDraftDistrict] = useState(initialDistrict);
+  const [cities, setCities] = useState<Region[]>([]);
+  const [districts, setDistricts] = useState<Region[]>([]);
+  const [draftCity, setDraftCity] = useState<Region | null>(initialCity);
+  const [draftDistrict, setDraftDistrict] = useState<Region | null>(initialDistrict);
 
   // 열릴 때 마다 기존 값으로 초기화됨
   useEffect(()=>{
@@ -31,29 +28,39 @@ export default function Dropdown({
       setDraftCity(initialCity);
       setDraftDistrict(initialDistrict);
       setTab('city');
+      regionApi.getRegions().then(setCities).catch((error)=> {
+        console.error('지역 목록 조회 실패', error);
+      });
     }
   }, [isOpen, initialCity, initialDistrict]);
 
   if (!isOpen) return null;
 
-  const districts = REGIONS_DATA[draftCity] ?? [];
-
-  const handleCitySelect = (city: string) => {
+  const handleCitySelect = async (city: Region) => {
   setDraftCity(city);
-  setDraftDistrict('');
+  setDraftDistrict(null);
   setTab('district');
+  try {
+    const children = await regionApi.getChildRegions(city.regionId);
+    setDistricts(children);
+  } catch (error) {
+    console.error('하위 지역 조회 실패', error);
+    setDistricts([]);
+  }
   };
 
-  const handleDistrictSelect = (district: string) => {
+  const handleDistrictSelect = (district: Region) => {
     setDraftDistrict(district);
   };
 
   const handleConfirm = () => {
-    onConfirm(draftCity, draftDistrict);
+    if (draftCity && draftDistrict) {
+      onConfirm(draftCity, draftDistrict);
+    }
   };
 
   return (
-<div className="absolute top-full left-0 mt-2 w-full rounded-4xl border-none bg-white shadow-[0_4px_20px_rgba(0,0,0,0.15)] z-50 flex flex-col overflow-hidden max-h-[280px]">      {/* 탭 헤더 */}
+    <div className="absolute top-full left-0 mt-2 w-full rounded-4xl border-none bg-white shadow-[0_4px_20px_rgba(0,0,0,0.15)] z-50 flex flex-col overflow-hidden max-h-[280px]">      {/* 탭 헤더 */}
       <div className="flex gap-[50px] px-12 py-[9px] border-b border-gray-200 shrink-0">
         <button
           type="button"
@@ -79,26 +86,26 @@ export default function Dropdown({
       {/* 리스트 */}
       <div className="flex-1 overflow-y-auto max-h-[140px]">
         {tab === 'city'
-          ? Object.keys(REGIONS_DATA).map((city) => (
+          ? cities.map((city) => (
               <div
-                key={city}
+                key={city.regionId}
                 className={`cursor-pointer px-6 py-2 text-xl border-b border-gray-100 ${
                   draftCity === city ? 'bg-[#FFEDD5] font-medium' : ''
                 }`}
                 onClick={() => handleCitySelect(city)}
               >
-                {city}
+                {city.regionName}
               </div>
             ))
           : districts.map((district) => (
               <div
-                key={district}
+                key={district.regionId}
                 className={`cursor-pointer px-6 py-2 text-xl border-b border-gray-100 ${
                   draftDistrict === district ? 'bg-[#FFEDD5] font-medium' : ''
                 }`}
                 onClick={() => handleDistrictSelect(district)}
               >
-                {district}
+                {district.regionName}
               </div>
             ))}
       </div>
