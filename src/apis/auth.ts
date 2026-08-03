@@ -2,6 +2,7 @@ import client from './client';
 import { createErrorMessageGetter } from './errorMessage';
 
 const KAKAO_AUTHORIZE_URL = 'https://kauth.kakao.com/oauth/authorize';
+const KAKAO_REST_API_KEY_PATTERN = /^[a-f0-9]{32}$/i;
 
 interface ApiResponse<T> {
   isSuccess: boolean;
@@ -63,7 +64,8 @@ export interface TokenResult {
 export interface KakaoLoginResult {
   isNewMember: boolean;
   nextStep: 'LOGIN_COMPLETE' | 'SIGNUP_REQUIRED';
-  name: string;
+  // 현재 카카오 로그인 응답에는 이름이 없으며, 기존 서버 응답과의 호환용으로만 허용한다.
+  name?: string | null;
   accessToken: string | null;
   refreshToken: string | null;
   signupToken: string | null;
@@ -117,14 +119,29 @@ export const getApiErrorMessage = createErrorMessageGetter({});
 
 const normalizePhoneNumber = (phoneNumber: string) => phoneNumber.replace(/\D/g, '');
 
-export const getKakaoRedirectUri = () =>
-  import.meta.env.VITE_KAKAO_REDIRECT_URI || `${window.location.origin}/oauth/kakao`;
+export const getKakaoRedirectUri = () => {
+  const configuredRedirectUri = import.meta.env.VITE_KAKAO_REDIRECT_URI?.trim();
+  return configuredRedirectUri || `${window.location.origin}/oauth/kakao`;
+};
 
 // 카카오 인가 페이지 URL (OAuth 2.0 authorization code)
 export const getKakaoAuthorizeUrl = () => {
+  const clientId = import.meta.env.VITE_KAKAO_REST_API_KEY?.trim();
+  const redirectUri = getKakaoRedirectUri();
+
+  if (!clientId || !KAKAO_REST_API_KEY_PATTERN.test(clientId)) {
+    throw new Error('카카오 REST API 키가 올바르게 설정되지 않았습니다.');
+  }
+
+  try {
+    new URL(redirectUri);
+  } catch {
+    throw new Error('카카오 리다이렉트 URI가 올바르게 설정되지 않았습니다.');
+  }
+
   const params = new URLSearchParams({
-    client_id: import.meta.env.VITE_KAKAO_REST_API_KEY,
-    redirect_uri: getKakaoRedirectUri(),
+    client_id: clientId,
+    redirect_uri: redirectUri,
     response_type: 'code',
   });
   return `${KAKAO_AUTHORIZE_URL}?${params.toString()}`;

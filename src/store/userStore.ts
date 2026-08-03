@@ -16,7 +16,8 @@ const useUserStore = create<UserState>()(
       accessToken: null,
       refreshToken: null,
       name: null,
-      setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
+      // 다른 계정의 이름이 남지 않도록 새 인증 세션을 저장할 때 기존 이름을 초기화한다.
+      setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken, name: null }),
       setName: (name) => set({ name }),
       logout: () => set({ accessToken: null, refreshToken: null, name: null }),
     }),

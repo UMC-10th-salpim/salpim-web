@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
+import ProtectedRoute from '@/router/ProtectedRoute';
 import LoginPage from '@/pages/LoginPage';
 import FontSizePage from '@/pages/FontSizePage';
 import OnboardingPage from '@/pages/OnboardingPage';
@@ -27,26 +28,36 @@ const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
-      { path: 'recommendation', element: <RecommendationPage /> },
-      { path: 'benefits', element: <BenefitPage /> },
-      { path: 'benefits/search', element: <BenefitSearchPage /> },
-      { path: 'benefits/:id', element: <BenefitDetailPage /> },
-      { path: 'map', element: <MapPage /> },
-      { path: 'facility/:id', element: <FacilityDetailPage /> },
-      { path: 'mypage', element: <MyPage /> },
-      { path: 'mypage/liked', element: <LikedBenefitsPage /> },
-      { path: 'mypage/edit', element: <EditProfilePage /> },
-      { path: 'mypage/font-size', element: <FontSizePage /> },
-      { path: 'mypage/inquiry', element: <InquiryPage /> },
-      { path: 'mypage/password', element: <PasswordChangePage /> },
-      { path: 'mypage/password/find', element: <PasswordFindPage /> },
       { path: 'login', element: <LoginPage /> },
       { path: 'onboarding', element: <OnboardingPage /> },
       { path: 'signup', element: <SignUpPage /> },
       { path: 'oauth/kakao', element: <OAuthKakaoPage /> },
-      { path: 'survey', element: <SurveyPage /> },
-      { path: 'helper/:id', element: <HelperPage /> },
       { path: '*', element: <NotFoundPage /> },
+    ],
+  },
+  {
+    element: <ProtectedRoute />,
+    children: [
+      {
+        element: <Layout />,
+        children: [
+          { path: 'recommendation', element: <RecommendationPage /> },
+          { path: 'benefits', element: <BenefitPage /> },
+          { path: 'benefits/search', element: <BenefitSearchPage /> },
+          { path: 'benefits/:id', element: <BenefitDetailPage /> },
+          { path: 'map', element: <MapPage /> },
+          { path: 'facility/:id', element: <FacilityDetailPage /> },
+          { path: 'mypage', element: <MyPage /> },
+          { path: 'mypage/liked', element: <LikedBenefitsPage /> },
+          { path: 'mypage/edit', element: <EditProfilePage /> },
+          { path: 'mypage/font-size', element: <FontSizePage /> },
+          { path: 'mypage/inquiry', element: <InquiryPage /> },
+          { path: 'mypage/password', element: <PasswordChangePage /> },
+          { path: 'mypage/password/find', element: <PasswordFindPage /> },
+          { path: 'survey', element: <SurveyPage /> },
+          { path: 'helper/:id', element: <HelperPage /> },
+        ],
+      },
     ],
   },
 ]);
