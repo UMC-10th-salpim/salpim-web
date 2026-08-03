@@ -3,7 +3,7 @@ import BenefitEmptyState from "@/features/benefit/BenefitEmptyState";
 import HeaderBar from "@/components/common/HeaderBar/HeaderBar";
 import Button from "@/components/common/Button/Button";
 import BottomNavigation from "@/components/common/BottomNavigation/BottomNavigation";
-import { benefitApi, getBenefitIcon } from "@/apis/benefit";
+import { benefitApi, type BenefitListResult, getBenefitIcon } from "@/apis/benefit";
 import { useNavigate, useLocation } from "react-router-dom";
 import useUserStore from "@/store/userStore";
 import {useEffect, useState} from "react";
@@ -16,12 +16,13 @@ interface LocationState {
   regionIds?: number[]; // search
   categoryIds?: number[]; // search
   sort?: 'popular' | 'deadline'; // search
+  searchResult?: BenefitListResult; //search에서 API 호출한 결과 있으면 호출 안함
 }
 
 const BenefitPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { source = 'search', keyword, optionId, regionIds, categoryIds, sort } =
+  const { source = 'search', keyword, optionId, regionIds, categoryIds, sort, searchResult } =
     (location.state as LocationState) ?? {};
 
   const userName = useUserStore((state)=> state.name);
@@ -31,13 +32,24 @@ const BenefitPage = () => {
 
   useEffect(()=> {
     let ignore = false;
+
     const fetchBenefits = async () => {
+      // 검색 페이지에서 결과 받아 왔으면 api 다시 호출하지 않고 사용
+      if (searchResult) {
+        if(!ignore) {
+          setBenefits(searchResult.data);
+          setTotalCount(searchResult.totalCount);
+          setIsLoading(false);
+        }
+        return;
+      }
       setIsLoading(true);
       try {
         if (source === 'survey' && optionId === undefined){
-          if(!ignore) {
+          if (!ignore) {
             setBenefits([]);
             setTotalCount(0);
+            setIsLoading(false);
           }
           return;
         }
@@ -50,6 +62,7 @@ const BenefitPage = () => {
               categoryIds,
               sort,
           });
+
         if (ignore) return;
         setBenefits(result.data);
         setTotalCount(result.totalCount);
@@ -63,9 +76,9 @@ const BenefitPage = () => {
       }
     };
     fetchBenefits();
-    return () => {ignore = true;};
-  }, [source, keyword, optionId, regionIds, categoryIds, sort]);
-
+    return () => {ignore = true;}
+  }, [source, keyword, optionId, regionIds, categoryIds, sort, searchResult]);
+  
   const isMissingOptionId = source === 'survey' && optionId === undefined;
   const hasBenefits = totalCount > 0;
 
