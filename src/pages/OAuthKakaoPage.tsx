@@ -1,13 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi, getKakaoLoginErrorMessage } from '@/apis/auth';
+import { mypageApi } from '@/apis/mypage';
 import useUserStore from '@/store/userStore';
+
+const PROFILE_LOAD_ERROR_MESSAGE =
+  '로그인은 완료됐지만 회원 이름을 불러오지 못했습니다. 다시 시도해 주세요.';
+
+const normalizeName = (name: unknown) => (typeof name === 'string' ? name.trim() : '');
 
 const OAuthKakaoPage = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const setTokens = useUserStore((state) => state.setTokens);
   const setName = useUserStore((state) => state.setName);
+  const logout = useUserStore((state) => state.logout);
   const handled = useRef(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -23,7 +30,7 @@ const OAuthKakaoPage = () => {
 
     authApi
       .kakaoLogin(code)
-      .then((result) => {
+      .then(async (result) => {
         if (result.isNewMember && result.nextStep === 'SIGNUP_REQUIRED' && result.signupToken) {
           sessionStorage.setItem('salpim-kakao-signup-token', result.signupToken);
           navigate('/onboarding', { replace: true });
@@ -41,15 +48,37 @@ const OAuthKakaoPage = () => {
 
         sessionStorage.removeItem('salpim-kakao-signup-token');
         setTokens(result.accessToken, result.refreshToken);
-        setName(result.name);
+
+        const loginResponseName = normalizeName(result.name);
+
+        try {
+          // 카카오 로그인 응답에는 이름이 없으므로 인증 토큰으로 회원 정보를 다시 조회한다.
+          const profile = await mypageApi.getSummary();
+          const profileName = normalizeName(profile.name);
+          const resolvedName = profileName || loginResponseName;
+
+          if (!resolvedName) throw new Error(PROFILE_LOAD_ERROR_MESSAGE);
+          setName(resolvedName);
+        } catch {
+          // 이전 버전 서버가 로그인 응답에 이름을 내려준 경우에는 그 값을 예비값으로 사용한다.
+          if (loginResponseName) {
+            setName(loginResponseName);
+          } else {
+            logout();
+            throw new Error(PROFILE_LOAD_ERROR_MESSAGE);
+          }
+        }
+
         navigate('/recommendation', { replace: true });
       })
       .catch((error: unknown) => {
         setErrorMessage(
-          getKakaoLoginErrorMessage(error, '카카오 로그인에 실패했습니다. 다시 시도해 주세요.')
+          error instanceof Error && error.message === PROFILE_LOAD_ERROR_MESSAGE
+            ? error.message
+            : getKakaoLoginErrorMessage(error, '카카오 로그인에 실패했습니다. 다시 시도해 주세요.')
         );
       });
-  }, [params, navigate, setName, setTokens]);
+  }, [params, navigate, logout, setName, setTokens]);
 
   if (errorMessage) {
     return (

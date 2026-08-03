@@ -94,7 +94,11 @@ const BenefitPage = () => {
       <HeaderBar title="혜택 결과" />
 
       <div className="p-4 flex flex-col gap-4 flex-1">
-        {hasBenefits ? (
+        { isMissingOptionId ? (
+          <div className="flex flex-col items-center justify-center gap-2 py-200">
+            <span className="text-lg font-semibold text-[#613212]"> 잘못된 접근입니다. 설문을 다시 진행해 주세요.</span>
+          </div>
+        ) : hasBenefits ? (
           <>
             {/* 상단 베너*/}
             <div className="relative bg-[#FFF7ED] rounded-4xl flex items-center border-3 border-[#E8B16A] py-[11px] pl-[114px] pr-8">
