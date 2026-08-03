@@ -21,7 +21,7 @@ const HelpSlideChatBubble = ({ children }: { children: ReactNode }) => (
       alt=""
       className="size-[88px] shrink-0 scale-x-[-1] object-contain"
     />
-    <div className="salpim-onboarding-description flex h-[70px] w-max shrink-0 items-center whitespace-nowrap rounded-[20px] rounded-bl-none border-[3px] border-[#FF843D]/70 bg-[#FFF8F3] px-[11px] text-left font-[Pretendard] leading-[1.1] !tracking-[-0.06em] text-[#613212]">
+    <div className="salpim-onboarding-description salpim-help-chat-bubble flex h-[70px] w-max shrink-0 items-center whitespace-nowrap rounded-[20px] rounded-bl-none border-[3px] border-[#FF843D]/70 bg-[#FFF8F3] px-[11px] text-left font-[Pretendard] leading-[1.1] !tracking-[-0.06em] text-[#613212]">
       {children}
     </div>
   </div>
@@ -126,10 +126,26 @@ const OnboardingPage = () => {
   // 인트로 종료 → 회원가입(정보 입력) 흐름으로 이동
   const finish = () => navigate('/signup');
   const handleNext = () => (isLast ? finish() : setStep((prev) => prev + 1));
+  const handleBack = () => {
+    if (step === 0) {
+      navigate('/font-size?next=signup');
+      return;
+    }
+
+    setStep((previous) => previous - 1);
+  };
 
   return (
     <div className="min-h-[100svh] w-full overflow-y-auto bg-brand-50">
       <div className="relative mx-auto h-[100svh] min-h-[788px] w-full max-w-[375px] overflow-hidden bg-brand-50">
+        <button
+          type="button"
+          onClick={handleBack}
+          className="absolute left-6 top-[26px] z-40 flex h-12 min-w-[88px] items-center justify-center rounded-full bg-[#FFB700] px-4 text-[28px] font-bold leading-none text-white transition-colors hover:bg-[#F5A900] active:scale-95"
+        >
+          이전
+        </button>
+
         {/* 진행 표시 */}
         <div className="absolute inset-x-0 top-10 z-30 flex justify-center">
           <div className="flex items-center justify-center gap-5">

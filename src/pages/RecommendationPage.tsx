@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
 import ScrollMoreIndicator from '@/components/common/ScrollMoreIndicator/ScrollMoreIndicator';
-import HomeBottomNavigation from '@/features/home/HomeBottomNavigation';
+import useSettingsStore from '@/store/settingsStore';
 import useUserStore from '@/store/userStore';
 import { mypageApi } from '@/apis/mypage';
 
@@ -44,10 +45,22 @@ interface DeadlineCardProps {
   progress: number;
   activeIndex: number;
   onDetail: () => void;
+  expanded?: boolean;
+  showPagination?: boolean;
 }
 
-const DeadlineCard = ({ title, daysLeft, progress, activeIndex, onDetail }: DeadlineCardProps) => (
-  <article className="h-[222px] w-[310px] shrink-0 snap-start rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
+const DeadlineCard = ({
+  title,
+  daysLeft,
+  progress,
+  activeIndex,
+  onDetail,
+  expanded = false,
+  showPagination = true,
+}: DeadlineCardProps) => (
+  <article
+    className={`${expanded ? 'min-h-[270px]' : 'h-[222px] snap-start'} w-[310px] shrink-0 rounded-lg border border-gray-100 bg-white p-4 shadow-sm`}
+  >
     <div className="flex gap-2">
       <span className="flex h-8 min-w-[58px] items-center justify-center rounded-full bg-brand-500 px-2.5 text-base font-bold text-white">
         D-{daysLeft}
@@ -83,17 +96,19 @@ const DeadlineCard = ({ title, daysLeft, progress, activeIndex, onDetail }: Dead
       <span className="shrink-0 text-base font-medium text-gray-400">{daysLeft}일 남음</span>
     </div>
 
-    <div className="mt-2 flex items-center justify-between">
-      <div className="flex items-center gap-2" aria-hidden>
-        {DEADLINE_BENEFITS.map((benefit, index) => (
-          <span
-            key={benefit.id}
-            className={`h-2 rounded-full transition-all ${
-              index === activeIndex ? 'w-6 bg-brand-500' : 'w-2 bg-brand-200'
-            }`}
-          />
-        ))}
-      </div>
+    <div className={`mt-2 flex items-center ${showPagination ? 'justify-between' : 'justify-end'}`}>
+      {showPagination && (
+        <div className="flex items-center gap-2" aria-hidden>
+          {DEADLINE_BENEFITS.map((benefit, index) => (
+            <span
+              key={benefit.id}
+              className={`h-2 rounded-full transition-all ${
+                index === activeIndex ? 'w-6 bg-brand-500' : 'w-2 bg-brand-200'
+              }`}
+            />
+          ))}
+        </div>
+      )}
       <button
         type="button"
         onClick={onDetail}
@@ -110,6 +125,7 @@ const RecommendationPage = () => {
   const accessToken = useUserStore((state) => state.accessToken);
   const userName = useUserStore((state) => state.name);
   const setName = useUserStore((state) => state.setName);
+  const isLargeFont = useSettingsStore((state) => state.fontSize === 'large');
   const [activeDeadlineIndex, setActiveDeadlineIndex] = useState(0);
 
   useEffect(() => {
@@ -134,8 +150,8 @@ const RecommendationPage = () => {
   return (
     <div className="mx-auto flex min-h-[100svh] w-full max-w-[375px] flex-col bg-brand-50 pb-[calc(6rem+env(safe-area-inset-bottom))]">
       {/* 헤더 */}
-      <header className="sticky top-0 z-30 flex h-[65px] items-center justify-between bg-brand-50 px-8 py-0">
-        <span className="salpim-page-description font-bold text-brand-600">살핌</span>
+      <header className="fixed inset-x-0 top-0 z-50 mx-auto flex h-[65px] w-full max-w-[375px] items-center justify-between border-b border-[#E8E0D8] bg-[#FAF8F3] px-10 shadow-[0_2px_5px_rgba(97,50,18,0.05)]">
+        <span className="salpim-page-description font-bold text-[#613212]">살핌</span>
         <button
           type="button"
           onClick={() => navigate('/mypage/liked')}
@@ -146,7 +162,7 @@ const RecommendationPage = () => {
         </button>
       </header>
 
-      <main className="flex flex-col gap-[23px] px-0">
+      <main className="flex flex-col gap-[23px] px-0 pt-[85px]">
         {/* 인사 카드 */}
         <div className="relative mx-auto h-[146px] w-[307px] rounded-[31px] border-[3px] border-[#E8B16A] bg-[#FFF7ED]">
           <img
@@ -170,7 +186,9 @@ const RecommendationPage = () => {
             onScroll={(event) => {
               const { scrollLeft, clientWidth } = event.currentTarget;
               const index = Math.round(scrollLeft / (clientWidth + 12));
-              setActiveDeadlineIndex(Math.min(DEADLINE_BENEFITS.length - 1, Math.max(0, index)));
+              setActiveDeadlineIndex(
+                Math.min(DEADLINE_BENEFITS.length - 1, Math.max(0, index))
+              );
             }}
             className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
@@ -181,6 +199,7 @@ const RecommendationPage = () => {
                 daysLeft={benefit.daysLeft}
                 progress={benefit.progress}
                 activeIndex={activeDeadlineIndex}
+                expanded={isLargeFont}
                 onDetail={() => navigate('/benefits')}
               />
             ))}
@@ -230,8 +249,8 @@ const RecommendationPage = () => {
         </section>
       </main>
 
-      <ScrollMoreIndicator className="!bottom-[calc(103px+env(safe-area-inset-bottom))] !h-10 !w-10 [&_svg]:!h-6 [&_svg]:!w-6" />
-      <HomeBottomNavigation />
+      <ScrollMoreIndicator className="!bottom-[calc(72px+max(12px,env(safe-area-inset-bottom)))] !h-10 !w-10 [&_svg]:!h-6 [&_svg]:!w-6" />
+      <BottomNavigation />
     </div>
   );
 };

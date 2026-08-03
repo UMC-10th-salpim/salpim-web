@@ -4,6 +4,7 @@ import { authApi, getLoginErrorMessage } from '@/apis/auth';
 import OnboardingButton from '@/features/onboarding/ui/OnboardingButton';
 import OnboardingInput from '@/features/onboarding/ui/OnboardingInput';
 import useUserStore from '@/store/userStore';
+import { isAccessTokenValid } from '@/utils/jwt';
 import { formatPhone } from '@/utils/phone';
 
 const landingButtonStyle =
@@ -28,8 +29,10 @@ const LoginPage = () => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [landingScale, setLandingScale] = useState(getLandingScale);
+  const accessToken = useUserStore((state) => state.accessToken);
   const setTokens = useUserStore((state) => state.setTokens);
   const isPasswordValid = /^\d{6}$/.test(password);
   const isLoginFormFilled = phone.replace(/\D/g, '').length === 11 && isPasswordValid;
@@ -49,7 +52,7 @@ const LoginPage = () => {
   }, []);
 
   const handleLogin = async () => {
-    if (!isLoginFormFilled || isLoggingIn) return;
+    if (!isLoginFormFilled || isLoggingIn || isChangingPassword) return;
     setIsLoggingIn(true);
     setLoginError('');
 
@@ -61,6 +64,33 @@ const LoginPage = () => {
       setLoginError(getLoginErrorMessage(error, '로그인하지 못했어요. 다시 확인해 주세요.'));
     } finally {
       setIsLoggingIn(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (isAccessTokenValid(accessToken)) {
+      navigate('/mypage/password');
+      return;
+    }
+
+    if (!isLoginFormFilled || isLoggingIn || isChangingPassword) {
+      setLoginError('전화번호와 현재 비밀번호를 입력한 뒤 눌러 주세요.');
+      return;
+    }
+
+    setIsChangingPassword(true);
+    setLoginError('');
+
+    try {
+      const tokens = await authApi.loginLocal(phone, password);
+      setTokens(tokens.accessToken, tokens.refreshToken);
+      navigate('/mypage/password');
+    } catch (error) {
+      setLoginError(
+        getLoginErrorMessage(error, '전화번호 또는 현재 비밀번호를 다시 확인해 주세요.')
+      );
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -97,11 +127,26 @@ const LoginPage = () => {
               placeholder="숫자 6자리를 입력해 주세요"
             />
           </div>
-          <div className="mx-auto mt-[62px] w-[310px]">
+
+          <div className="mt-5 text-center">
+            <p className="mb-2 text-[20px] font-semibold text-[#8A817A]">
+              비밀번호를 잊으셨나요?
+            </p>
+            <button
+              type="button"
+              onClick={() => void handleChangePassword()}
+              disabled={isLoggingIn || isChangingPassword}
+              className="min-h-12 rounded-full border-2 border-[#FFD29E] bg-white px-6 text-[24px] font-extrabold text-[#FF6B00] transition-colors hover:bg-[#FFF7ED] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isChangingPassword ? '확인 중...' : '비밀번호 바꾸기'}
+            </button>
+          </div>
+
+          <div className="mx-auto mt-6 w-[310px]">
             <OnboardingButton
               className="h-20 w-full py-0 !text-[32px] !font-semibold text-white"
               onClick={() => void handleLogin()}
-              disabled={!isLoginFormFilled || isLoggingIn}
+              disabled={!isLoginFormFilled || isLoggingIn || isChangingPassword}
             >
               {isLoggingIn ? '로그인 중...' : '시작하기'}
             </OnboardingButton>
