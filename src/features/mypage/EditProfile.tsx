@@ -48,6 +48,7 @@ const EditProfile = () => {
     queryKey: ['mypage-summary', accessToken],
     queryFn: mypageApi.getSummary,
     enabled: Boolean(accessToken),
+    retry: false,
   });
 
   useEffect(() => {

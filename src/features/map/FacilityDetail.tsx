@@ -32,24 +32,24 @@ const FacilityDetail = ({
   const distance = details?.distanceText || facility.distanceFromHome;
 
   return (
-    <article className="flex flex-col gap-4 bg-gray-50 px-4 py-5">
-      <div className="rounded-2xl border border-gray-200 bg-white p-4">
+    <article className="mx-auto flex w-full max-w-md flex-col gap-4 bg-[#FAF8F3] px-4 py-5">
+      <div className="rounded-2xl border-2 border-[#FFD29E] bg-white p-4 shadow-[0_4px_12px_rgba(91,53,24,0.08)]">
         <div className="flex items-center gap-3">
           <FacilityIcon category={facility.mainCategory} className="h-11 w-11" />
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-lg font-bold text-gray-900">{name}</h1>
+              <h1 className="text-[20px] font-extrabold leading-7 text-[#43230F]">{name}</h1>
               {details?.isMyCenter && (
                 <span className="rounded-full bg-[#FFF0DE] px-2.5 py-1 text-xs font-bold text-[#E96F27]">
                   내 관할 센터
                 </span>
               )}
             </div>
-            <p className="text-sm text-gray-500">{address}</p>
+            <p className="mt-0.5 text-[15px] font-semibold leading-5 text-[#81746A]">{address}</p>
           </div>
         </div>
 
-        <div className="mt-4 flex flex-col gap-2 text-sm text-gray-600">
+        <div className="mt-4 flex flex-col gap-2 text-[16px] font-semibold leading-6 text-[#613212]">
           <p className="flex items-center gap-1.5">
             <PinIcon />
             {address} {facility.detailAddress}
@@ -69,7 +69,7 @@ const FacilityDetail = ({
         {facility.phone && (
           <a
             href={`tel:${facility.phone}`}
-            className="mt-4 block rounded-xl bg-[#FF8A3D] py-3 text-center text-sm font-semibold text-white"
+            className="mt-4 block min-h-12 rounded-xl bg-[#FF8A3D] py-3 text-center text-[17px] font-extrabold text-white"
           >
             전화하기
           </a>
@@ -77,21 +77,23 @@ const FacilityDetail = ({
       </div>
 
       <section>
-        <h2 className="mb-3 text-base font-bold text-gray-900">이 시설에서 신청할 수 있는 혜택</h2>
+        <h2 className="mb-3 text-[19px] font-extrabold text-[#43230F]">
+          이 시설에서 신청할 수 있는 혜택
+        </h2>
 
         {isLoading ? (
-          <p className="rounded-2xl border border-gray-200 bg-white p-4 text-sm text-gray-500">
+          <p className="rounded-2xl border-2 border-[#FFD29E] bg-white p-4 text-[16px] font-semibold text-[#81746A]">
             시설 정보와 혜택을 불러오는 중...
           </p>
         ) : errorMessage ? (
-          <div className="rounded-2xl border border-red-100 bg-white p-4">
-            <p role="alert" className="text-sm text-gray-600">
+          <div className="rounded-2xl border-2 border-[#FFD29E] bg-white p-4">
+            <p role="alert" className="text-[16px] font-semibold leading-6 text-[#81746A]">
               {errorMessage}
             </p>
             <button
               type="button"
               onClick={onRetry}
-              className="mt-3 rounded-xl bg-[#FF8A3D] px-4 py-2 text-sm font-semibold text-white"
+              className="mt-3 min-h-11 rounded-xl bg-[#FF8A3D] px-5 py-2 text-[16px] font-extrabold text-white"
             >
               다시 시도
             </button>
@@ -121,16 +123,22 @@ const FacilityDetail = ({
             )}
           </div>
         ) : (
-          <p className="rounded-2xl border border-gray-200 bg-white p-4 text-sm text-gray-500">
+          <p className="rounded-2xl border-2 border-[#FFD29E] bg-white p-4 text-[16px] font-semibold text-[#81746A]">
             현재 이 시설에서 신청할 수 있는 혜택 정보가 없습니다.
           </p>
         )}
       </section>
 
       <div className="flex items-center gap-3 rounded-2xl bg-[#FBE3BF] p-4">
-        <img src="/characters/salpimi.png" alt="" className="h-12 w-12" />
-        <p className="text-sm font-bold text-[#613212]">
-          해당 혜택은 {name}에서 신청할 수 있어요! 방문 전 전화로 확인을 추천해요.
+        <img
+          src="/characters/salpimi_Good.png"
+          alt="안내하는 살피미"
+          className="h-14 w-14 shrink-0 object-contain"
+        />
+        <p className="text-[16px] font-extrabold leading-6 text-[#613212]">
+          {benefits.length > 0
+            ? `표시된 혜택은 ${name}에서 신청할 수 있어요! 방문 전 전화로 확인해 주세요.`
+            : `${name}의 기본 정보예요. 방문 전 운영 여부를 전화로 확인해 주세요.`}
         </p>
       </div>
     </article>
