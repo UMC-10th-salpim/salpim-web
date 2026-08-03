@@ -3,7 +3,7 @@ import BenefitEmptyState from "@/features/benefit/BenefitEmptyState";
 import HeaderBar from "@/components/common/HeaderBar/HeaderBar";
 import Button from "@/components/common/Button/Button";
 import BottomNavigation from "@/components/common/BottomNavigation/BottomNavigation";
-import { benefitApi, BenefitListResult, getBenefitIcon } from "@/apis/benefit";
+import { benefitApi, type BenefitListResult, getBenefitIcon } from "@/apis/benefit";
 import { useNavigate, useLocation } from "react-router-dom";
 import useUserStore from "@/store/userStore";
 import {useEffect, useState} from "react";
