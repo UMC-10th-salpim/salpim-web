@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi, getKakaoAuthorizeUrl, getSignupErrorMessage } from '@/apis/auth';
-import { ensureAddressRegion, reverseGeocodeAddress } from '@/apis/address';
+import {
+  ensureAddressRegion,
+  reverseGeocodeAddress,
+  toRegionResolvePayload,
+} from '@/apis/address';
 import useUserStore from '@/store/userStore';
 import ProgressDots from '@/features/onboarding/ProgressDots';
 import OnboardingForm from '@/features/onboarding/OnboardingForm';
@@ -83,11 +87,7 @@ const SignUpPage = () => {
       const birthDate = `${info.birthYear}-${info.birthMonth.padStart(2, '0')}-${info.birthDay.padStart(2, '0')}`;
       const completeAddress = await ensureAddressRegion(address);
       const location = await authApi.geocodeAddress(address.roadAddress);
-      const region = await authApi.resolveRegion(
-        completeAddress.city,
-        completeAddress.district,
-        completeAddress.eupMyeonDong
-      );
+      const region = await authApi.resolveRegion(toRegionResolvePayload(completeAddress));
 
       const signupProfile = {
         name: info.name.trim(),
@@ -130,7 +130,7 @@ const SignUpPage = () => {
 
   return (
     <div className="min-h-[100svh] w-full bg-brand-50">
-      <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-brand-50 px-6 pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
+      <div className="mx-auto flex min-h-[100svh] w-full max-w-[375px] flex-col bg-brand-50 px-6 pb-[max(3rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
         {step < (isKakaoSignup ? KAKAO_TOTAL_STEPS : LOCAL_TOTAL_STEPS) && (
           <ProgressDots
             total={isKakaoSignup ? KAKAO_TOTAL_STEPS : LOCAL_TOTAL_STEPS}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { searchAddress } from '@/apis/address';
+import { searchAddress, toRegionResolvePayload } from '@/apis/address';
 import type { AddressResult } from '@/apis/address';
 import { authApi, getApiErrorMessage } from '@/apis/auth';
 import { MOCK_PROFILE, mypageApi } from '@/apis/mypage';
@@ -149,7 +149,7 @@ const EditProfile = () => {
 
       const [coordinates, region] = await Promise.all([
         authApi.geocodeAddress(roadAddress),
-        authApi.resolveRegion(addressInfo.city, addressInfo.district, addressInfo.eupMyeonDong),
+        authApi.resolveRegion(toRegionResolvePayload(addressInfo)),
       ]);
 
       await mypageApi.updateProfile({

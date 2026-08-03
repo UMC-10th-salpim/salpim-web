@@ -22,10 +22,10 @@ const PasswordStep = ({ value, onChange, onNext }: PasswordStepProps) => {
     <>
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="flex min-h-full flex-col justify-start pb-2 pt-[clamp(6px,1.02vh,8px)]">
-          <h1 className="text-center text-3xl font-bold text-[#613212]">
+          <h1 className="salpim-page-title text-center font-bold text-[#613212]">
             비밀 번호를 설정해 주세요!
           </h1>
-          <p className="mb-8 mt-2 text-center text-2xl font-semibold leading-8 text-brand-500">
+          <p className="salpim-page-description mb-20 mt-2 text-center font-semibold leading-8 text-brand-500">
             로그인할 때 사용할 비밀번호예요
           </p>
 
@@ -79,7 +79,7 @@ const PasswordStep = ({ value, onChange, onNext }: PasswordStepProps) => {
         </div>
       </div>
 
-      <div className="flex shrink-0 pt-4">
+      <div className="-mx-0.5 flex shrink-0 pt-4">
         <button type="button" onClick={onNext} disabled={!isValid} className={primaryButton}>
           다음
         </button>

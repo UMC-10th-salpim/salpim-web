@@ -47,31 +47,31 @@ interface DeadlineCardProps {
 }
 
 const DeadlineCard = ({ title, daysLeft, progress, activeIndex, onDetail }: DeadlineCardProps) => (
-  <article className="w-full shrink-0 snap-start rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+  <article className="h-[222px] w-[310px] shrink-0 snap-start rounded-lg border border-gray-100 bg-white p-4 shadow-sm">
     <div className="flex gap-2">
-      <span className="rounded-full bg-brand-500 px-2.5 py-0.5 text-xs font-bold text-white">
+      <span className="flex h-8 min-w-[58px] items-center justify-center rounded-full bg-brand-500 px-2.5 text-base font-bold text-white">
         D-{daysLeft}
       </span>
-      <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-xs font-bold text-brand-600">
+      <span className="flex h-8 min-w-[86px] items-center justify-center rounded-full bg-brand-100 px-2.5 text-base font-bold text-brand-600">
         신청 가능
       </span>
     </div>
 
-    <div className="mt-3 flex items-center gap-3">
-      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-100">
+    <div className="mt-2 flex min-h-[82px] items-start gap-2">
+      <div className="flex size-[60px] shrink-0 items-center justify-center rounded-full bg-[#FFF5E8]">
         <CalendarIcon />
       </div>
       <div>
-        <p className="text-[clamp(16px,2.28vh,18px)] font-bold leading-[1.5] text-gray-900">
+        <p className="salpim-home-card-title font-bold leading-[1.2] text-gray-900">
           {title}
           <br />
           <span className="text-[#FF8A3D]">마감 {daysLeft}일 전</span>이에요!
         </p>
-        <p className="mt-1 text-sm text-gray-500">지금 신청하면 놓치지 않아요.</p>
+        <p className="salpim-home-card-body mt-1 text-gray-500">지금 신청하면 놓치지 않아요.</p>
       </div>
     </div>
 
-    <div className="mt-3 flex items-center justify-between border-b border-gray-200 pb-3">
+    <div className="flex items-center justify-between border-b border-gray-200 pb-3">
       <div className="flex flex-1 gap-1 pr-3">
         {Array.from({ length: 7 }).map((_, index) => (
           <span
@@ -80,7 +80,7 @@ const DeadlineCard = ({ title, daysLeft, progress, activeIndex, onDetail }: Dead
           />
         ))}
       </div>
-      <span className="shrink-0 text-xs font-medium text-gray-400">{daysLeft}일 남음</span>
+      <span className="shrink-0 text-base font-medium text-gray-400">{daysLeft}일 남음</span>
     </div>
 
     <div className="mt-2 flex items-center justify-between">
@@ -97,7 +97,7 @@ const DeadlineCard = ({ title, daysLeft, progress, activeIndex, onDetail }: Dead
       <button
         type="button"
         onClick={onDetail}
-        className="flex items-center gap-0.5 !text-sm !font-semibold text-gray-500"
+        className="flex h-[33px] min-w-[115px] items-center justify-center gap-0.5 rounded-full bg-gray-200/80 px-2 text-base !font-semibold text-gray-500"
       >
         자세히 보기 <ChevronRight />
       </button>
@@ -132,10 +132,10 @@ const RecommendationPage = () => {
   }, [accessToken, setName]);
 
   return (
-    <div className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col bg-brand-50 pb-[calc(6rem+env(safe-area-inset-bottom))]">
+    <div className="mx-auto flex min-h-[100svh] w-full max-w-[375px] flex-col bg-brand-50 pb-[calc(6rem+env(safe-area-inset-bottom))]">
       {/* 헤더 */}
-      <header className="sticky top-0 z-30 flex items-center justify-between bg-brand-50 px-5 py-4">
-        <span className="text-2xl font-bold text-brand-600">살핌</span>
+      <header className="sticky top-0 z-30 flex h-[65px] items-center justify-between bg-brand-50 px-8 py-0">
+        <span className="salpim-page-description font-bold text-brand-600">살핌</span>
         <button
           type="button"
           onClick={() => navigate('/mypage/liked')}
@@ -146,28 +146,26 @@ const RecommendationPage = () => {
         </button>
       </header>
 
-      <main className="flex flex-col gap-6 px-5">
+      <main className="flex flex-col gap-[23px] px-0">
         {/* 인사 카드 */}
-        <div className="mx-auto flex h-[clamp(96px,13.45vh,106px)] w-[clamp(280px,82.67vw,310px)] items-center gap-3 rounded-2xl border-2 border-brand-200 bg-[#FFF7ED] px-4">
+        <div className="relative mx-auto h-[146px] w-[307px] rounded-[31px] border-[3px] border-[#E8B16A] bg-[#FFF7ED]">
           <img
             src="/assets/Salpimi/Hi.png"
             alt="살피미"
-            className="size-[clamp(96px,29.87vw,112px)] shrink-0 -translate-x-[clamp(8px,2.67vw,10px)] translate-y-[clamp(8px,1.27vh,10px)] object-contain"
+            className="absolute -left-0.5 top-[31px] size-[130px] object-contain"
           />
-          <div className="min-w-0 flex-1 text-center">
-            <p className="text-[clamp(22px,3.05vh,24px)] font-bold leading-[1.25] text-[#613212]">
+          <div className="ml-[122px] flex h-full w-[175px] flex-col items-center justify-center text-center">
+            <p className="salpim-home-heading font-bold leading-[1.25] text-[#613212]">
               안녕하세요,
               <br />
               {userName || '회원'} 님!
             </p>
-            <p className="mt-1 text-[clamp(14px,1.9vh,15px)] text-[#FF8A3D]">
-              오늘도 살피미가 함께 해요
-            </p>
+            <p className="salpim-home-card-body mt-1 text-[#FF8A3D]">오늘도 살피미가 함께 해요</p>
           </div>
         </div>
 
         {/* 마감 임박 카드 */}
-        <section aria-label="마감 임박 지원금">
+        <section aria-label="마감 임박 지원금" className="mx-auto w-[310px]">
           <div
             onScroll={(event) => {
               const { scrollLeft, clientWidth } = event.currentTarget;
@@ -190,14 +188,12 @@ const RecommendationPage = () => {
         </section>
 
         {/* 살피미 추천 혜택 */}
-        <section>
-          <h2 className="mb-3 text-[clamp(22px,3.05vh,24px)] font-bold text-[#613212]">
-            살피미 추천 혜택
-          </h2>
-          <div className="rounded-2xl border-2 border-brand-300 bg-brand-100/60 p-4">
-            <div className="flex items-center gap-2">
-              <img src="/assets/Salpimi/Wall.png" alt="살피미" className="w-24 shrink-0" />
-              <p className="flex-1 text-center text-[clamp(18px,2.54vh,20px)] font-bold leading-[1.4] text-gray-900">
+        <section className="mx-auto w-[340px]">
+          <h2 className="salpim-home-heading mb-3 font-bold text-[#613212]">살피미 추천 혜택</h2>
+          <div className="relative h-[197px] rounded-[23px] border-[3px] border-brand-300 bg-brand-100/60">
+            <div className="flex h-28 items-center px-3">
+              <img src="/assets/Salpimi/Wall.png" alt="살피미" className="size-28 shrink-0" />
+              <p className="salpim-home-card-title flex-1 text-center font-bold leading-[1.4] text-gray-900">
                 필요한 혜택을
                 <br />
                 같이 찾아볼까요?
@@ -206,7 +202,7 @@ const RecommendationPage = () => {
             <button
               type="button"
               onClick={() => navigate('/benefits/search')}
-              className="mt-3 w-full rounded-full bg-brand-500 py-3.5 !text-[clamp(18px,2.54vh,20px)] !font-semibold text-white transition-colors hover:bg-brand-600"
+              className="salpim-home-card-title absolute bottom-2.5 left-3 h-16 w-[315px] rounded-full bg-brand-500 py-0 !font-semibold text-white transition-colors hover:bg-brand-600"
             >
               살피미에게 바로 물어보기
             </button>
@@ -214,20 +210,18 @@ const RecommendationPage = () => {
         </section>
 
         {/* 내 근처 혜택 시설 */}
-        <section>
-          <h2 className="mb-3 text-[clamp(22px,3.05vh,24px)] font-bold text-[#613212]">
-            내 근처 혜택 시설
-          </h2>
+        <section className="mx-auto w-[310px]">
+          <h2 className="salpim-home-heading mb-3 font-bold text-[#613212]">내 근처 혜택 시설</h2>
           <button
             type="button"
             onClick={() => navigate('/map')}
-            className="flex w-full items-center justify-between rounded-2xl bg-white px-5 py-4 !font-semibold shadow-sm"
+            className="flex h-[106px] w-full items-center justify-between rounded-[32px] bg-white px-5 py-4 !font-semibold shadow-sm"
           >
             <span className="min-w-0 text-left">
-              <span className="block text-base font-semibold text-gray-900">
+              <span className="salpim-home-card-title block font-semibold text-gray-900">
                 지도에서 가까운 시설 찾기
               </span>
-              <span className="mt-1 block text-sm font-medium text-gray-500">
+              <span className="salpim-home-card-body mt-1 block font-medium text-gray-500">
                 현재 위치 주변의 복지관, 주민센터, 병원을 확인해 보세요.
               </span>
             </span>
@@ -236,7 +230,7 @@ const RecommendationPage = () => {
         </section>
       </main>
 
-      <ScrollMoreIndicator />
+      <ScrollMoreIndicator className="!bottom-[calc(103px+env(safe-area-inset-bottom))] !h-10 !w-10 [&_svg]:!h-6 [&_svg]:!w-6" />
       <HomeBottomNavigation />
     </div>
   );

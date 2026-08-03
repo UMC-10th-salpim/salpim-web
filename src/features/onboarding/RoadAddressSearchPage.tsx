@@ -101,15 +101,15 @@ const RoadAddressSearchPage = ({
 
   return (
     <>
-      <div className="flex min-h-0 flex-1 flex-col pt-[clamp(4px,1.02vh,8px)]">
+      <div className="flex min-h-0 flex-1 flex-col pt-[19px]">
         <label
           htmlFor="road-address-search"
-          className="mb-2 block shrink-0 font-[Pretendard] text-[clamp(22px,3.05vh,24px)] font-semibold text-[#2B2B2B]"
+          className="salpim-field-label mb-2 block shrink-0 font-[Pretendard] font-semibold text-[#2B2B2B]"
         >
           도로명 주소
         </label>
 
-        <div className="flex h-[clamp(52px,7.11vh,56px)] shrink-0 items-center rounded-[18px] border-[clamp(3px,0.51vh,4px)] border-[#FED7AA] bg-white pl-3 pr-2 focus-within:border-[#F97316]">
+        <div className="mx-auto flex h-[52px] w-[306px] shrink-0 items-center rounded-[14px] border-4 border-[#FED7AA] bg-white pl-3 pr-2 focus-within:border-[#F97316]">
           <SearchIcon className="h-[clamp(28px,4.57vh,36px)] w-[clamp(28px,4.57vh,36px)] shrink-0 text-[#613212]" />
           <input
             id="road-address-search"
@@ -122,19 +122,23 @@ const RoadAddressSearchPage = ({
               if (event.key === 'Enter') submitSearch();
             }}
             placeholder="도로명 또는 건물명"
-            className="min-w-0 flex-1 px-2 font-[Pretendard] !text-[clamp(18px,2.79vh,22px)] font-medium text-[#2B2B2B] outline-none placeholder:!text-[clamp(18px,2.79vh,22px)] placeholder:text-[#9A9A9A]"
+            className="salpim-field-text min-w-0 flex-1 px-2 font-[Pretendard] font-medium text-[#2B2B2B] outline-none placeholder:text-[#9A9A9A]"
           />
           <button
             type="button"
             onClick={submitSearch}
             disabled={!query.trim() || status === 'loading'}
-            className="flex h-[clamp(36px,5.08vh,40px)] shrink-0 items-center border-l border-[#F97316] pl-3 pr-1 font-[Pretendard] !text-[clamp(21px,3.05vh,24px)] !font-semibold text-[#613212] disabled:opacity-45"
+            className="salpim-field-text flex h-[clamp(36px,5.08vh,40px)] shrink-0 items-center border-l border-[#F97316] pl-3 pr-1 font-[Pretendard] !font-semibold text-[#613212] disabled:opacity-45"
           >
             검색
           </button>
         </div>
 
-        <div className="mt-3 min-h-0 flex-1 overflow-hidden rounded-[24px] bg-white shadow-[0_12px_28px_rgba(97,50,18,0.12)]">
+        <div
+          className={`mx-auto mt-2.5 w-[310px] flex-none overflow-hidden rounded-[20px] bg-white shadow-[0_12px_28px_rgba(97,50,18,0.12)] ${
+            status === 'results' || status === 'loading' ? 'h-[349px]' : 'h-[332px]'
+          }`}
+        >
           {status === 'loading' && (
             <div className="flex h-full min-h-[clamp(300px,48.22vh,380px)] flex-col items-center justify-center gap-[clamp(28px,4.57vh,36px)]">
               <LoadingSpinner />
@@ -215,7 +219,7 @@ const RoadAddressSearchPage = ({
         </div>
       </div>
 
-      <div className="flex shrink-0 gap-3 pt-4">
+      <div className="-mx-0.5 flex shrink-0 gap-4 pt-4">
         <button type="button" onClick={onBack} className={secondaryButton}>
           이전
         </button>

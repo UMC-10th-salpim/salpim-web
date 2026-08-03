@@ -83,6 +83,13 @@ export interface RegionResult {
   fullRegionName: string;
 }
 
+export interface RegionResolveRequest {
+  sido: string;
+  sigungu: string;
+  generalGu: string;
+  administrativeArea: string;
+}
+
 interface SignupProfile {
   name: string;
   birthDate: string;
@@ -181,12 +188,8 @@ export const authApi = {
     return unwrap(data);
   },
 
-  resolveRegion: async (city: string, district: string, eupMyeonDong: string) => {
-    const { data } = await client.post<ApiResponse<RegionResult>>('/regions/resolve', {
-      city,
-      district,
-      eupMyeonDong,
-    });
+  resolveRegion: async (request: RegionResolveRequest) => {
+    const { data } = await client.post<ApiResponse<RegionResult>>('/regions/resolve', request);
     return unwrap(data);
   },
 
