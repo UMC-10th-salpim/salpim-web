@@ -75,11 +75,100 @@ body {
   min-height: 100svh;
 }
 
+/* 첫 화면~메인 화면 글자 크기 디자인 토큰 */
+[data-font-size='medium'] {
+  --salpim-page-title: 24px;
+  --salpim-page-description: 20px;
+  --salpim-field-label: 20px;
+  --salpim-field-text: 20px;
+  --salpim-action-text: 24px;
+  --salpim-action-height: 64px;
+  --salpim-input-height: 50px;
+  --salpim-home-heading: 24px;
+  --salpim-home-card-title: 18px;
+  --salpim-home-card-body: 15px;
+  --salpim-home-nav: 22px;
+  --salpim-onboarding-title: 24px;
+  --salpim-onboarding-description: 20px;
+  --salpim-onboarding-action: 24px;
+}
+
+[data-font-size='large'] {
+  --salpim-page-title: 28px;
+  --salpim-page-description: 24px;
+  --salpim-field-label: 24px;
+  --salpim-field-text: 24px;
+  --salpim-action-text: 32px;
+  --salpim-action-height: 80px;
+  --salpim-input-height: 56px;
+  --salpim-home-heading: 28px;
+  --salpim-home-card-title: 24px;
+  --salpim-home-card-body: 20px;
+  --salpim-home-nav: 28px;
+  --salpim-onboarding-title: clamp(28px, 8.533vw, 34px);
+  --salpim-onboarding-description: 30px;
+  --salpim-onboarding-action: 38px;
+}
+
+.salpim-page-title {
+  font-size: var(--salpim-page-title) !important;
+}
+
+.salpim-page-description {
+  font-size: var(--salpim-page-description) !important;
+}
+
+.salpim-field-label {
+  font-size: var(--salpim-field-label) !important;
+}
+
+.salpim-field-text,
+.salpim-field-text::placeholder {
+  font-size: var(--salpim-field-text) !important;
+}
+
+.salpim-action-button {
+  min-height: var(--salpim-action-height);
+  font-size: var(--salpim-action-text) !important;
+}
+
+.salpim-input-control {
+  min-height: var(--salpim-input-height);
+}
+
+.salpim-home-heading {
+  font-size: var(--salpim-home-heading) !important;
+}
+
+.salpim-home-card-title {
+  font-size: var(--salpim-home-card-title) !important;
+}
+
+.salpim-home-card-body {
+  font-size: var(--salpim-home-card-body) !important;
+}
+
+.salpim-home-nav {
+  font-size: var(--salpim-home-nav) !important;
+}
+
+.salpim-onboarding-title {
+  font-size: var(--salpim-onboarding-title) !important;
+}
+
+.salpim-onboarding-description {
+  font-size: var(--salpim-onboarding-description) !important;
+}
+
+.salpim-onboarding-action {
+  font-size: var(--salpim-onboarding-action) !important;
+}
+
 button,
 input,
 textarea,
 select {
-  font: inherit;
+  font-family: inherit;
   letter-spacing: inherit;
 }
 

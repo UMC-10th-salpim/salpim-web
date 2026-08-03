@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { authApi, getPhoneVerificationErrorMessage } from '@/apis/auth';
+import { MAX_SIGNUP_AGE, validateBirthDate } from '@/utils/birthDate';
 import { formatPhone } from '@/utils/phone';
 import { inputStyle, labelStyle, primaryButton, secondaryButton } from './styles';
 
 const personalInfoInputStyle = (hasValue: boolean) =>
-  `${inputStyle} !h-[clamp(48px,7.11vh,56px)] !rounded-full !border-[3px] !py-0 placeholder:!text-[23px] ${hasValue ? '!border-brand-500' : '!border-[#FED7AA]'}`;
+  `${inputStyle} !h-[52px] !min-h-[52px] !rounded-full !border-4 !py-0 ${hasValue ? '!border-brand-500' : '!border-[#FED7AA]'}`;
 
 export interface OnboardingInfo {
   name: string;
@@ -84,33 +85,13 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
     }
   };
 
-  const hasCompleteBirthDate =
-    value.birthYear.length === 4 && value.birthMonth !== '' && value.birthDay !== '';
-  const hasInvalidBirthDate = (() => {
-    if (!hasCompleteBirthDate) return false;
-
-    const year = Number(value.birthYear);
-    const month = Number(value.birthMonth);
-    const day = Number(value.birthDay);
-    const birthDate = new Date(year, month - 1, day);
-    const today = new Date();
-
-    today.setHours(0, 0, 0, 0);
-
-    return (
-      birthDate.getFullYear() !== year ||
-      birthDate.getMonth() !== month - 1 ||
-      birthDate.getDate() !== day ||
-      birthDate >= today
-    );
-  })();
+  const birthDateValidation = validateBirthDate(value.birthYear, value.birthMonth, value.birthDay);
+  const hasInvalidBirthDate =
+    birthDateValidation === 'invalid' || birthDateValidation === 'too-old';
 
   const isValid =
     value.name.trim() !== '' &&
-    value.birthYear !== '' &&
-    value.birthMonth !== '' &&
-    value.birthDay !== '' &&
-    !hasInvalidBirthDate &&
+    birthDateValidation === 'valid' &&
     value.gender !== '' &&
     value.phoneVerified;
 
@@ -118,11 +99,11 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
     <>
       <div className="-mx-[clamp(2px,1.07vw,4px)] min-h-0 flex-1 overflow-y-auto px-[clamp(2px,1.07vw,4px)]">
         <div className="flex min-h-full flex-col justify-start pb-2 pt-[clamp(6px,1.02vh,8px)]">
-          <h1 className="mb-5 text-center text-[clamp(26px,3.55vh,28px)] font-extrabold text-[#613212]">
+          <h1 className="salpim-page-title mb-[78px] text-center font-extrabold text-[#613212]">
             자신의 정보를 입력해 주세요!
           </h1>
 
-          <div className="-mx-[clamp(2px,1.07vw,4px)] flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             {/* 이름 */}
             <div>
               <label htmlFor="name" className={labelStyle}>
@@ -140,49 +121,53 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
             {/* 생년월일 */}
             <div>
               <span className={labelStyle}>생년월일</span>
-              <div className="flex items-center gap-[clamp(1px,0.54vw,2px)]">
-                <div className="flex min-w-0 flex-1 items-center gap-[clamp(1px,0.54vw,2px)]">
-                  <input
-                    className={`${personalInfoInputStyle(value.birthYear !== '')} min-w-[clamp(84px,25.34vw,95px)] flex-1 !px-2 !text-[23px]`}
-                    value={value.birthYear}
-                    onChange={(event) => update('birthYear', event.target.value.replace(/\D/g, ''))}
-                    inputMode="numeric"
-                    maxLength={4}
-                    placeholder="YYYY"
-                    aria-label="년"
-                  />
-                  <span className="text-2xl font-medium text-gray-700">년</span>
-                </div>
-                <div className="flex shrink-0 items-center gap-[clamp(1px,0.54vw,2px)]">
-                  <input
-                    className={`${personalInfoInputStyle(value.birthMonth !== '')} !w-[clamp(64px,19.74vw,74px)] shrink-0 !px-2 text-center tracking-[-0.08em] ${value.birthMonth.length === 2 ? '!text-[21px]' : '!text-[23px]'}`}
-                    value={value.birthMonth}
-                    onChange={(event) =>
-                      update('birthMonth', event.target.value.replace(/\D/g, ''))
-                    }
-                    inputMode="numeric"
-                    maxLength={2}
-                    placeholder="MM"
-                    aria-label="월"
-                  />
-                  <span className="text-2xl font-medium text-gray-700">월</span>
-                </div>
-                <div className="flex shrink-0 items-center gap-[clamp(1px,0.54vw,2px)]">
-                  <input
-                    className={`${personalInfoInputStyle(value.birthDay !== '')} !w-[clamp(64px,19.74vw,74px)] shrink-0 !px-2 text-center tracking-[-0.08em] ${value.birthDay.length === 2 ? '!text-[21px]' : '!text-[23px]'}`}
-                    value={value.birthDay}
-                    onChange={(event) => update('birthDay', event.target.value.replace(/\D/g, ''))}
-                    inputMode="numeric"
-                    maxLength={2}
-                    placeholder="DD"
-                    aria-label="일"
-                  />
-                  <span className="text-2xl font-medium text-gray-700">일</span>
-                </div>
+              <div className="grid grid-cols-[92px_41px_52px_41px_68px_1fr] items-center">
+                <input
+                  className={`${personalInfoInputStyle(value.birthYear !== '')} !w-[92px] !px-4`}
+                  value={value.birthYear}
+                  onChange={(event) => update('birthYear', event.target.value.replace(/\D/g, ''))}
+                  inputMode="numeric"
+                  maxLength={4}
+                  placeholder="YYYY"
+                  aria-label="년"
+                  aria-invalid={hasInvalidBirthDate}
+                  aria-describedby={hasInvalidBirthDate ? 'birth-date-error' : undefined}
+                />
+                <span className="salpim-field-text text-center font-medium text-gray-700">년</span>
+                <input
+                  className={`${personalInfoInputStyle(value.birthMonth !== '')} !w-[52px] !px-1 text-center tracking-[-0.08em]`}
+                  value={value.birthMonth}
+                  onChange={(event) => update('birthMonth', event.target.value.replace(/\D/g, ''))}
+                  inputMode="numeric"
+                  maxLength={2}
+                  placeholder="MM"
+                  aria-label="월"
+                  aria-invalid={hasInvalidBirthDate}
+                  aria-describedby={hasInvalidBirthDate ? 'birth-date-error' : undefined}
+                />
+                <span className="salpim-field-text text-center font-medium text-gray-700">월</span>
+                <input
+                  className={`${personalInfoInputStyle(value.birthDay !== '')} !w-[68px] !px-1 text-center tracking-[-0.08em]`}
+                  value={value.birthDay}
+                  onChange={(event) => update('birthDay', event.target.value.replace(/\D/g, ''))}
+                  inputMode="numeric"
+                  maxLength={2}
+                  placeholder="DD"
+                  aria-label="일"
+                  aria-invalid={hasInvalidBirthDate}
+                  aria-describedby={hasInvalidBirthDate ? 'birth-date-error' : undefined}
+                />
+                <span className="salpim-field-text text-right font-medium text-gray-700">일</span>
               </div>
               {hasInvalidBirthDate && (
-                <p role="alert" className="mt-2 px-2 text-sm font-normal text-red-500 opacity-80">
-                  유효하지 않은 생년월일입니다. 생년월일을 확인해주세요!
+                <p
+                  id="birth-date-error"
+                  role="alert"
+                  className="mt-2 px-2 text-sm font-normal text-red-500 opacity-80"
+                >
+                  {birthDateValidation === 'too-old'
+                    ? `만 ${MAX_SIGNUP_AGE}세를 초과하는 생년월일은 입력할 수 없습니다.`
+                    : '유효하지 않은 생년월일입니다. 생년월일을 확인해주세요!'}
                 </p>
               )}
             </div>
@@ -190,7 +175,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
             {/* 성별 */}
             <div>
               <span className={labelStyle}>성별</span>
-              <div className="flex gap-3">
+              <div className="-mx-0.5 flex gap-[13px]">
                 {(['female', 'male'] as const).map((gender) => {
                   const selected = value.gender === gender;
                   return (
@@ -198,7 +183,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
                       key={gender}
                       type="button"
                       onClick={() => update('gender', gender)}
-                      className={`flex h-[clamp(48px,7.11vh,56px)] flex-1 items-center justify-center rounded-full border-[clamp(3px,0.51vh,4px)] py-0 !text-2xl !font-semibold transition-colors ${
+                      className={`salpim-field-text flex h-14 flex-1 items-center justify-center rounded-full border-4 py-0 !font-semibold transition-colors ${
                         selected
                           ? 'border-brand-500 bg-brand-100 text-brand-600'
                           : 'border-brand-100 bg-brand-100 text-brand-600 opacity-50 hover:border-brand-200 hover:opacity-70'
@@ -219,10 +204,10 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
               <p className="mb-2 text-sm font-semibold text-brand-500">
                 본인 확인을 위해 문자로 인증 번호를 보내 드려요.
               </p>
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 <input
                   id="phone"
-                  className={`${personalInfoInputStyle(value.phone !== '')} flex-1 placeholder:!text-[#613212] placeholder:!opacity-40`}
+                  className={`${personalInfoInputStyle(value.phone !== '')} min-w-0 flex-1 placeholder:!text-[#613212] placeholder:!opacity-40`}
                   value={value.phone}
                   onChange={(event) => handlePhoneChange(event.target.value)}
                   placeholder="010-0000-0000"
@@ -233,7 +218,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
                   type="button"
                   onClick={() => void handleSendCode()}
                   disabled={!phoneComplete || value.phoneVerified || phoneRequest !== 'idle'}
-                  className="shrink-0 rounded-2xl bg-brand-100 px-4 !text-2xl !font-semibold text-brand-600 transition-colors hover:bg-brand-200 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="salpim-field-text h-[52px] w-[109px] shrink-0 rounded-[26px] bg-brand-100 px-0 !font-semibold text-brand-600 transition-colors hover:bg-brand-200 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {phoneRequest === 'sending'
                     ? '전송 중'
@@ -259,7 +244,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
                     type="button"
                     onClick={() => void handleVerify()}
                     disabled={code.length !== 6 || phoneRequest !== 'idle'}
-                    className="shrink-0 rounded-2xl bg-brand-500 px-4 !text-2xl !font-semibold text-white transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-brand-200"
+                    className="salpim-field-text shrink-0 rounded-2xl bg-brand-500 px-4 !font-semibold text-white transition-colors hover:bg-brand-600 disabled:cursor-not-allowed disabled:bg-brand-200"
                   >
                     {phoneRequest === 'verifying' ? '확인 중' : '확인'}
                   </button>
@@ -281,7 +266,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
         </div>
       </div>
 
-      <div className="flex shrink-0 gap-3 pt-4">
+      <div className="-mx-0.5 flex shrink-0 gap-4 pt-4">
         <button type="button" onClick={onBack} className={secondaryButton}>
           이전
         </button>

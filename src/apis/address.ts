@@ -19,6 +19,13 @@ export interface AddressResult {
   eupMyeonDong: string;
 }
 
+export interface RegionResolvePayload {
+  sido: string;
+  sigungu: string;
+  generalGu: string;
+  administrativeArea: string;
+}
+
 export interface AddressSearchResponse {
   results: AddressResult[];
   /** 마지막 페이지 여부 → 더보기 노출 판단 */
@@ -32,6 +39,7 @@ interface KakaoRegionAddress {
   region_1depth_name: string;
   region_2depth_name: string;
   region_3depth_name: string;
+  region_3depth_h_name?: string;
 }
 
 interface KakaoRoadAddress extends KakaoRegionAddress {
@@ -106,6 +114,7 @@ export const searchAddress = async (query: string, page = 1): Promise<AddressSea
         doc.road_address?.region_2depth_name
       ),
       eupMyeonDong: firstNonEmpty(
+        doc.address?.region_3depth_h_name,
         doc.address?.region_3depth_name,
         doc.road_address?.region_3depth_name
       ),
@@ -185,13 +194,35 @@ const toAddressResult = (
   city: firstNonEmpty(jibunAddress?.region_1depth_name, roadAddress.region_1depth_name),
   district: firstNonEmpty(jibunAddress?.region_2depth_name, roadAddress.region_2depth_name),
   eupMyeonDong: firstNonEmpty(
+    jibunAddress?.region_3depth_h_name,
     jibunAddress?.region_3depth_name,
     roadAddress.region_3depth_name
   ),
 });
 
 const hasCompleteRegion = (address: AddressResult) =>
-  Boolean(address.city.trim() && address.district.trim() && address.eupMyeonDong.trim());
+  Boolean(address.city.trim() && address.eupMyeonDong.trim());
+
+/**
+ * 카카오의 2단계 지역명(예: "고양시 덕양구")을 백엔드의
+ * 시/군/구와 일반구 필드로 분리한다. 광역시의 자치구처럼 한 단계인
+ * 지역(예: "미추홀구")은 sigungu에만 담는다.
+ */
+export const toRegionResolvePayload = (address: AddressResult): RegionResolvePayload => {
+  const [sigungu = '', ...generalGuParts] = address.district.trim().split(/\s+/).filter(Boolean);
+  const payload = {
+    sido: address.city.trim(),
+    sigungu,
+    generalGu: generalGuParts.join(' '),
+    administrativeArea: address.eupMyeonDong.trim(),
+  };
+
+  if (!payload.sido || !payload.administrativeArea) {
+    throw new Error('선택한 주소의 행정구역 정보를 확인하지 못했습니다.');
+  }
+
+  return payload;
+};
 
 /**
  * 이전 검색 결과나 일부 도로명 주소 응답에 읍·면·동이 빠져 있어도

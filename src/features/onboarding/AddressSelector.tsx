@@ -116,8 +116,7 @@ const AddressSelector = ({
       return coordinates;
     } catch (firstError) {
       if (
-        (firstError as GeolocationPositionError).code ===
-        GeolocationPositionError.PERMISSION_DENIED
+        (firstError as GeolocationPositionError).code === GeolocationPositionError.PERMISSION_DENIED
       ) {
         throw firstError;
       }
@@ -225,18 +224,18 @@ const AddressSelector = ({
     <>
       <div className="min-h-0 flex-1 overflow-y-auto">
         <div className="flex min-h-full flex-col pb-2 pt-[clamp(6px,1.02vh,8px)]">
-          <h1 className="mb-6 text-center text-[clamp(26px,3.68vh,29px)] font-bold text-[#613212]">
+          <h1 className="salpim-page-title mb-6 text-center font-bold text-[#613212]">
             우리집을 설정해 주세요!
           </h1>
 
           {/* 안내 */}
-          <div className="relative mb-[clamp(4px,0.76vh,6px)] h-[clamp(88px,12.18vh,96px)] w-full translate-y-[clamp(40px,6.35vh,50px)]">
+          <div className="relative mx-auto mb-1.5 h-24 w-[310px] translate-y-[50px]">
             <img
               src="/assets/Salpimi/Search.png"
               alt="살피미"
-              className="absolute -left-[clamp(12px,4vw,15px)] top-[calc(50%-clamp(36px,5.71vh,45px))] z-10 h-[clamp(96px,14.21vh,112px)] w-[clamp(96px,14.21vh,112px)] -translate-y-1/2 scale-x-[-1] object-contain"
+              className="absolute -left-[25px] top-[-52px] z-10 size-28 scale-x-[-1] object-contain"
             />
-            <div className="absolute left-1/2 top-1/2 flex h-[clamp(88px,12.18vh,96px)] w-[clamp(280px,82.67vw,310px)] -translate-x-1/2 -translate-y-1/2 items-center rounded-2xl bg-brand-100 pl-[clamp(60px,18.13vw,68px)] pr-4 font-[Pretendard] text-[clamp(18px,2.54vh,20px)] font-medium leading-[1.35] text-black">
+            <div className="flex h-24 w-[310px] items-center rounded-2xl bg-brand-100 pl-[68px] pr-4 font-[Pretendard] text-xl font-medium leading-[1.35] text-black">
               주소로 내 지역 혜택과
               <br />
               근처 복지 시설을 찾아 드려요.
@@ -248,7 +247,7 @@ const AddressSelector = ({
             type="button"
             onClick={handleUseCurrentLocation}
             disabled={isLocating}
-            className="mx-auto flex h-[clamp(60px,8.88vh,70px)] w-[clamp(280px,82.67vw,310px)] translate-y-[clamp(40px,6.35vh,50px)] items-center justify-center gap-2 rounded-2xl border-[clamp(1px,0.254vh,2px)] border-[#FFB86B] bg-[#FFE3C2] py-0 font-[Pretendard] !text-[clamp(20px,3.05vh,24px)] !font-semibold text-[#8B5A2B] transition-colors hover:bg-[#FFDBB2]"
+            className="salpim-field-text mx-auto flex h-[68px] w-[308px] translate-y-[50px] items-center justify-center gap-2 rounded-[15px] border-2 border-[#FFB86B] bg-[#FFE3C2] py-0 font-[Pretendard] !font-semibold text-[#8B5A2B] transition-colors hover:bg-[#FFDBB2]"
           >
             <LocationIcon className="h-6 w-6 shrink-0 text-[#8B5A2B]" />
             {isLocating ? '현재 위치 확인 중...' : '현재 위치로 자동 설정'}
@@ -256,7 +255,7 @@ const AddressSelector = ({
           {locationPermissionDenied && (
             <p
               role="alert"
-              className="mt-[clamp(8px,1.27vh,10px)] flex w-full translate-y-[clamp(40px,6.35vh,50px)] items-start justify-center gap-2 font-[Pretendard] text-[clamp(17px,2.54vh,20px)] font-semibold leading-[1.35] text-[#FF4545]"
+              className="mt-2.5 flex w-full translate-y-[50px] items-start justify-center gap-2 font-[Pretendard] text-xl font-semibold leading-[1.35] text-[#FF4545]"
             >
               <span
                 aria-hidden
@@ -274,63 +273,65 @@ const AddressSelector = ({
           {locationError && (
             <p
               role="alert"
-              className="mt-[clamp(8px,1.27vh,10px)] flex w-full translate-y-[clamp(40px,6.35vh,50px)] justify-center text-center font-[Pretendard] text-[clamp(15px,2.29vh,18px)] font-semibold leading-[1.35] text-[#FF4545]"
+              className="mt-2.5 flex w-full translate-y-[50px] justify-center text-center font-[Pretendard] text-lg font-semibold leading-[1.35] text-[#FF4545]"
             >
               {locationError}
             </p>
           )}
           <p
-            className={`mb-[clamp(50px,7.61vh,60px)] flex w-full translate-y-[clamp(40px,6.35vh,50px)] justify-center text-center font-[Pretendard] text-[clamp(16px,2.54vh,20px)] font-semibold text-black ${
-              locationPermissionDenied || locationError ? 'mt-1' : 'mt-[clamp(8px,1.27vh,10px)]'
+            className={`mb-20 flex w-full translate-y-[50px] justify-center text-center font-[Pretendard] text-xl font-semibold text-black ${
+              locationPermissionDenied || locationError ? 'mt-1' : 'mt-2.5'
             }`}
           >
             또는 직접 입력하기
           </p>
 
           {/* 도로명 주소 검색 */}
-          <label className={labelStyle}>도로명 주소</label>
-          <div className="flex items-center gap-2 rounded-2xl border-[clamp(3px,0.51vh,4px)] border-[#FED7AA] bg-white px-4 py-3.5 focus-within:border-[#FED7AA]">
-            <SearchIcon className="h-[clamp(30px,4.57vh,36px)] w-[clamp(30px,4.57vh,36px)] shrink-0 text-[#613212]" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter') openSearchPage();
-              }}
-              placeholder="도로명 주소 입력"
-              className="min-w-0 flex-1 !text-2xl text-gray-900 outline-none placeholder:!text-2xl placeholder:text-gray-400"
-              aria-label="도로명 주소 검색"
-            />
-            <button
-              type="button"
-              onClick={openSearchPage}
-              disabled={!query.trim()}
-              className="flex h-[clamp(30px,4.57vh,36px)] shrink-0 items-center !text-2xl !font-semibold text-[#613212]"
-            >
-              검색
-            </button>
-          </div>
-
-          {/* 상세 주소 (주소 선택 후 노출) */}
-          {value.roadAddress && (
-            <div className="mt-5">
-              <label htmlFor="detail" className={labelStyle}>
-                상세 주소
-              </label>
-              <textarea
-                id="detail"
-                rows={2}
-                className={`${inputStyle} resize-none !border-[clamp(3px,0.51vh,4px)] !border-[#FED7AA] !font-[Inter] !text-[clamp(20px,3.05vh,24px)] !font-medium !leading-[1.35] focus:!border-[#FED7AA] placeholder:!font-[Inter] placeholder:!text-[clamp(20px,3.05vh,24px)] placeholder:!font-medium placeholder:!text-[#613212] placeholder:!opacity-40`}
-                value={value.detail}
-                onChange={(event) => onChange({ ...value, detail: event.target.value })}
-                placeholder={'건물명, 동/호수 등\n상세 주소를 입력해주세요.'}
+          <div className="mx-auto w-[306px]">
+            <label className={labelStyle}>도로명 주소</label>
+            <div className="flex h-[52px] items-center gap-2 rounded-[14px] border-4 border-[#FED7AA] bg-white px-4 py-0 focus-within:border-[#FED7AA]">
+              <SearchIcon className="h-[clamp(30px,4.57vh,36px)] w-[clamp(30px,4.57vh,36px)] shrink-0 text-[#613212]" />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') openSearchPage();
+                }}
+                placeholder="도로명 주소 입력"
+                className="salpim-field-text min-w-0 flex-1 text-gray-900 outline-none placeholder:text-gray-400"
+                aria-label="도로명 주소 검색"
               />
+              <button
+                type="button"
+                onClick={openSearchPage}
+                disabled={!query.trim()}
+                className="salpim-field-text flex h-[clamp(30px,4.57vh,36px)] shrink-0 items-center !font-semibold text-[#613212]"
+              >
+                검색
+              </button>
             </div>
-          )}
+
+            {/* 상세 주소 (주소 선택 후 노출) */}
+            {value.roadAddress && (
+              <div className="mt-5">
+                <label htmlFor="detail" className={labelStyle}>
+                  상세 주소
+                </label>
+                <textarea
+                  id="detail"
+                  rows={2}
+                  className={`${inputStyle} box-border h-[78px] min-h-[78px] resize-none overflow-y-hidden !border-4 !border-[#FED7AA] !py-[5px] !font-[Inter] !font-medium !leading-[30px] focus:!border-[#FED7AA] placeholder:!font-[Inter] placeholder:!font-medium placeholder:!text-[#613212] placeholder:!opacity-40`}
+                  value={value.detail}
+                  onChange={(event) => onChange({ ...value, detail: event.target.value })}
+                  placeholder={'건물명, 동/호수 등\n상세 주소를 입력해주세요.'}
+                />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="flex shrink-0 gap-3 pt-4">
+      <div className="-mx-0.5 flex shrink-0 gap-4 pt-4">
         <button type="button" onClick={onBack} className={secondaryButton}>
           이전
         </button>

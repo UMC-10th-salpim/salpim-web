@@ -59,9 +59,11 @@ const TermsAgreement = ({ value, onChange, onSubmit }: TermsAgreementProps) => {
   return (
     <>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="flex min-h-full flex-col justify-center py-2">
-          <h1 className="text-center text-3xl font-bold text-gray-900">약관에 동의해 주세요</h1>
-          <p className="mb-8 mt-2 text-center text-2xl font-semibold leading-8 text-brand-500">
+        <div className="flex min-h-full flex-col justify-start pt-8">
+          <h1 className="salpim-page-title text-center font-bold text-gray-900">
+            약관에 동의해 주세요
+          </h1>
+          <p className="salpim-page-description mb-[14px] mt-2 text-center font-semibold leading-8 text-brand-500">
             아래 내용을 확인하고
             <br />
             동의해 주세요
@@ -71,20 +73,20 @@ const TermsAgreement = ({ value, onChange, onSubmit }: TermsAgreementProps) => {
           <button
             type="button"
             onClick={toggleAll}
-            className="flex w-full items-center gap-3 rounded-2xl border-[3px] border-brand-200 bg-white px-5 py-4 text-left !font-semibold"
+            className="flex h-[78px] w-full items-center gap-3 rounded-[11px] border-[3px] border-brand-200 bg-white px-5 py-0 text-left !font-semibold"
           >
             <CheckBox checked={allChecked} />
-            <span className="text-2xl font-semibold text-gray-900">전체 동의</span>
+            <span className="salpim-field-text font-semibold text-gray-900">전체 동의</span>
           </button>
 
           {/* 개별 약관 */}
-          <div className="mt-6 rounded-2xl border-[3px] border-brand-400/60 bg-white">
+          <div className="mt-[50px]">
             {TERMS.map(({ key, label }, index) => (
               <div
                 key={key}
-                className={`relative flex items-center gap-3 px-5 py-4 ${
+                className={`relative flex h-20 items-center gap-3 px-3 ${
                   index !== 0
-                    ? 'before:absolute before:inset-x-5 before:top-0 before:h-px before:bg-gray-200 before:content-[""]'
+                    ? 'before:absolute before:inset-x-3 before:top-0 before:h-px before:bg-gray-200 before:content-[""]'
                     : ''
                 }`}
               >
@@ -94,9 +96,9 @@ const TermsAgreement = ({ value, onChange, onSubmit }: TermsAgreementProps) => {
                   className="flex flex-1 items-center gap-3 text-left !font-semibold"
                 >
                   <CheckBox checked={value[key]} />
-                  <span className="flex min-w-0 flex-1 items-center gap-1 font-semibold leading-[1.25] tracking-[-0.06em] text-gray-800">
-                    <span className="shrink-0 !text-[clamp(18px,2.54vh,20px)]">[필수]</span>
-                    <span className="min-w-0 flex-1 !text-[clamp(18px,2.54vh,20px)]">{label}</span>
+                  <span className="salpim-home-card-body flex min-w-0 flex-1 items-center gap-1 font-semibold leading-[1.25] tracking-[-0.06em] text-gray-800">
+                    <span className="shrink-0">[필수]</span>
+                    <span className="min-w-0 flex-1">{label}</span>
                   </span>
                 </button>
                 <button
@@ -112,7 +114,7 @@ const TermsAgreement = ({ value, onChange, onSubmit }: TermsAgreementProps) => {
         </div>
       </div>
 
-      <div className="flex shrink-0 pt-4">
+      <div className="-mx-0.5 flex shrink-0 pt-4">
         <button type="button" onClick={onSubmit} disabled={!allChecked} className={primaryButton}>
           다음
         </button>

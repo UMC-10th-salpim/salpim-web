@@ -4,18 +4,18 @@ import { getKakaoAuthorizeUrl } from '@/apis/auth';
 import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
 import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
 import FontSizeSettings from '@/features/mypage/FontSizeSettings';
+import useSettingsStore from '@/store/settingsStore';
+import type { FontSize } from '@/store/settingsStore';
 
-type FontSize = 'medium' | 'large';
 type NextPage = 'login' | 'kakao' | 'signup';
-
-const FONT_SIZE_STORAGE_KEY = 'salpim-font-size';
 
 const FontSizePage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [fontSize, setFontSize] = useState<FontSize>(() => {
-    return localStorage.getItem(FONT_SIZE_STORAGE_KEY) === 'large' ? 'large' : 'medium';
-  });
+  const savedFontSize = useSettingsStore((state) => state.fontSize);
+  const saveFontSize = useSettingsStore((state) => state.setFontSize);
+  const [fontSize, setFontSize] = useState<FontSize>(savedFontSize);
+  const [kakaoLoginError, setKakaoLoginError] = useState('');
 
   const next = searchParams.get('next') as NextPage | null;
   const isLarge = fontSize === 'large';
@@ -31,10 +31,18 @@ const FontSizePage = () => {
   }
 
   const handleSave = () => {
-    localStorage.setItem(FONT_SIZE_STORAGE_KEY, fontSize);
+    saveFontSize(fontSize);
+    setKakaoLoginError('');
 
     if (next === 'kakao') {
-      window.location.href = getKakaoAuthorizeUrl();
+      try {
+        window.location.href = getKakaoAuthorizeUrl();
+      } catch (error) {
+        if (import.meta.env.DEV) {
+          console.error('[kakao] invalid authorization configuration', error);
+        }
+        setKakaoLoginError('카카오 로그인 설정을 확인하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      }
       return;
     }
 
@@ -48,27 +56,29 @@ const FontSizePage = () => {
   };
 
   return (
-    <div className="min-h-[100svh] w-full bg-[#FAF8F3]">
-      <main className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col px-4 pb-[max(3rem,env(safe-area-inset-bottom))] pt-[max(2.5rem,env(safe-area-inset-top))] text-[#613212]">
-        <section className="flex min-h-0 flex-1 flex-col">
+    <div className="min-h-[100svh] w-full overflow-y-auto bg-[#FAF8F3]">
+      <main className="relative mx-auto min-h-[788px] w-full max-w-[375px] text-[#613212]">
+        <section>
           <img
             src="/assets/Salpimi/Talk.png"
             alt="살피미"
-            className="mx-auto h-[clamp(56px,7.88vh,64px)] w-[clamp(56px,7.88vh,64px)] object-contain"
+            className="absolute left-[147.5px] top-8 size-20 object-contain"
           />
 
-          <h1 className="mt-3 text-center text-[clamp(24px,3.45vh,28px)] font-semibold leading-[1.35]">
+          <h1 className="absolute inset-x-0 top-[110px] text-center text-[28px] font-semibold leading-[1.28]">
             원하시는 글자 크기를
             <br />
             선택해 주세요!
           </h1>
 
-          <div className="mt-5 grid grid-cols-2 gap-4 px-1">
+          <div
+            className={`absolute left-[19.5px] grid grid-cols-[160px_160px] gap-4 ${isLarge ? 'top-[194px]' : 'top-52'}`}
+          >
             <button
               type="button"
               aria-pressed={!isLarge}
               onClick={() => setFontSize('medium')}
-              className={`aspect-[160/136] rounded-[32px] !text-[clamp(32px,4.43vh,36px)] !font-semibold shadow-[0_4px_8px_rgba(97,50,18,0.15)] transition-colors ${
+              className={`h-[136px] w-40 rounded-[32px] !text-[36px] !font-semibold shadow-[0_4px_8px_rgba(97,50,18,0.15)] transition-colors ${
                 !isLarge ? 'bg-[#FFB800] text-[#292929]' : 'bg-[#FFF0D8] text-[#292929]'
               }`}
             >
@@ -78,7 +88,7 @@ const FontSizePage = () => {
               type="button"
               aria-pressed={isLarge}
               onClick={() => setFontSize('large')}
-              className={`aspect-[160/136] rounded-[32px] !text-[clamp(40px,5.42vh,44px)] !font-semibold shadow-[0_4px_8px_rgba(97,50,18,0.15)] transition-colors ${
+              className={`h-[136px] w-40 rounded-[32px] !text-[44px] !font-semibold shadow-[0_4px_8px_rgba(97,50,18,0.15)] transition-colors ${
                 isLarge ? 'bg-[#FFB800] text-[#292929]' : 'bg-[#FFF0D8] text-[#292929]'
               }`}
             >
@@ -86,8 +96,16 @@ const FontSizePage = () => {
             </button>
           </div>
 
-          <h2 className="mt-3 px-4 text-[clamp(22px,2.96vh,24px)] font-semibold">미리보기</h2>
-          <div className="mt-2 min-h-[clamp(200px,25vh,220px)] rounded-xl border border-[#D9D9D9] bg-white px-4 py-4 text-[#292929]">
+          <h2
+            className={`absolute left-4 text-[24px] font-semibold ${isLarge ? 'top-[336px]' : 'top-[358px]'}`}
+          >
+            미리보기
+          </h2>
+          <div
+            className={`absolute left-[16.5px] w-[342px] rounded-xl border border-[#D9D9D9] bg-white px-4 py-4 text-[#292929] ${
+              isLarge ? 'top-[375.5px] h-[221px]' : 'top-[397.5px] h-[199px]'
+            }`}
+          >
             <p className={`${isLarge ? 'text-[40px]' : 'text-[32px]'} font-semibold leading-[1.2]`}>
               노인 의료비 지원
             </p>
@@ -102,10 +120,18 @@ const FontSizePage = () => {
         <button
           type="button"
           onClick={handleSave}
-          className="mt-6 h-[clamp(72px,9.85vh,80px)] w-full shrink-0 rounded-xl bg-[#FF843D] !text-[clamp(28px,3.69vh,30px)] !font-semibold text-white"
+          className="absolute left-[32.5px] top-[684px] h-20 w-[310px] rounded-xl bg-[#FF843D] !text-[30px] !font-semibold text-white"
         >
           저장하기
         </button>
+        {kakaoLoginError && (
+          <p
+            role="alert"
+            className="absolute inset-x-4 top-[770px] text-center text-sm font-semibold text-red-500"
+          >
+            {kakaoLoginError}
+          </p>
+        )}
       </main>
     </div>
   );

@@ -1,7 +1,7 @@
 import Button from "@/components/common/Button/Button";
 import { useNavigate } from "react-router-dom";
 import useBenefitStore from "@/store/benefitStore";
-import { useEffect } from "react";
+import { useEffect } from "react"; 
 
 interface BenefitDetailProps {
   isOnline : boolean;
@@ -44,7 +44,6 @@ const handleKakaoShare = () => {
 
   return (
     <div className="flex flex-col p-4 gap-4">
-
       {/* 상단 카드 형식 */}
       <div className="bg-[#FBE3BF] rounded-xl p-4 flex flex-col gap-2">
         {/*chip + 찜하기*/}

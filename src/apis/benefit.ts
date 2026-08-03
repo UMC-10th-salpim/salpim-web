@@ -1,5 +1,62 @@
-// TODO: 혜택 관련 API 함수 구현
-export const benefitApi = {};
+import client from "./client";
+
+// 공통 응답 타임
+interface ApiResponse<T> {
+  isSuccess: boolean;
+  code: string;
+  message: string;
+  result : T;
+}
+
+// 혜택 목록 조회
+export interface BenefitListItem {
+  benefitId : number;
+  benefitTitle: string;
+  benefitCategory: string;
+}
+
+export interface BenefitListResult {
+  data : BenefitListItem[];
+  hasNext: boolean;
+  nextCursor: string;
+  pageSize: number;
+  totalCount: number;
+}
+
+export const benefitApi = {
+  //살피미 추천
+  getRecommendationResult : async (params: {
+    optionId: number;
+    cursor?: string;
+    pageSize?: number;
+  }) => {
+    const { data } = await client.get<ApiResponse<BenefitListResult>>('/recommendations/result', {
+      params: {
+        ...params,
+        cursor: params.cursor ?? '-1',
+      },
+    });
+    return data.result;
+  },
+
+  // 직접 찾기 (검색/조건)
+  searchBenefits: async (params: {
+    searchKey?: string;
+    regionIds: number[];
+    categoryIds?: number[];
+    cursor?: string;
+    pageSize?: number;
+    sort?: 'popular' | 'deadline';
+  }) => {
+    const {data} = await client.get<ApiResponse<BenefitListResult>>('/benefits/search', {
+      params : {
+        ...params,
+        cursor: params.cursor ?? '-1',
+      },
+    });
+    return data.result;
+  },
+};
 
 export interface Benefit {
   id: number;
@@ -18,14 +75,24 @@ export interface Benefit {
   facilityDistance?: string; // 주민센터 거리
   facilityHours?: string; // 운영시간
 }
-export const CATEGORY_ICONS : Record<string, string> = {
-  medical: '/icons/benefit/hospital.png', // 의료 지원
-  living: '/icons/benefit/money.png', // 생활비
-  housing: '/icons/benefit/house.png', // 주거 지원
-  care: '/icons/benefit/handshake.png', // 돌봄
-  culture: '/icons/benefit/mask.png', // 문화 활동
-  job: '/icons/benefit/work.png', // 일자리
-}
+
+export const CATEGORY_ICONS : {keyword: string; icon: string}[] = [
+  { keyword: '의료', icon: '/icons/benefit/hospital.png' },
+  { keyword: '생활비', icon: '/icons/benefit/money.png' },
+  { keyword: '요금', icon: '/icons/benefit/money.png' },
+  { keyword: '돌봄', icon: '/icons/benefit/handshake.png' },
+  { keyword: '주거', icon: '/icons/benefit/house.png' },
+  { keyword: '일자리', icon: '/icons/benefit/work.png' },
+  { keyword: '문화', icon: '/icons/benefit/mask.png' },
+  { keyword: '배움', icon: '/icons/benefit/mask.png' },
+]
+
+const DEFAULT_BENEFIT_ICON = '';
+
+export const getBenefitIcon = (category: string): string => {
+  const matched = CATEGORY_ICONS.find((item) => category.includes(item.keyword));
+  return matched?.icon ?? DEFAULT_BENEFIT_ICON;
+};
 
 export const MOCK_BENEFITS: Benefit[] = [
   { 

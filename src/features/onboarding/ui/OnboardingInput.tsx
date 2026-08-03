@@ -23,11 +23,9 @@ const OnboardingInput = ({
 }: OnboardingInputProps) => {
   return (
     <div className="w-full flex-col gap-2">
-      {label && (
-        <span className="text-[clamp(20px,3.05vh,24px)] font-medium text-grap-700">{label}</span>
-      )}
+      {label && <span className="salpim-field-label font-medium text-grap-700">{label}</span>}
       <input
-        className="w-full rounded-4xl border-[3px] border-[#FF8A3D]/60 px-4 py-3 !text-[clamp(20px,3.05vh,24px)] text-gray-700 outline-none placeholder:!text-[clamp(20px,3.05vh,24px)] placeholder:text-gray-300 disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-gray-100"
+        className="salpim-input-control salpim-field-text w-full rounded-4xl border-[3px] border-[#FF8A3D]/60 px-4 py-3 text-gray-700 outline-none placeholder:text-gray-300 disabled:cursor-not-allowed disabled:border-gray-300 disabled:bg-gray-100"
         type={type}
         inputMode={inputMode}
         maxLength={maxLength}
