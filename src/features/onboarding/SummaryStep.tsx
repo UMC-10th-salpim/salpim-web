@@ -12,8 +12,8 @@ interface SummaryStepProps {
 
 const Row = ({ label, value }: { label: string; value: string }) => (
   <div className="flex gap-4">
-    <span className="w-20 shrink-0 text-2xl font-semibold text-gray-800">{label}</span>
-    <span className="text-2xl font-semibold text-brand-500">{value}</span>
+    <span className="salpim-field-text w-20 shrink-0 font-semibold text-gray-800">{label}</span>
+    <span className="salpim-field-text font-semibold text-brand-500">{value}</span>
   </div>
 );
 
@@ -35,20 +35,20 @@ const SummaryStep = ({
   return (
     <>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        <div className="flex min-h-full flex-col justify-center py-2">
+        <div className="flex min-h-full flex-col justify-start pt-2">
           <img
             src="/assets/Salpimi/Love.png"
             alt="살피미"
             className="mx-auto size-[clamp(160px,53.33vw,200px)] object-contain"
           />
-          <h1 className="mt-4 text-center text-[clamp(28px,4.06vh,32px)] font-bold leading-8 text-[#613212]">
+          <h1 className="salpim-page-title mt-4 text-center font-bold leading-8 text-[#613212]">
             {name} 님께 딱 맞는
             <br />
             혜택을 찾아 드릴게요!
           </h1>
 
-          <div className="mt-8 rounded-2xl border-[3px] border-brand-300 bg-[#FBE3BF] px-6 py-6">
-            <h2 className="mb-5 text-center text-[clamp(28px,4.06vh,32px)] font-semibold text-gray-900">
+          <div className="-mx-[7px] mt-5 min-h-[307px] rounded-[11px] border-[3px] border-brand-300 bg-[#FBE3BF] px-6 py-6">
+            <h2 className="salpim-page-title mb-5 text-center font-semibold text-gray-900">
               설정된 정보
             </h2>
             <div className="flex flex-col gap-4">
@@ -61,7 +61,7 @@ const SummaryStep = ({
         </div>
       </div>
 
-      <div className="flex shrink-0 pt-4">
+      <div className="-mx-0.5 flex shrink-0 pt-4">
         <button type="button" onClick={onStart} disabled={isSubmitting} className={primaryButton}>
           {isSubmitting ? '회원가입 중...' : '살핌 시작하기'}
         </button>
