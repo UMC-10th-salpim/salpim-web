@@ -3,7 +3,7 @@ import BenefitEmptyState from "@/features/benefit/BenefitEmptyState";
 import HeaderBar from "@/components/common/HeaderBar/HeaderBar";
 import Button from "@/components/common/Button/Button";
 import BottomNavigation from "@/components/common/BottomNavigation/BottomNavigation";
-import { benefitApi, getBenefitIcon } from "@/apis/benefit";
+import { benefitApi, BenefitListResult, getBenefitIcon } from "@/apis/benefit";
 import { useNavigate, useLocation } from "react-router-dom";
 import useUserStore from "@/store/userStore";
 import {useEffect, useState} from "react";
@@ -16,12 +16,13 @@ interface LocationState {
   regionIds?: number[]; // search
   categoryIds?: number[]; // search
   sort?: 'popular' | 'deadline'; // search
+  searchResult?: BenefitListResult; //search에서 API 호출한 결과 있으면 호출 안함
 }
 
 const BenefitPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { source = 'search', keyword, optionId, regionIds, categoryIds, sort } =
+  const { source = 'search', keyword, optionId, regionIds, categoryIds, sort, searchResult } =
     (location.state as LocationState) ?? {};
 
   const userName = useUserStore((state)=> state.name);
@@ -30,11 +31,27 @@ const BenefitPage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(()=> {
+    let ignore = false;
+
     const fetchBenefits = async () => {
+      // 검색 페이지에서 결과 받아 왔으면 api 다시 호출하지 않고 사용
+      if (searchResult) {
+        if(!ignore) {
+          setBenefits(searchResult.data);
+          setTotalCount(searchResult.totalCount);
+          setIsLoading(false);
+        }
+        return;
+      }
       setIsLoading(true);
       try {
         if (source === 'survey' && optionId === undefined){
-          console.warn('설문 결과 조회에 optionId가 없다');
+          if (!ignore) {
+            setBenefits([]);
+            setTotalCount(0);
+            setIsLoading(false);
+          }
+          return;
         }
 
         const result = source === 'survey'
@@ -45,19 +62,22 @@ const BenefitPage = () => {
               categoryIds,
               sort,
           });
+
+        if (ignore) return;
         setBenefits(result.data);
         setTotalCount(result.totalCount);
       } catch (error) {
+        if (ignore) return;
         console.error('혜택 목록 조회 실패', error);
         setBenefits([]);
         setTotalCount(0);
       } finally {
-        setIsLoading(false);
+        if (!ignore) setIsLoading(false);
       }
     };
     fetchBenefits();
-  }, [source, keyword, optionId, regionIds, categoryIds, sort]);
-
+    return () => {ignore = true;}
+  }, [source, keyword, optionId, regionIds, categoryIds, sort, searchResult]);
   const hasBenefits = totalCount > 0;
 
   // 로딩 수정
@@ -81,7 +101,7 @@ const BenefitPage = () => {
               <img src="/characters/salpimi_Good.png" alt="" className="absolute top-6 -left-px w-28 h-28"/>
               <div className="flex flex-col items-center gap-1">
                 <span className="text-[23px] font-semibold text-[#613212]">
-                  {userName}님이 원하시는 혜택 <br/> {totalCount}가지를 찾았어요!
+                  {userName ?? '회원'}님이 원하시는 혜택 <br/> {totalCount}가지를 찾았어요!
                 </span>
                 <span className="text-base font-medium text-center text-[#FF8A3D]">살피미와 함께 확인해요</span>
               </div>

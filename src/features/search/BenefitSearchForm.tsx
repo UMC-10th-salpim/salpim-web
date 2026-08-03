@@ -33,7 +33,7 @@ const BenefitSearchForm = () => {
     .map((interest) => INTEREST_CATEGORY_ID_MAP[interest])
     .filter((id): id is number => id !== undefined);
 
-  const handleSearch = async () => {
+  const handleConditionSearch = async () => {
     if (!keyword.trim()) return;
     if (!regionIds) {
       alert('지역을 선택해 주세요.');
@@ -42,33 +42,19 @@ const BenefitSearchForm = () => {
     setIsSubmitting(true);
     try {
       const result = await benefitApi.searchBenefits({
-        searchKey: keyword,
+        searchKey: keyword.trim() || undefined,
         regionIds,
+        categoryIds: categoryIds.length > 0 ? categoryIds : undefined,
         sort,
       });
       navigate('/benefits', {state: { source : 'search', keyword, regionIds, sort, searchResult : result},
       });
     } catch (error) {
       console.error('혜택 검색 실패', error);
-      navigate('/benefits', { state: { source: 'search', keyword, regionIds, sort } });
+      navigate('/benefits', { state: { source: 'search', keyword, regionIds, categoryIds, sort } });
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleConditionSearch = () => {
-    if (!regionIds) {
-      alert('지역을 선택해 주세요.');
-      return;
-    }
-    navigate('/benefits', {
-      state: {
-        source : 'search',
-        regionIds,
-        categoryIds,
-        sort,
-      },
-    });
   };
 
   const toggleInterest = (interest: string) => {
@@ -102,12 +88,12 @@ const BenefitSearchForm = () => {
             value={keyword}
             onChange={(e)=>setKeyword(e.target.value)}
             onKeyDown={(e)=> {
-              if (e.key === 'Enter') handleSearch();
+              if (e.key === 'Enter') handleConditionSearch();
             }}
             placeholder='찾고 싶은 혜택을 입력해보세요'
             className="flex-1 min-w-0 bg-transparent text-xl text-[#613212] outline-none placeholder:text-[#FF8A3D] placeholder:font-medium"
           />
-          <img src="/icons/search.png" alt="검색" className={`w-8 h-8 shrink-0 ${isSubmitting ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`} onClick={handleSearch}/>
+          <img src="/icons/search.png" alt="검색" className={`w-8 h-8 shrink-0 ${isSubmitting ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`} onClick={handleConditionSearch}/>
         </div>
       </div>
 
@@ -204,14 +190,14 @@ const BenefitSearchForm = () => {
         <button 
           type='button'
           onClick={handleConditionSearch}
-           disabled={!regionIds}
+           disabled={!regionIds || isSubmitting}
           className={`rounded-full py-[14px] px-[81.5px] text-3xl font-semibold mx-[14.5px] transition-colors ${
-            regionIds
+            regionIds && !isSubmitting
             ? 'bg-[#FF8A3D] text-white'
             : 'bg-[#DDDDDD] text-[#FAF8F3] cursor-not-allowed'
           }`}
         >
-          결과 확인하기
+          {isSubmitting ? '찾는 중...':'결과 확인하기'}
         </button>
       </div>
     </div>
