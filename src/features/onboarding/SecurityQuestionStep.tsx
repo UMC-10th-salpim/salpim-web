@@ -5,7 +5,7 @@ export interface SecurityData {
   answer: string;
 }
 
-const SECURITY_QUESTION = '내가 가장 좋아하는 계절은?';
+const SECURITY_QUESTION = '내가 가장 좋아하는 음식은?';
 
 interface SecurityQuestionStepProps {
   value: SecurityData;

@@ -108,4 +108,4 @@ export const MOCK_PROFILE: MyProfile = {
 };
 
 // 회원가입 시 등록한 비밀번호 찾기용 보안 질문 (온보딩과 동일한 질문)
-export const SECURITY_QUESTION = '내가 가장 좋아하는 계절은?';
+export const SECURITY_QUESTION = '내가 가장 좋아하는 음식은?';
