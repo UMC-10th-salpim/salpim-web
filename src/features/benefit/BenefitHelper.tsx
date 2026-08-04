@@ -1,25 +1,82 @@
 import Button from "@/components/common/Button/Button";
+import type { AgeConditionStatus } from "@/apis/helper";
 
 interface BenefitHelperProps {
     isOnline: boolean;
-    url?: string;
+    url: string | null;
+    title: string;
+    ageConditionStatus : AgeConditionStatus;
+    minAge: number | null;
+    maxAge : number | null;
+    isAgeSatisfied : boolean | null;
+    applicationEndDate : string | null;
+    organization : string;
+    isRegionSatisfied : boolean;
 }
 
-const BenefitHelper = ({isOnline, url}:BenefitHelperProps) => {
+// 나이 조건
+const getAgeConditionText = (
+  status: AgeConditionStatus,
+  minAge : number | null,
+  maxAge : number | null
+) => {
+  if (status === 'NO_RESTRICTION') return '나이 조건 없음';
+  if (status === 'UNKNOWN') return '나이 조건 확인 필요';
+
+  if (minAge !== null && maxAge !== null) return `나이 조건 (만 ${minAge}세 이상 ${maxAge}세 미만)`;
+  if (minAge !== null) return `나이 조건 (만 ${minAge}세 이상)`;
+  if (maxAge !== null) return `나이 조건 (만 ${maxAge}세 미만)`;
+  return '나이 조건 확인 중';
+};
+
+// 지역
+const getRegionText = (organization : string) => {
+  const parts = organization.trim().split(/\s+/);
+  return parts.slice(0,2).join(' ');
+}
+
+const BenefitHelper = ({isOnline, url, title, ageConditionStatus, minAge, maxAge, isAgeSatisfied, applicationEndDate, organization, isRegionSatisfied}:BenefitHelperProps) => {
+  // 나이 조건
+  const ageHeaderText = getAgeConditionText(ageConditionStatus, minAge, maxAge);
+  const ageStatusText = 
+    isAgeSatisfied === null
+      ? '확인이 필요해요. 담당 기관에 문의해 주세요.'
+      : isAgeSatisfied
+      ? '충족'
+      : '미충족';
+    const ageStatusColor =
+      isAgeSatisfied === null ? 'text-[#EF4444]' : isAgeSatisfied ? 'text-[#22C55E]' : 'text-[#EF4444]';
+    const ageIcon = isAgeSatisfied === true ? '/icons/helper/success.png' : '/icons/helper/error.png';
+
+    // 사는 곳
+    const regionText = getRegionText(organization);
+    const regionStatusText = isRegionSatisfied ? '충족' : '미충족';
+    const regionStatusColor = isRegionSatisfied ? 'text-[#22C55E]' : 'text-[#EF4444]';
+    const regionIcon = isRegionSatisfied ? '/icons/helper/success.png' : '/icons/helper/error.png';
+
+    // 신청 마감일
+    const deadlineText = applicationEndDate
+      ? (()=> {
+        const [y, m, d] = applicationEndDate.split('-').map(Number);
+        return `${y}년 ${m}월 ${d}일까지 신청할 수 있어요`;
+      })()
+      : '언제든 신청할 수 있어요';
+      // TODO: applicationEndDate가 null인 혜택이 많음(상시모집 추정) - 문구 적절한지 팀 확인 필요
+
     return (
-        <div className="flex flex-col p-4 gap-4">
+        <div className="flex flex-col p-4 gap-7">
 
             {/*상단 안내 카드*/}
             <div className="bg-[#FFF7ED] border-3 border-[#E8B16A] rounded-4xl flex items-center gap-1 mx-[16.5px] py-2">
                 <img src="/characters/salpimi_Love.png" className="w-28 h-28"/>
                 <div className="flex flex-col gap-2">
-                    <span className="text-2xl font-semibold text-[#613212] text-center">노인 의료비 지원</span>
-                    <span className="text-base text-[#FF8A3D] font-medium break-keep text-balance text-center">신청하기 전, <br/> 아래 내용을 꼭 확인해 주세요! <br/> 맨 밑에 신청하기 버튼이 있어요.</span>
+                    <span className="text-2xl font-semibold text-[#613212] text-center break-keep text-balance">{title}</span>
+                    <span className="text-base text-[#FF8A3D] font-medium text-center">신청하기 전, <br/>아래 내용을 꼭 확인해 주세요! <br/>맨 밑에 신청하기 버튼이 있어요.</span>
                 </div>
             </div>
 
             {/*내가 신청할 수 있는지*/}
-            <div className="pt-[2px] flex flex-col gap-2">
+            <div className="pt-[2px] flex flex-col gap-4">
 
                 <div className="flex items-center gap-2">
                     <img src="/icons/helper/checklist.png" className="w-10 h-10 pl-2"/>
@@ -30,26 +87,26 @@ const BenefitHelper = ({isOnline, url}:BenefitHelperProps) => {
                 {/*나이*/}
                 <div className="bg-[#FFEDD5] rounded-t-xl p-[6px]">
                   <div className="flex items-center gap-1">
-                    <img src="/icons/helper/success.png" className="w-10 h-10"/>
-                      <span className="font-semibold text-xl">나이 조건(만 00세 이상)</span>
+                    <img src={ageIcon} className="w-10 h-10"/>
+                      <span className="font-semibold text-xl">{ageHeaderText}</span>
                     </div>
-                    <span className="text-base font-medium text-[#22C55E] pl-[44px]">충족 ⋅ 만 00세</span>
+                    <span className={`text-base font-medium text-[#22C55E] pl-[44px] ${ageStatusColor}`}>{ageStatusText}</span>
                 </div>
 
                 {/*사는 곳*/}
                 <div className="bg-[#FFEDD5] p-[6px]">
                   <div className="flex items-center gap-1">
-                    <img src="/icons/helper/success.png" className="w-10 h-10"/>
-                    <span className="font-semibold text-xl">사는 곳(00시 00구)</span>
+                    <img src={regionIcon} className="w-10 h-10"/>
+                    <span className="font-semibold text-xl">사는 곳 ({regionText})</span>
                   </div>
-                  <span className="text-base text-[#22C55E] pl-[44px]">충족 ⋅ 00시 00구</span>
+                  <span className={`text-base text-[#22C55E] pl-[44px] ${regionStatusColor}`}>{regionStatusText}</span>
                 </div>
 
                 {/*소득 기준*/}
                 <div className="bg-[#FFEDD5] rounded-b-xl p-[6px]">
                   <div className="flex items-center gap-1">
                     <img src="/icons/helper/question.png" className="w-10 h-10"/>
-                      <span className="font-semibold text-xl">소득 기준(중위소득 100% 이내)</span>
+                      <span className="font-semibold text-xl">소득 기준 (중위소득 100% 이내)</span>
                   </div>
                   <span className="text-base text-[#EF4444] pl-[44px]">확인이 필요해요. 담당 기관에 문의해 주세요.</span>
                 </div>
@@ -99,7 +156,7 @@ const BenefitHelper = ({isOnline, url}:BenefitHelperProps) => {
                 </div>
             </div>
 
-            <div className="bg-[#FFEDD5] rounded-full px-[17px] py-[18px] text-center font-semibold text-xl"> ➌ 결과는 2026년 7월 15일에 알려줘요</div>
+            <div className="bg-[#FFEDD5] rounded-full px-[17px] py-[18px] text-center font-semibold text-xl"> ➌ {deadlineText}</div>
           </div>
 
           {/* 신청하기*/}

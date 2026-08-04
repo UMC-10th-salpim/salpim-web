@@ -63,7 +63,7 @@ const handleKakaoShare = () => {
         </div>
       </div>
 
-      <div className="flex flex-col gap-6 mx-[16.5px]">
+      <div className="flex flex-col gap-8 mx-[16.5px]">
         {/* 설명 박스 */}
         <div className="bg-[#FFF7ED] border border-3 border-[#E8B16A] rounded-4xl p-[11px] flex items-center gap-1 ">
           <img src="/characters/salpimi_Notebook.png" className="w-28 h-28"/>
