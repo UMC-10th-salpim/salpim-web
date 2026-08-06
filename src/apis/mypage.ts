@@ -9,8 +9,18 @@ interface ApiResponse<T> {
 
 export interface MyPageSummary {
   name: string;
+  birthDate: string;
+  gender: 'MALE' | 'FEMALE';
+  phoneNumber: string;
+  roadAddress: string;
+  detailAddress: string | null;
+  latitude: number;
+  longitude: number;
+  regionId: number;
   sido: string;
   sigungu: string;
+  generalGu: string;
+  administrativeArea: string;
 }
 
 export interface UpdateProfileRequest {

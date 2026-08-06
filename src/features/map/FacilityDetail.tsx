@@ -8,6 +8,7 @@ interface FacilityDetailProps {
   details?: FacilityDetails;
   benefits: FacilityBenefit[];
   isLoading: boolean;
+  isOutsideMyServiceCenter: boolean;
   errorMessage: string | null;
   onRetry: () => void;
   hasNextPage: boolean;
@@ -15,11 +16,29 @@ interface FacilityDetailProps {
   onLoadMore: () => void;
 }
 
+interface FacilityNoticeProps {
+  message: string;
+}
+
+const FacilityNotice = ({ message }: FacilityNoticeProps) => (
+  <div className="flex min-h-[112px] items-center rounded-[28px] border-[3px] border-[#E8B16A] bg-[#FFF7ED] px-3 py-2">
+    <img
+      src="/characters/salpimi_No.png"
+      alt="아쉬워하는 살피미"
+      className="h-24 w-24 shrink-0 self-end object-contain"
+    />
+    <p className="flex-1 break-keep text-center text-[18px] font-extrabold leading-[1.35] text-[#FF4B4B]">
+      {message}
+    </p>
+  </div>
+);
+
 const FacilityDetail = ({
   facility,
   details,
   benefits,
   isLoading,
+  isOutsideMyServiceCenter,
   errorMessage,
   onRetry,
   hasNextPage,
@@ -85,6 +104,8 @@ const FacilityDetail = ({
           <p className="rounded-2xl border-2 border-[#FFD29E] bg-white p-4 text-[16px] font-semibold text-[#81746A]">
             시설 정보와 혜택을 불러오는 중...
           </p>
+        ) : isOutsideMyServiceCenter ? (
+          <FacilityNotice message="주소가 달라서 신청할 수 없어요. 신청 안내는 주소지에 맞는 주민센터에서 확인해 주세요." />
         ) : errorMessage ? (
           <div className="rounded-2xl border-2 border-[#FFD29E] bg-white p-4">
             <p role="alert" className="text-[16px] font-semibold leading-6 text-[#81746A]">
@@ -123,24 +144,22 @@ const FacilityDetail = ({
             )}
           </div>
         ) : (
-          <p className="rounded-2xl border-2 border-[#FFD29E] bg-white p-4 text-[16px] font-semibold text-[#81746A]">
-            현재 이 시설에서 신청할 수 있는 혜택 정보가 없습니다.
-          </p>
+          <FacilityNotice message="현재 제공하고 있는 혜택이 없어 신청할 수 없어요. 혜택 찾기를 진행해 주세요." />
         )}
       </section>
 
-      <div className="flex items-center gap-3 rounded-2xl bg-[#FBE3BF] p-4">
-        <img
-          src="/characters/salpimi_Good.png"
-          alt="안내하는 살피미"
-          className="h-14 w-14 shrink-0 object-contain"
-        />
-        <p className="text-[16px] font-extrabold leading-6 text-[#613212]">
-          {benefits.length > 0
-            ? `표시된 혜택은 ${name}에서 신청할 수 있어요! 방문 전 전화로 확인해 주세요.`
-            : `${name}의 기본 정보예요. 방문 전 운영 여부를 전화로 확인해 주세요.`}
-        </p>
-      </div>
+      {!isLoading && !isOutsideMyServiceCenter && !errorMessage && benefits.length > 0 && (
+        <div className="flex items-center gap-3 rounded-2xl bg-[#FBE3BF] p-4">
+          <img
+            src="/characters/salpimi_Good.png"
+            alt="안내하는 살피미"
+            className="h-14 w-14 shrink-0 object-contain"
+          />
+          <p className="text-[16px] font-extrabold leading-6 text-[#613212]">
+            표시된 혜택은 {name}에서 신청할 수 있어요! 방문 전 전화로 확인해 주세요.
+          </p>
+        </div>
+      )}
     </article>
   );
 };

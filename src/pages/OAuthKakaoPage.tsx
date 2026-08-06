@@ -14,6 +14,7 @@ const OAuthKakaoPage = () => {
   const navigate = useNavigate();
   const setTokens = useUserStore((state) => state.setTokens);
   const setName = useUserStore((state) => state.setName);
+  const setHomeLocation = useUserStore((state) => state.setHomeLocation);
   const logout = useUserStore((state) => state.logout);
   const handled = useRef(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -48,6 +49,26 @@ const OAuthKakaoPage = () => {
 
         sessionStorage.removeItem('salpim-kakao-signup-token');
         setTokens(result.accessToken, result.refreshToken);
+        const pendingHomeLocation = sessionStorage.getItem('salpim-pending-home-location');
+        if (pendingHomeLocation) {
+          try {
+            const parsed = JSON.parse(pendingHomeLocation) as {
+              latitude?: unknown;
+              longitude?: unknown;
+            };
+            if (
+              typeof parsed.latitude === 'number' &&
+              Number.isFinite(parsed.latitude) &&
+              typeof parsed.longitude === 'number' &&
+              Number.isFinite(parsed.longitude)
+            ) {
+              setHomeLocation(parsed.latitude, parsed.longitude);
+            }
+          } catch {
+            // 이전 가입 흐름의 잘못된 임시값은 무시한다.
+          }
+          sessionStorage.removeItem('salpim-pending-home-location');
+        }
 
         const loginResponseName = normalizeName(result.name);
 
@@ -78,7 +99,7 @@ const OAuthKakaoPage = () => {
             : getKakaoLoginErrorMessage(error, '카카오 로그인에 실패했습니다. 다시 시도해 주세요.')
         );
       });
-  }, [params, navigate, logout, setName, setTokens]);
+  }, [params, navigate, logout, setHomeLocation, setName, setTokens]);
 
   if (errorMessage) {
     return (
