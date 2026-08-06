@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { searchAddress, toRegionResolvePayload } from '@/apis/address';
 import type { AddressResult } from '@/apis/address';
 import { authApi, getApiErrorMessage } from '@/apis/auth';
-import { MOCK_PROFILE, mypageApi } from '@/apis/mypage';
+import { mypageApi } from '@/apis/mypage';
 import Modal from '@/components/common/Modal/Modal';
 import ScrollMoreIndicator from '@/components/common/ScrollMoreIndicator/ScrollMoreIndicator';
 import { primaryButton } from '@/features/onboarding/styles';
@@ -23,21 +23,21 @@ const EditProfile = () => {
   const accessToken = useUserStore((state) => state.accessToken);
   const setHomeLocation = useUserStore((state) => state.setHomeLocation);
 
-  const [name, setName] = useState(MOCK_PROFILE.name);
-  const [birthYear, setBirthYear] = useState(MOCK_PROFILE.birthYear);
-  const [birthMonth, setBirthMonth] = useState(MOCK_PROFILE.birthMonth);
-  const [birthDay, setBirthDay] = useState(MOCK_PROFILE.birthDay);
-  const [gender, setGender] = useState<'female' | 'male'>(MOCK_PROFILE.gender);
-  const [phone, setPhone] = useState(MOCK_PROFILE.phone);
-  const [verified, setVerified] = useState(true);
+  const [name, setName] = useState('');
+  const [birthYear, setBirthYear] = useState('');
+  const [birthMonth, setBirthMonth] = useState('');
+  const [birthDay, setBirthDay] = useState('');
+  const [gender, setGender] = useState<'female' | 'male' | ''>('');
+  const [phone, setPhone] = useState('');
+  const [verified, setVerified] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [phoneVerificationToken, setPhoneVerificationToken] = useState('');
   const [codeSent, setCodeSent] = useState(false);
   const [verifyingPhone, setVerifyingPhone] = useState(false);
 
-  const [roadAddress, setRoadAddress] = useState(MOCK_PROFILE.roadAddress);
-  const [detail, setDetail] = useState(MOCK_PROFILE.detail);
-  const [query, setQuery] = useState(MOCK_PROFILE.roadAddress);
+  const [roadAddress, setRoadAddress] = useState('');
+  const [detail, setDetail] = useState('');
+  const [query, setQuery] = useState('');
   const [results, setResults] = useState<AddressResult[]>([]);
   const [searching, setSearching] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<AddressResult | null>(null);
@@ -45,7 +45,12 @@ const EditProfile = () => {
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
-  const { data: profileSummary } = useQuery({
+  const [profileInitialized, setProfileInitialized] = useState(false);
+  const {
+    data: profileSummary,
+    isLoading: isProfileLoading,
+    isError: isProfileError,
+  } = useQuery({
     queryKey: ['mypage-summary', accessToken],
     queryFn: mypageApi.getSummary,
     enabled: Boolean(accessToken),
@@ -53,8 +58,21 @@ const EditProfile = () => {
   });
 
   useEffect(() => {
-    if (profileSummary?.name) setName(profileSummary.name);
-  }, [profileSummary?.name]);
+    if (!profileSummary || profileInitialized) return;
+
+    const [year = '', month = '', day = ''] = profileSummary.birthDate.split('-');
+    setName(profileSummary.name);
+    setBirthYear(year);
+    setBirthMonth(String(Number(month)));
+    setBirthDay(String(Number(day)));
+    setGender(profileSummary.gender === 'MALE' ? 'male' : 'female');
+    setPhone(formatPhone(profileSummary.phoneNumber));
+    setRoadAddress(profileSummary.roadAddress);
+    setQuery(profileSummary.roadAddress);
+    setDetail(profileSummary.detailAddress ?? '');
+    setVerified(true);
+    setProfileInitialized(true);
+  }, [profileInitialized, profileSummary]);
 
   const handlePhoneChange = (raw: string) => {
     setPhone(formatPhone(raw));
@@ -127,6 +145,7 @@ const EditProfile = () => {
     birthYear !== '' &&
     birthMonth !== '' &&
     birthDay !== '' &&
+    gender !== '' &&
     verified &&
     roadAddress.trim() !== '' &&
     detail.trim() !== '';
@@ -137,22 +156,34 @@ const EditProfile = () => {
     setFormError('');
 
     try {
-      let addressInfo = selectedAddress;
-      if (!addressInfo) {
-        const addressSearch = await searchAddress(roadAddress, 1);
-        addressInfo =
-          addressSearch.results.find((item) => item.roadAddress === roadAddress) ??
-          addressSearch.results[0] ??
-          null;
-      }
-      if (!addressInfo?.eupMyeonDong) {
-        throw new Error('행정구역을 확인할 수 없습니다.');
-      }
+      const addressChanged = roadAddress.trim() !== profileSummary?.roadAddress.trim();
+      let coordinates = {
+        roadAddress: profileSummary?.roadAddress ?? roadAddress.trim(),
+        latitude: profileSummary?.latitude ?? 0,
+        longitude: profileSummary?.longitude ?? 0,
+      };
+      let regionId = profileSummary?.regionId ?? 0;
 
-      const [coordinates, region] = await Promise.all([
-        authApi.geocodeAddress(roadAddress),
-        authApi.resolveRegion(toRegionResolvePayload(addressInfo)),
-      ]);
+      if (addressChanged || !profileSummary) {
+        let addressInfo = selectedAddress;
+        if (!addressInfo) {
+          const addressSearch = await searchAddress(roadAddress, 1);
+          addressInfo =
+            addressSearch.results.find((item) => item.roadAddress === roadAddress) ??
+            addressSearch.results[0] ??
+            null;
+        }
+        if (!addressInfo?.eupMyeonDong) {
+          throw new Error('행정구역을 확인할 수 없습니다.');
+        }
+
+        const [resolvedCoordinates, region] = await Promise.all([
+          authApi.geocodeAddress(roadAddress),
+          authApi.resolveRegion(toRegionResolvePayload(addressInfo)),
+        ]);
+        coordinates = resolvedCoordinates;
+        regionId = region.regionId;
+      }
 
       await mypageApi.updateProfile({
         name: name.trim(),
@@ -162,7 +193,7 @@ const EditProfile = () => {
         detailAddress: detail.trim(),
         latitude: Number(coordinates.latitude.toFixed(7)),
         longitude: Number(coordinates.longitude.toFixed(7)),
-        regionId: region.regionId,
+        regionId,
         ...(phoneVerificationToken
           ? {
               phoneNumber: phone.replace(/\D/g, ''),
@@ -179,6 +210,33 @@ const EditProfile = () => {
       setSaving(false);
     }
   };
+
+  if (isProfileLoading || (!profileInitialized && !isProfileError)) {
+    return (
+      <main className="mypage-content items-center justify-center">
+        <p role="status" className="text-[18px] font-bold text-[#81746A]">
+          개인정보를 불러오는 중...
+        </p>
+      </main>
+    );
+  }
+
+  if (isProfileError) {
+    return (
+      <main className="mypage-content items-center justify-center gap-4 text-center">
+        <p role="alert" className="text-[18px] font-bold text-red-500">
+          개인정보를 불러오지 못했어요.
+        </p>
+        <button
+          type="button"
+          onClick={() => void queryClient.invalidateQueries({ queryKey: ['mypage-summary'] })}
+          className="min-h-12 rounded-xl bg-[#FF853E] px-5 text-[18px] font-extrabold text-white"
+        >
+          다시 시도
+        </button>
+      </main>
+    );
+  }
 
   return (
     <main className="mypage-content gap-6">
