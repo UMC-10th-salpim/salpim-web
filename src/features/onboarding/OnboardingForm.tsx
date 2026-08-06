@@ -111,7 +111,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
               </label>
               <input
                 id="name"
-                className={personalInfoInputStyle(value.name.trim() !== '')}
+                className={`${personalInfoInputStyle(value.name.trim() !== '')} placeholder:!text-[#613212] placeholder:!opacity-40`}
                 value={value.name}
                 onChange={(event) => update('name', event.target.value)}
                 placeholder="김살핌"
@@ -123,7 +123,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
               <span className={labelStyle}>생년월일</span>
               <div className="grid grid-cols-[92px_41px_52px_41px_68px_1fr] items-center">
                 <input
-                  className={`${personalInfoInputStyle(value.birthYear !== '')} !w-[92px] !px-4`}
+                  className={`${personalInfoInputStyle(value.birthYear !== '')} salpim-birth-date-input !w-[92px] !px-4 placeholder:!text-[#613212] placeholder:!opacity-40`}
                   value={value.birthYear}
                   onChange={(event) => update('birthYear', event.target.value.replace(/\D/g, ''))}
                   inputMode="numeric"
@@ -135,7 +135,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
                 />
                 <span className="salpim-field-text text-center font-medium text-gray-700">년</span>
                 <input
-                  className={`${personalInfoInputStyle(value.birthMonth !== '')} !w-[52px] !px-1 text-center tracking-[-0.08em]`}
+                  className={`${personalInfoInputStyle(value.birthMonth !== '')} salpim-birth-date-input !w-[52px] !px-1 text-center tracking-[-0.08em] placeholder:!text-[#613212] placeholder:!opacity-40`}
                   value={value.birthMonth}
                   onChange={(event) => update('birthMonth', event.target.value.replace(/\D/g, ''))}
                   inputMode="numeric"
@@ -147,7 +147,7 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
                 />
                 <span className="salpim-field-text text-center font-medium text-gray-700">월</span>
                 <input
-                  className={`${personalInfoInputStyle(value.birthDay !== '')} !w-[68px] !px-1 text-center tracking-[-0.08em]`}
+                  className={`${personalInfoInputStyle(value.birthDay !== '')} salpim-birth-date-input !w-[68px] !px-1 text-center tracking-[-0.08em] placeholder:!text-[#613212] placeholder:!opacity-40`}
                   value={value.birthDay}
                   onChange={(event) => update('birthDay', event.target.value.replace(/\D/g, ''))}
                   inputMode="numeric"
