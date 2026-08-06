@@ -6,10 +6,16 @@ export interface FacilityCategoryGroup {
 }
 
 export const FACILITY_CATEGORY_GROUPS: FacilityCategoryGroup[] = [
-  { main: '건강·의료', options: ['보건소', '병원', '약국', '치매 센터'] },
-  { main: '생활지원', options: ['주민센터', '복지관', '동행센터'] },
-  { main: '문화', options: ['경로당', '문화센터'] },
-  { main: '배움·일자리', options: ['평생교육원', '일자리센터'] },
+  { main: '건강·의료', options: ['보건소', '병원', '약국', '치매센터'] },
+  {
+    main: '생활지원',
+    options: ['복지관', '주민센터', '무료급식', '생활지원센터', '요양시설', '돌봄시설'],
+  },
+  { main: '문화', options: ['도서관', '문화센터', '체육관'] },
+  {
+    main: '배움·일자리',
+    options: ['평생교육원', '노인 일자리기관', '디지털 배움터', '시니어클럽'],
+  },
 ];
 
 export const FACILITY_MAIN_CATEGORIES: FacilityMainCategory[] = FACILITY_CATEGORY_GROUPS.map(

@@ -21,6 +21,7 @@ const EditProfile = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const accessToken = useUserStore((state) => state.accessToken);
+  const setHomeLocation = useUserStore((state) => state.setHomeLocation);
 
   const [name, setName] = useState(MOCK_PROFILE.name);
   const [birthYear, setBirthYear] = useState(MOCK_PROFILE.birthYear);
@@ -169,6 +170,7 @@ const EditProfile = () => {
             }
           : {}),
       });
+      setHomeLocation(coordinates.latitude, coordinates.longitude);
       await queryClient.invalidateQueries({ queryKey: ['mypage-summary'] });
       setSaved(true);
     } catch (error) {

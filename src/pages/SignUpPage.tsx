@@ -1,11 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi, getKakaoAuthorizeUrl, getSignupErrorMessage } from '@/apis/auth';
-import {
-  ensureAddressRegion,
-  reverseGeocodeAddress,
-  toRegionResolvePayload,
-} from '@/apis/address';
+import { ensureAddressRegion, reverseGeocodeAddress, toRegionResolvePayload } from '@/apis/address';
 import useUserStore from '@/store/userStore';
 import ProgressDots from '@/features/onboarding/ProgressDots';
 import OnboardingForm from '@/features/onboarding/OnboardingForm';
@@ -29,6 +25,7 @@ const SignUpPage = () => {
   const navigate = useNavigate();
   const setTokens = useUserStore((state) => state.setTokens);
   const setName = useUserStore((state) => state.setName);
+  const setHomeLocation = useUserStore((state) => state.setHomeLocation);
   const [step, setStep] = useState(0);
   const [kakaoSignupToken] = useState(() => sessionStorage.getItem(KAKAO_SIGNUP_TOKEN_KEY));
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -104,6 +101,10 @@ const SignUpPage = () => {
       if (kakaoSignupToken) {
         await authApi.signupKakao(kakaoSignupToken, signupProfile);
         setName(signupProfile.name);
+        sessionStorage.setItem(
+          'salpim-pending-home-location',
+          JSON.stringify({ latitude: signupProfile.latitude, longitude: signupProfile.longitude })
+        );
         sessionStorage.removeItem(KAKAO_SIGNUP_TOKEN_KEY);
         window.location.href = getKakaoAuthorizeUrl();
         return;
@@ -118,6 +119,7 @@ const SignUpPage = () => {
       const tokens = await authApi.loginLocal(info.phone, password.password);
       setTokens(tokens.accessToken, tokens.refreshToken);
       setName(signupProfile.name);
+      setHomeLocation(signupProfile.latitude, signupProfile.longitude);
       navigate('/recommendation', { replace: true });
     } catch (error) {
       setSubmitError(

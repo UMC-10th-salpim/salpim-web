@@ -24,7 +24,7 @@ const getDistanceMeters = (a: MapCenter, b: MapCenter) => {
   return 2 * R * Math.asin(Math.sqrt(h));
 };
 
-const LocationPin = () => (
+const HomePin = () => (
   <svg width="28" height="36" viewBox="0 0 24 32" aria-hidden>
     <path
       d="M12 0C5.4 0 0 5.4 0 12c0 9 12 20 12 20s12-11 12-20C24 5.4 18.6 0 12 0Z"
@@ -64,8 +64,7 @@ const MapView = ({
   if (!kakaoMapKey) {
     return (
       <section className="flex flex-1 items-center justify-center bg-gray-50 px-6 text-center text-sm text-gray-500">
-        지도 설정값이 없습니다. Vercel 환경 변수에 VITE_KAKAO_MAP_KEY를 등록한 뒤 다시
-        배포해주세요.
+        지도 설정값이 없습니다. Vercel 환경 변수에 VITE_KAKAO_MAP_KEY를 등록한 뒤 다시 배포해주세요.
       </section>
     );
   }
@@ -73,8 +72,8 @@ const MapView = ({
   if (error) {
     return (
       <section className="flex flex-1 items-center justify-center bg-gray-50 px-6 text-center text-sm text-gray-500">
-        지도를 불러오지 못했습니다. 카카오 Developers의 JavaScript 키와 Web 플랫폼 사이트
-        도메인을 확인해주세요.
+        지도를 불러오지 못했습니다. 카카오 Developers의 JavaScript 키와 Web 플랫폼 사이트 도메인을
+        확인해주세요.
       </section>
     );
   }
@@ -98,7 +97,7 @@ const MapView = ({
         style={{ width: '100%', height: '100%' }}
       >
         <CustomOverlayMap position={center} yAnchor={1}>
-          <LocationPin />
+          <HomePin />
         </CustomOverlayMap>
 
         {facilities.map((facility) => {
@@ -106,7 +105,12 @@ const MapView = ({
           const position = { lat: facility.lat, lng: facility.lng };
 
           return (
-            <CustomOverlayMap key={facility.id} position={position} yAnchor={1} zIndex={selected ? 20 : 10}>
+            <CustomOverlayMap
+              key={facility.id}
+              position={position}
+              yAnchor={1}
+              zIndex={selected ? 20 : 10}
+            >
               <button
                 type="button"
                 onClick={() => onSelectFacility?.(facility)}

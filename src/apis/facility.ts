@@ -75,14 +75,20 @@ const SUBCATEGORY_SEARCH_KEYWORD: Record<string, string> = {
   보건소: '보건소',
   병원: '병원',
   약국: '약국',
-  '치매 센터': '치매안심센터',
+  치매센터: '치매안심센터',
   주민센터: '행정복지센터',
   복지관: '노인복지관',
-  동행센터: '동행센터',
-  경로당: '경로당',
+  무료급식: '무료급식소',
+  생활지원센터: '생활지원센터',
+  요양시설: '요양시설',
+  돌봄시설: '노인돌봄센터',
+  도서관: '도서관',
   문화센터: '문화센터',
+  체육관: '체육관',
   평생교육원: '평생교육원',
-  일자리센터: '노인일자리센터',
+  '노인 일자리기관': '노인일자리기관',
+  '디지털 배움터': '디지털배움터',
+  시니어클럽: '시니어클럽',
 };
 
 interface KakaoKeywordDoc {
@@ -148,7 +154,7 @@ const searchFacilitiesBySubCategory = async (
     }));
 };
 
-// 내 위치 주변의 실제 시설을 카테고리별로 모두 검색한다.
+// 회원이 등록한 집 주변의 실제 시설을 카테고리별로 모두 검색한다.
 // REST 키가 없거나 일부 카테고리 검색이 실패해도 나머지 결과는 반환한다.
 export const searchAllFacilities = async (center: MapCenter): Promise<Facility[]> => {
   const key = import.meta.env.VITE_KAKAO_REST_API_KEY;

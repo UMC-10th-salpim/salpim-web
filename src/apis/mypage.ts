@@ -11,6 +11,9 @@ export interface MyPageSummary {
   name: string;
   sido: string;
   sigungu: string;
+  roadAddress?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface UpdateProfileRequest {

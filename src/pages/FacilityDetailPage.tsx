@@ -58,12 +58,11 @@ const FacilityDetailPage = () => {
     ? (detailsQuery.error.response?.data as { code?: string } | undefined)?.code
     : undefined;
   const isOutsideMyServiceCenter = errorCode === 'MAP400_3';
-  const loadError =
-    !accessToken
-      ? '로그인 정보를 확인할 수 없어 시설 상세 정보를 불러오지 못했어요.'
-      : detailsQuery.isError && !isOutsideMyServiceCenter
-        ? '시설 상세 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
-        : null;
+  const loadError = !accessToken
+    ? '로그인 정보를 확인할 수 없어 시설 상세 정보를 불러오지 못했어요.'
+    : detailsQuery.isError && !isOutsideMyServiceCenter
+      ? '시설 상세 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
+      : null;
 
   return (
     <main className="mx-auto min-h-[100svh] w-full max-w-md bg-[#FAF8F3] pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
@@ -73,6 +72,7 @@ const FacilityDetailPage = () => {
         details={firstPage}
         benefits={benefits}
         isLoading={detailsQuery.isLoading}
+        isOutsideMyServiceCenter={isOutsideMyServiceCenter}
         errorMessage={loadError}
         onRetry={() => {
           void detailsQuery.refetch();

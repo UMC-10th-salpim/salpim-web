@@ -17,8 +17,15 @@ const FacilitySummarySheet = ({ facility, onClose, onViewDetail }: FacilitySumma
             <h3 className="text-2xl font-bold text-gray-900">{facility.name}</h3>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <span className="text-2xl font-semibold text-[#FF8A3D]">{facility.distanceFromHome}</span>
-            <button type="button" onClick={onClose} aria-label="닫기" className="text-2xl leading-none text-gray-400">
+            <span className="text-2xl font-semibold text-[#FF8A3D]">
+              {facility.distanceFromHome}
+            </span>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="닫기"
+              className="text-2xl leading-none text-gray-400"
+            >
               ×
             </button>
           </div>
