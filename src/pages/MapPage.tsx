@@ -34,10 +34,7 @@ const MapPage = () => {
   const homeLatitude = useUserStore((state) => state.homeLatitude);
   const homeLongitude = useUserStore((state) => state.homeLongitude);
   const setHomeLocation = useUserStore((state) => state.setHomeLocation);
-  const [selectedMainCategory, setSelectedMainCategory] = useState<FacilityMainCategory | null>(
-    null
-  );
-  const [selectedSubCategory, setSelectedSubCategory] = useState<string | null>(null);
+  const [selectedSubCategories, setSelectedSubCategories] = useState<string[]>([]);
   const [openCategorySheet, setOpenCategorySheet] = useState<FacilityMainCategory | null>(null);
   const [selectedFacilityId, setSelectedFacilityId] = useState<string | null>(null);
 
@@ -92,10 +89,11 @@ const MapPage = () => {
   });
 
   const filteredFacilities = useMemo(() => {
-    if (!selectedSubCategory) return [];
+    if (selectedSubCategories.length === 0) return [];
 
-    return facilities.filter((facility) => facility.subCategory === selectedSubCategory);
-  }, [facilities, selectedSubCategory]);
+    const selected = new Set(selectedSubCategories);
+    return facilities.filter((facility) => selected.has(facility.subCategory));
+  }, [facilities, selectedSubCategories]);
 
   const selectedFacility =
     filteredFacilities.find((facility) => facility.id === selectedFacilityId) ?? null;
@@ -105,15 +103,12 @@ const MapPage = () => {
   };
 
   const handleSelectSubCategory = (subCategory: string) => {
-    if (subCategory === selectedSubCategory) {
-      setSelectedMainCategory(null);
-      setSelectedSubCategory(null);
-    } else {
-      setSelectedMainCategory(openCategorySheet);
-      setSelectedSubCategory(subCategory);
-    }
+    setSelectedSubCategories((current) =>
+      current.includes(subCategory)
+        ? current.filter((category) => category !== subCategory)
+        : [...current, subCategory]
+    );
     setSelectedFacilityId(null);
-    setOpenCategorySheet(null);
   };
 
   const handleSelectFacility = (facility: Facility) => {
@@ -128,14 +123,13 @@ const MapPage = () => {
         <MapView
           center={center}
           facilities={filteredFacilities}
-          hasCategorySelected={selectedSubCategory !== null}
+          hasCategorySelected={selectedSubCategories.length > 0}
           selectedFacilityId={selectedFacilityId}
           onSelectFacility={handleSelectFacility}
         />
 
         <FilterBar
-          selectedMainCategory={selectedMainCategory}
-          selectedSubCategory={selectedSubCategory}
+          selectedSubCategories={selectedSubCategories}
           onOpenCategory={handleOpenCategory}
         />
 
@@ -153,7 +147,7 @@ const MapPage = () => {
       <CategoryFilterSheet
         open={openCategorySheet !== null}
         mainCategory={openCategorySheet}
-        selectedSubCategory={selectedSubCategory}
+        selectedSubCategories={selectedSubCategories}
         onSelect={handleSelectSubCategory}
         onClose={() => setOpenCategorySheet(null)}
       />
