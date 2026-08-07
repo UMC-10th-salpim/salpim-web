@@ -46,7 +46,7 @@ const BenefitSearchForm = () => {
         categoryIds: categoryIds.length > 0 ? categoryIds : undefined,
         sort,
       });
-      navigate('/benefits', {state: { source : 'search', keyword, regionIds, sort, searchResult : result},
+      navigate('/benefits', {state: { source : 'search', keyword, regionIds, categoryIds, sort, searchResult : result},
       });
     } catch (error) {
       console.error('혜택 검색 실패', error);
