@@ -59,7 +59,7 @@ const DeadlineCard = ({
   showPagination = true,
 }: DeadlineCardProps) => (
   <article
-    className={`${expanded ? 'min-h-[270px]' : 'h-[222px] snap-start'} w-[310px] shrink-0 rounded-lg border border-gray-100 bg-white p-4 shadow-sm`}
+    className={`${expanded ? 'h-fit' : 'h-[222px] snap-start'} w-full shrink-0 rounded-lg border border-gray-100 bg-white p-4 shadow-sm`}
   >
     <div className="flex gap-2">
       <span className="flex h-8 min-w-[58px] items-center justify-center rounded-full bg-brand-500 px-2.5 text-base font-bold text-white">
@@ -80,7 +80,9 @@ const DeadlineCard = ({
           <br />
           <span className="text-[#FF8A3D]">마감 {daysLeft}일 전</span>이에요!
         </p>
-        <p className="salpim-home-card-body mt-1 text-gray-500">지금 신청하면 놓치지 않아요.</p>
+        <p className="salpim-deadline-card-description mt-1 whitespace-nowrap text-[#8A5A34]">
+          지금 신청하면 놓치지 않아요.
+        </p>
       </div>
     </div>
 
@@ -148,9 +150,9 @@ const RecommendationPage = () => {
   }, [accessToken, setName]);
 
   return (
-    <div className="mx-auto flex min-h-[100svh] w-full max-w-[375px] flex-col bg-brand-50 pb-[calc(6rem+env(safe-area-inset-bottom))]">
+    <div className="flex min-h-[100svh] w-full flex-col bg-brand-50 pb-[calc(6rem+env(safe-area-inset-bottom))]">
       {/* 헤더 */}
-      <header className="fixed inset-x-0 top-0 z-50 mx-auto flex h-[65px] w-full max-w-[375px] items-center justify-between border-b border-[#E8E0D8] bg-[#FAF8F3] px-10 shadow-[0_2px_5px_rgba(97,50,18,0.05)]">
+      <header className="fixed inset-x-0 top-0 z-50 flex h-[65px] w-full items-center justify-between border-b border-[#E8E0D8] bg-[#FAF8F3] px-6 shadow-[0_2px_5px_rgba(97,50,18,0.05)]">
         <span className="salpim-page-description font-bold text-[#613212]">살핌</span>
         <button
           type="button"
@@ -162,15 +164,15 @@ const RecommendationPage = () => {
         </button>
       </header>
 
-      <main className="flex flex-col gap-[23px] px-0 pt-[85px]">
+      <main className="flex w-full flex-col gap-[23px] px-4 pt-[85px]">
         {/* 인사 카드 */}
-        <div className="relative mx-auto h-[146px] w-[307px] rounded-[31px] border-[3px] border-[#E8B16A] bg-[#FFF7ED]">
+        <div className="relative h-[146px] w-full rounded-[31px] border-[3px] border-[#E8B16A] bg-[#FFF7ED]">
           <img
             src="/assets/Salpimi/Hi.png"
             alt="살피미"
             className="absolute -left-0.5 top-[31px] size-[130px] object-contain"
           />
-          <div className="ml-[122px] flex h-full w-[175px] flex-col items-center justify-center text-center">
+          <div className="ml-[122px] flex h-full w-[calc(100%_-_132px)] flex-col items-center justify-center text-center">
             <p className="salpim-home-heading font-bold leading-[1.25] text-[#613212]">
               안녕하세요,
               <br />
@@ -181,7 +183,7 @@ const RecommendationPage = () => {
         </div>
 
         {/* 마감 임박 카드 */}
-        <section aria-label="마감 임박 지원금" className="mx-auto w-[310px]">
+        <section aria-label="마감 임박 지원금" className="w-full">
           <div
             onScroll={(event) => {
               const { scrollLeft, clientWidth } = event.currentTarget;
@@ -207,7 +209,7 @@ const RecommendationPage = () => {
         </section>
 
         {/* 살피미 추천 혜택 */}
-        <section className="mx-auto w-[340px]">
+        <section className="w-full">
           <h2 className="salpim-home-heading mb-3 font-bold text-[#613212]">살피미 추천 혜택</h2>
           <div className="relative h-[197px] rounded-[23px] border-[3px] border-brand-300 bg-brand-100/60">
             <div className="flex h-28 items-center px-3">
@@ -221,7 +223,7 @@ const RecommendationPage = () => {
             <button
               type="button"
               onClick={() => navigate('/benefits/search')}
-              className="salpim-home-card-title absolute bottom-2.5 left-3 h-16 w-[315px] rounded-full bg-brand-500 py-0 !font-semibold text-white transition-colors hover:bg-brand-600"
+              className="salpim-home-card-title absolute inset-x-3 bottom-2.5 h-16 rounded-full bg-brand-500 py-0 !font-semibold text-white transition-colors hover:bg-brand-600"
             >
               살피미에게 바로 물어보기
             </button>
@@ -229,7 +231,7 @@ const RecommendationPage = () => {
         </section>
 
         {/* 내 근처 혜택 시설 */}
-        <section className="mx-auto w-[310px]">
+        <section className="w-full">
           <h2 className="salpim-home-heading mb-3 font-bold text-[#613212]">내 근처 혜택 시설</h2>
           <button
             type="button"
@@ -250,7 +252,7 @@ const RecommendationPage = () => {
       </main>
 
       <ScrollMoreIndicator className="!bottom-[calc(72px+max(12px,env(safe-area-inset-bottom)))] !h-10 !w-10 [&_svg]:!h-6 [&_svg]:!w-6" />
-      <BottomNavigation />
+      <BottomNavigation className="[&>div]:max-w-none" />
     </div>
   );
 };
