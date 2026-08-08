@@ -6,7 +6,7 @@ import BottomNavigation from "@/components/common/BottomNavigation/BottomNavigat
 import { benefitApi, type BenefitListResult, getBenefitIcon } from "@/apis/benefit";
 import { useNavigate, useLocation } from "react-router-dom";
 import useUserStore from "@/store/userStore";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 
 interface LocationState {
   source?: 'survey' | 'search';
@@ -28,55 +28,82 @@ const BenefitPage = () => {
   const [benefits, setBenefits] = useState<{benefitId: number; benefitTitle: string; benefitCategory: string }[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [pageIndex, setPageIndex] = useState(0);
+  const cursorsRef = useRef<string[]>(['-1']);
+  const [hasNext, setHasNext] = useState(false);
+  const usedSearchResultRef = useRef(false);
+
+  // 검색 조건이 바뀌면 페이지를 처음으로 리셋함
+  useEffect(()=> {
+    setPageIndex(0);
+    cursorsRef.current = ['-1'];
+    usedSearchResultRef.current = false;
+  }, [source, keyword, optionId, regionIds, categoryIds, sort]);
 
   useEffect(()=> {
     let ignore = false;
 
     const fetchBenefits = async () => {
+      setIsLoading(true);
+
       // 검색 페이지에서 결과 받아 왔으면 api 다시 호출하지 않고 사용
-      if (searchResult) {
+      if (searchResult && pageIndex === 0 && !usedSearchResultRef.current) {
+        usedSearchResultRef.current = true;
         if(!ignore) {
           setBenefits(searchResult.data);
           setTotalCount(searchResult.totalCount);
+          setHasNext(searchResult.hasNext);
+          cursorsRef.current = searchResult.hasNext
+            ? ['-1', searchResult.nextCursor]
+            : ['-1'];
           setIsLoading(false);
         }
         return;
       }
-      setIsLoading(true);
+    
       try {
         if (source === 'survey' && optionId === undefined){
           if (!ignore) {
             setBenefits([]);
             setTotalCount(0);
+            setHasNext(false);
             setIsLoading(false);
           }
           return;
         }
+        const cursor = cursorsRef.current[pageIndex] ?? '-1';
 
         const result = source === 'survey'
-          ? await benefitApi.getRecommendationResult({optionId : optionId ?? 0})
+          ? await benefitApi.getRecommendationResult({optionId : optionId ?? 0, cursor})
           : await benefitApi.searchBenefits({
               searchKey : keyword,
               regionIds : regionIds ?? [],
               categoryIds,
               sort,
+              cursor,
           });
 
         if (ignore) return;
         setBenefits(result.data);
         setTotalCount(result.totalCount);
+        setHasNext(result.hasNext)
+
+        if (result.hasNext && cursorsRef.current.length === pageIndex + 1) {
+          cursorsRef.current =  [...cursorsRef.current, result.nextCursor];
+        }
       } catch (error) {
         if (ignore) return;
         console.error('혜택 목록 조회 실패', error);
         setBenefits([]);
         setTotalCount(0);
+        setHasNext(false);
       } finally {
         if (!ignore) setIsLoading(false);
       }
     };
     fetchBenefits();
     return () => {ignore = true;}
-  }, [source, keyword, optionId, regionIds, categoryIds, sort, searchResult]);
+  }, [pageIndex, source, keyword, optionId, regionIds, categoryIds, sort, searchResult]);
   
   const isMissingOptionId = source === 'survey' && optionId === undefined;
   const hasBenefits = totalCount > 0;
@@ -138,6 +165,27 @@ const BenefitPage = () => {
                     />
                   );
                 })}
+              </div>
+
+              <div className="flex items-center justify-center gap-4 pt-2">
+                <button
+                  type="button"
+                  disabled={pageIndex === 0}
+                  onClick={()=> setPageIndex((prev) => prev -1 )}
+                  className="rounded-full border-3 border-[#FFD7AA] px-5 py-2 font-semibold text-lg text-[#FF8A3D] disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  이전
+                </button>
+
+                <span className="text-base font-semibold text-[#613212]">{pageIndex + 1}페이지</span>
+                <button
+                  type="button"
+                  disabled={!hasNext}
+                  onClick={() => setPageIndex((prev) => prev + 1)}
+                  className="rounded-full border-3 border-[#FFD7AA] px-5 py-2 text-lg font-semibold text-[#FF8A3D] disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  다음
+                </button>
               </div>
           </>
         ) : (

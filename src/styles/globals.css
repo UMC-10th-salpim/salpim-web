@@ -97,6 +97,15 @@ body {
   --salpim-survey-bubble: 24px;
   --salpim-survey-option: 22px;
   --salpim-survey-next: 32px;
+  
+  --salpim-search-tab: 20px;
+  --salpim-search-section-title: 24px;
+  --salpim-search-input: 20px;
+  --salpim-search-label: 16px;
+  --salpim-search-required: 12px;
+  --salpim-search-chip: 20px;
+  --salpim-search-sort: 20px;
+  --salpim-search-submit: 30px;
 }
 
 [data-font-size='large'] {
@@ -120,6 +129,15 @@ body {
   --salpim-survey-bubble: 26px;
   --salpim-survey-option: 28px;
   --salpim-survey-next: 40px;
+  
+  --salpim-search-tab: 24px;
+  --salpim-search-section-title: 32px;
+  --salpim-search-input: 24px;
+  --salpim-search-label: 16px;
+  --salpim-search-required: 12px;
+  --salpim-search-chip: 20px;
+  --salpim-search-sort: 22px;
+  --salpim-search-submit: 40px;
 }
 
 .salpim-header-title {
@@ -200,6 +218,7 @@ body {
   font-size: var(--salpim-onboarding-action) !important;
 }
 
+/* 살피미 추천*/
 .salpim-survey-tab {
   font-size: var(--salpim-survey-tab) !important;
 }
@@ -214,6 +233,39 @@ body {
 
 .salpim-survey-next {
   font-size: var(--salpim-survey-next) !important;
+
+/* 혜택 직접 검색 */
+.salpim-search-tab {
+  font-size: var(--salpim-search-tab) !important;
+}
+
+.salpim-search-section-title {
+  font-size : var(--salpim-search-section-title) !important;
+}
+
+.salpim-search-input,
+.salpim-search-input::placeholder {
+  font-size: var(--salpim-search-input) !important;
+}
+
+.salpim-search-label {
+  font-size: var(--salpim-search-label) !important;
+}
+
+.salpim-search-required {
+  font-size: var(--salpim-search-required) !important;
+}
+
+.salpim-search-chip {
+  font-size: var(--salpim-search-chip) !important;
+}
+
+.salpim-search-sort {
+  font-size: var(--salpim-search-sort) !important;
+}
+
+.salpim-search-submit {
+  font-size: var(--salpim-search-submit) !important;
 }
 
 button,
