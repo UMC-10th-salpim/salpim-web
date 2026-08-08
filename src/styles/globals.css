@@ -127,6 +127,12 @@ body {
   font-size: var(--salpim-field-text) !important;
 }
 
+/* 생년월일 칸은 고정 너비이므로 큰 글씨 설정과 분리해 placeholder 잘림을 방지합니다. */
+.salpim-birth-date-input,
+.salpim-birth-date-input::placeholder {
+  font-size: 20px !important;
+}
+
 .salpim-action-button {
   min-height: var(--salpim-action-height);
   font-size: var(--salpim-action-text) !important;
@@ -148,6 +154,15 @@ body {
   font-size: var(--salpim-home-card-body) !important;
 }
 
+/* 마감 혜택 안내 문구는 카드 안에서 한 줄로 유지합니다. */
+.salpim-deadline-card-description {
+  font-size: var(--salpim-home-card-body) !important;
+}
+
+[data-font-size='large'] .salpim-deadline-card-description {
+  font-size: clamp(16px, 4.8vw, 18px) !important;
+}
+
 .salpim-home-nav {
   font-size: var(--salpim-home-nav) !important;
 }
@@ -158,6 +173,11 @@ body {
 
 .salpim-onboarding-description {
   font-size: var(--salpim-onboarding-description) !important;
+}
+
+/* 도움말 화면의 대화 말풍선만 작은 글씨 시안 크기를 유지합니다. */
+.salpim-help-chat-bubble {
+  font-size: 20px !important;
 }
 
 .salpim-onboarding-action {

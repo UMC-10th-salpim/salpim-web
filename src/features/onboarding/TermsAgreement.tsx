@@ -80,7 +80,7 @@ const TermsAgreement = ({ value, onChange, onSubmit }: TermsAgreementProps) => {
           </button>
 
           {/* 개별 약관 */}
-          <div className="mt-[50px]">
+          <div className="mt-[50px] overflow-hidden rounded-[11px] border-[3px] border-brand-200 bg-white">
             {TERMS.map(({ key, label }, index) => (
               <div
                 key={key}

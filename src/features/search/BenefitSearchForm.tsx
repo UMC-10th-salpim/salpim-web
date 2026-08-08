@@ -34,7 +34,6 @@ const BenefitSearchForm = () => {
     .filter((id): id is number => id !== undefined);
 
   const handleConditionSearch = async () => {
-    if (!keyword.trim()) return;
     if (!regionIds) {
       alert('지역을 선택해 주세요.');
       return;

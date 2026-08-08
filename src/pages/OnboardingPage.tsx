@@ -21,7 +21,7 @@ const HelpSlideChatBubble = ({ children }: { children: ReactNode }) => (
       alt=""
       className="size-[88px] shrink-0 scale-x-[-1] object-contain"
     />
-    <div className="salpim-onboarding-description flex h-[70px] w-max shrink-0 items-center whitespace-nowrap rounded-[20px] rounded-bl-none border-[3px] border-[#FF843D]/70 bg-[#FFF8F3] px-[11px] text-left font-[Pretendard] leading-[1.1] !tracking-[-0.06em] text-[#613212]">
+    <div className="salpim-onboarding-description salpim-help-chat-bubble flex h-[70px] w-max shrink-0 items-center whitespace-nowrap rounded-[20px] rounded-bl-none border-[3px] border-[#FF843D]/70 bg-[#FFF8F3] px-[11px] text-left font-[Pretendard] leading-[1.1] !tracking-[-0.06em] text-[#613212]">
       {children}
     </div>
   </div>
@@ -126,10 +126,30 @@ const OnboardingPage = () => {
   // 인트로 종료 → 회원가입(정보 입력) 흐름으로 이동
   const finish = () => navigate('/signup');
   const handleNext = () => (isLast ? finish() : setStep((prev) => prev + 1));
+  const handleBack = () => {
+    if (step === 0) {
+      navigate('/font-size?next=signup');
+      return;
+    }
+
+    setStep((previous) => previous - 1);
+  };
 
   return (
     <div className="min-h-[100svh] w-full overflow-y-auto bg-brand-50">
-      <div className="relative mx-auto h-[100svh] min-h-[788px] w-full max-w-[375px] overflow-hidden bg-brand-50">
+      <div
+        className={`relative mx-auto h-[100svh] w-full overflow-hidden bg-brand-50 ${
+          current.map ? 'max-w-none' : 'min-h-[788px] max-w-[375px]'
+        }`}
+      >
+        <button
+          type="button"
+          onClick={handleBack}
+          className="absolute left-6 top-[26px] z-40 flex h-12 min-w-[88px] items-center justify-center rounded-full bg-[#FFB700] px-4 text-[28px] font-bold leading-none text-white transition-colors hover:bg-[#F5A900] active:scale-95"
+        >
+          이전
+        </button>
+
         {/* 진행 표시 */}
         <div className="absolute inset-x-0 top-10 z-30 flex justify-center">
           <div className="flex items-center justify-center gap-5">
@@ -153,17 +173,23 @@ const OnboardingPage = () => {
                 {current.description}
               </p>
             </div>
-            <img
-              src="/assets/Salpimi Map.png"
-              alt="주변 노인 시설 지도"
-              className="absolute left-0 top-[462px] h-[350px] w-[375px] object-fill"
-            />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-20 bg-[linear-gradient(to_bottom,transparent_0%,#FAF8F3_100%)]"
-            />
+            <div className="absolute inset-x-0 bottom-0 top-[clamp(420px,calc(57svh_+_10px),472px)] overflow-hidden">
+              <img
+                src="/assets/Salpimi Map.png"
+                alt="주변 노인 시설 지도"
+                className="absolute inset-0 h-full w-full object-fill"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 top-0 z-10 h-24 bg-[linear-gradient(to_bottom,#FAF8F3_0%,rgba(250,248,243,0.82)_45%,transparent_100%)]"
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[clamp(72px,12svh,112px)] bg-[linear-gradient(to_bottom,transparent_0%,rgba(250,248,243,0.82)_55%,#FAF8F3_100%)]"
+              />
+            </div>
             <OnboardingButton
-              className="salpim-action-button salpim-onboarding-action absolute bottom-[max(40px,calc(20px+env(safe-area-inset-bottom)))] left-8 z-20 h-20 w-[310px] py-0 !font-semibold leading-none"
+              className="salpim-action-button salpim-onboarding-action absolute inset-x-8 bottom-[max(40px,calc(20px+env(safe-area-inset-bottom)))] z-20 h-20 w-auto py-0 !font-semibold leading-none"
               onClick={finish}
             >
               시작하기
