@@ -233,6 +233,7 @@ body {
 
 .salpim-survey-next {
   font-size: var(--salpim-survey-next) !important;
+}
 
 /* 혜택 직접 검색 */
 .salpim-search-tab {
