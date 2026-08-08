@@ -69,19 +69,19 @@ const BenefitSearchForm = () => {
       {/* 탭 */}
       <div className="flex justify-center gap-4 pb-4 mx-11">
         <button
-          className="rounded-full px-4 py-3 text-xl font-semibold border border-[#FFD7AA] border-3 text-[#FF8A3D]"
+          className="salpim-search-tab rounded-full px-4 py-3 font-semibold border border-[#FFD7AA] border-3 text-[#FF8A3D]"
           onClick={() => navigate('/survey')}
         >
           살피미 추천
         </button>
-        <button className="rounded-full w-33 px-4 py-3 text-xl font-semibold bg-[#FF8A3D] text-white">
+        <button className="salpim-search-tab rounded-full w-33 px-4 py-3 font-semibold bg-[#FF8A3D] text-white">
           직접 찾기
         </button>
       </div>
 
       {/*이름 직접 검색*/}
       <div className="flex flex-col">
-        <span className="text-2xl font-extrabold text-[#613212] pl-6 mb-2">혜택 이름 직접 검색</span>
+        <span className="salpim-search-section-title font-extrabold text-[#613212] pl-6 mb-2">혜택 이름 직접 검색</span>
         <div className="flex items-center gap-2 border border-3 border-[#FF8A3D] rounded-full bg-[#FBE3BF] px-4 py-4">
           <input
             value={keyword}
@@ -90,7 +90,7 @@ const BenefitSearchForm = () => {
               if (e.key === 'Enter') handleConditionSearch();
             }}
             placeholder='찾고 싶은 혜택을 입력해보세요'
-            className="flex-1 min-w-0 bg-transparent text-xl text-[#613212] outline-none placeholder:text-[#FF8A3D] placeholder:font-medium"
+            className="salpim-search-input flex-1 min-w-0 bg-transparent text-[#613212] outline-none placeholder:text-[#FF8A3D] placeholder:font-medium"
           />
           <img src="/icons/search.png" alt="검색" className={`w-8 h-8 shrink-0 ${isSubmitting ? 'opacity-50 pointer-events-none' : 'cursor-pointer'}`} onClick={handleConditionSearch}/>
         </div>
@@ -98,12 +98,12 @@ const BenefitSearchForm = () => {
 
       {/*원하는 조건 선택*/}
       <div className='flex flex-col gap-4'>
-        <span className="pl-6 font-extrabold text-2xl text-[#613212]">원하는 조건 선택</span>
+        <span className="salpim-search-section-title pl-6 font-extrabold text-[#613212]">원하는 조건 선택</span>
         {/*지역*/}
         <div className='flex items-baseline gap-[2px] pl-6'>
           <img src='/icons/location.png' className='w-6 h-6 self-center'/>
-          <span className="font-semibold text-base text-[#FF8A3D]">지역</span>
-          <span className="font-semibold text-xs text-[#EF4444]">※필수</span>
+          <span className="salpim-search-label font-semibold text-[#FF8A3D]">지역</span>
+          <span className="salpim-search-required font-semibold text-[#EF4444]">※필수</span>
         </div>
 
         {/*지역 선택 드롭다운*/}
@@ -136,9 +136,9 @@ const BenefitSearchForm = () => {
         <div className='pt-[14px]'>
           <div className='flex items-center gap-[2px] pl-6'>
             <img src='/icons/interest.png' className='w-6 h-6'/>
-            <span className='font-semibold text-base text-[#FF8A3D]'>관심 분야</span>
+            <span className='salpim-search-label font-semibold text-[#FF8A3D]'>관심 분야</span>
           </div>
-          <div className='flex flex-wrap gap-3 pt-2'>
+          <div className='grid grid-cols-3 gap-3 pt-2'>
             {INTERESTS.map((interest)=> {
               const isSelected = interests.includes(interest);
               return (
@@ -146,7 +146,7 @@ const BenefitSearchForm = () => {
                   key={interest}
                   type='button'
                   onClick={()=> toggleInterest(interest)}
-                  className={`rounded-full border border-4 px-4 py-[14px] text-xl font-bold transition-colors ${
+                  className={`salpim-search-chip rounded-full border border-4 px-4 py-[14px] font-bold transition-colors ${
                     isSelected
                       ? 'border-[#FF8A3D] bg-[#FF8A3D] text-white'
                       : 'border-[#FFD7AA] bg-[#FAF8F3] text-[#613212]'
@@ -164,7 +164,7 @@ const BenefitSearchForm = () => {
           <button
             type='button'
             onClick={()=> setSort('popular')}
-            className={`rounded-full border border-3 px-3 py-3 text-xl font-semibold transition-colors ${
+            className={`salpim-search-sort rounded-full border border-3 px-3 py-3 font-semibold transition-colors ${
               sort === 'popular'
                 ? 'border-[#FF8A3D] bg-[#FF8A3D] text-white'
                 : 'border-[#FFD7AA] bg-[#FAF8F3] text-[#FF8A3D]'
@@ -175,7 +175,7 @@ const BenefitSearchForm = () => {
           <button
             type='button'
             onClick={()=>setSort('deadline')}
-            className={`rounded-full border border-3 px-3 py-3 text-xl font-semibold transition-colors ${
+            className={`salpim-search-sort rounded-full border border-3 px-3 py-3 font-semibold transition-colors ${
               sort === 'deadline'
                 ? 'border-[#FF8A3D] bg-[#FF8A3D] text-white'
                 : 'border-[#FFD7AA] bg-[#FAF8F3] text-[#FF8A3D]'
@@ -190,7 +190,7 @@ const BenefitSearchForm = () => {
           type='button'
           onClick={handleConditionSearch}
            disabled={!regionIds || isSubmitting}
-          className={`rounded-full py-[14px] px-[81.5px] text-3xl font-semibold mx-[14.5px] transition-colors ${
+          className={`salpim-search-submit rounded-full py-[14px] w-[calc(100%-29px)] font-semibold mx-[14.5px] transition-colors ${
             regionIds && !isSubmitting
             ? 'bg-[#FF8A3D] text-white'
             : 'bg-[#DDDDDD] text-[#FAF8F3] cursor-not-allowed'
