@@ -154,6 +154,15 @@ body {
   font-size: var(--salpim-home-card-body) !important;
 }
 
+/* 마감 혜택 안내 문구는 카드 안에서 한 줄로 유지합니다. */
+.salpim-deadline-card-description {
+  font-size: var(--salpim-home-card-body) !important;
+}
+
+[data-font-size='large'] .salpim-deadline-card-description {
+  font-size: clamp(16px, 4.8vw, 18px) !important;
+}
+
 .salpim-home-nav {
   font-size: var(--salpim-home-nav) !important;
 }
