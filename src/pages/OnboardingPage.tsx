@@ -139,7 +139,7 @@ const OnboardingPage = () => {
     <div className="min-h-[100svh] w-full overflow-y-auto bg-brand-50">
       <div
         className={`relative mx-auto h-[100svh] w-full overflow-hidden bg-brand-50 ${
-          current.map ? 'max-w-none' : 'min-h-[788px] max-w-[375px]'
+          current.map ? 'min-h-[788px] max-w-none' : 'min-h-[788px] max-w-[375px]'
         }`}
       >
         <button
@@ -164,7 +164,7 @@ const OnboardingPage = () => {
 
         {current.map ? (
           <>
-            <div className="absolute inset-x-0 top-[76px] z-10 flex flex-col items-center px-6 text-center">
+            <div className="absolute inset-x-0 top-[76px] z-20 flex flex-col items-center px-6 text-center">
               <img src={current.character} alt="살피미" className="size-[200px] object-contain" />
               <h1 className="salpim-onboarding-title mt-2 font-bold leading-10 text-gray-900">
                 {current.title}
@@ -173,11 +173,11 @@ const OnboardingPage = () => {
                 {current.description}
               </p>
             </div>
-            <div className="absolute inset-x-0 bottom-0 top-[clamp(420px,calc(57svh_+_10px),472px)] overflow-hidden">
+            <div className="absolute inset-x-0 bottom-0 top-[clamp(420px,calc(57svh_+_10px),472px)] z-0 overflow-hidden">
               <img
                 src="/assets/Salpimi Map.png"
                 alt="주변 노인 시설 지도"
-                className="absolute inset-0 h-full w-full object-fill"
+                className="absolute inset-0 h-full w-full object-cover object-top"
               />
               <div
                 aria-hidden
