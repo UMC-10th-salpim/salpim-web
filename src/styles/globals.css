@@ -100,7 +100,7 @@ body {
 }
 
 [data-font-size='large'] {
-  --salpim-header0title: 28px;
+  --salpim-header-title: 28px;
   --salpim-page-title: 28px;
   --salpim-page-description: 24px;
   --salpim-field-label: 24px;
