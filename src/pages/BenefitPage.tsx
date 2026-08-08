@@ -30,14 +30,14 @@ const BenefitPage = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [pageIndex, setPageIndex] = useState(0);
-  const [cursors, setCursors] = useState<string[]>(['-1']);
+  const cursorsRef = useRef<string[]>(['-1']);
   const [hasNext, setHasNext] = useState(false);
   const usedSearchResultRef = useRef(false);
 
   // 검색 조건이 바뀌면 페이지를 처음으로 리셋함
   useEffect(()=> {
     setPageIndex(0);
-    setCursors(['-1']);
+    cursorsRef.current = ['-1'];
     usedSearchResultRef.current = false;
   }, [source, keyword, optionId, regionIds, categoryIds, sort]);
 
@@ -54,11 +54,9 @@ const BenefitPage = () => {
           setBenefits(searchResult.data);
           setTotalCount(searchResult.totalCount);
           setHasNext(searchResult.hasNext);
-          setCursors(
-            searchResult.hasNext
-              ? ['-1', searchResult.nextCursor]
-              : ['-1'],
-          )
+          cursorsRef.current = searchResult.hasNext
+            ? ['-1', searchResult.nextCursor]
+            : ['-1'];
           setIsLoading(false);
         }
         return;
@@ -74,7 +72,7 @@ const BenefitPage = () => {
           }
           return;
         }
-        const cursor = cursors[pageIndex] ?? '-1';
+        const cursor = cursorsRef.current[pageIndex] ?? '-1';
 
         const result = source === 'survey'
           ? await benefitApi.getRecommendationResult({optionId : optionId ?? 0, cursor})
@@ -91,8 +89,8 @@ const BenefitPage = () => {
         setTotalCount(result.totalCount);
         setHasNext(result.hasNext)
 
-        if (result.hasNext && cursors.length === pageIndex + 1) {
-          setCursors((prev) => [...prev, result.nextCursor]);
+        if (result.hasNext && cursorsRef.current.length === pageIndex + 1) {
+          cursorsRef.current =  [...cursorsRef.current, result.nextCursor];
         }
       } catch (error) {
         if (ignore) return;
