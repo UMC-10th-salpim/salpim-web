@@ -8,7 +8,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import useUserStore from "@/store/userStore";
 import {useEffect, useRef, useState} from "react";
 
-// 이렇게 보내줘야함
 interface LocationState {
   source?: 'survey' | 'search';
   keyword?: string;

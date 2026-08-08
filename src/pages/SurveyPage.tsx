@@ -5,6 +5,7 @@ import { SECOND_QUESTIONS, surveyApi, type SurveyQuestion, type SurveyAnswers } 
 import { useNavigate } from "react-router-dom";
 import { useState, useRef } from "react";
 import useUserStore from "@/store/userStore";
+import ScrollMoreIndicator from "@/components/common/ScrollMoreIndicator/ScrollMoreIndicator";
 
 // 1 단계 질문
 const firstQuestion : SurveyQuestion = {
@@ -105,6 +106,7 @@ const SurveyPage = () => {
         userName={userName ?? undefined}
       />
       <BottomNavigation/>
+      <ScrollMoreIndicator/>
     </div>
   );
 };
