@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { getKakaoAuthorizeUrl } from '@/apis/auth';
 import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
 import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
@@ -11,6 +11,7 @@ type NextPage = 'login' | 'kakao' | 'signup';
 
 const FontSizePage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const savedFontSize = useSettingsStore((state) => state.fontSize);
   const saveFontSize = useSettingsStore((state) => state.setFontSize);
@@ -19,11 +20,15 @@ const FontSizePage = () => {
 
   const next = searchParams.get('next') as NextPage | null;
   const isLarge = fontSize === 'large';
+  const isMyPageRoute = location.pathname === '/mypage/font-size';
 
   if (!next) {
     return (
       <div className="mypage-screen mx-auto max-w-md">
-        <HeaderBar title="글자 크기 설정" />
+        <HeaderBar
+          title="글자 크기 설정"
+          onBack={() => navigate(isMyPageRoute ? '/mypage' : '/')}
+        />
         <FontSizeSettings />
         <BottomNavigation />
       </div>
@@ -117,13 +122,22 @@ const FontSizePage = () => {
           </div>
         </section>
 
-        <button
-          type="button"
-          onClick={handleSave}
-          className="absolute left-[32.5px] top-[684px] h-20 w-[310px] rounded-xl bg-[#FF843D] !text-[30px] !font-semibold text-white"
-        >
-          저장하기
-        </button>
+        <div className="absolute left-[22px] top-[684px] flex gap-4">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="h-20 w-[157px] rounded-xl bg-[#FF843D] !text-[30px] !font-semibold text-white"
+          >
+            이전
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            className="h-20 w-[157px] rounded-xl bg-[#FF843D] !text-[30px] !font-semibold text-white"
+          >
+            저장하기
+          </button>
+        </div>
         {kakaoLoginError && (
           <p
             role="alert"
