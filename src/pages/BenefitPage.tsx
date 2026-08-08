@@ -54,6 +54,11 @@ const BenefitPage = () => {
           setBenefits(searchResult.data);
           setTotalCount(searchResult.totalCount);
           setHasNext(searchResult.hasNext);
+          setCursors(
+            searchResult.hasNext
+              ? ['-1', searchResult.nextCursor]
+              : ['-1'],
+          )
           setIsLoading(false);
         }
         return;
