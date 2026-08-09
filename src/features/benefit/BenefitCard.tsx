@@ -25,7 +25,7 @@ const BenefitCard = ({id, category, icon, title, className=''} : BenefitCardProp
         </div>
                
         <div className="flex flex-col flex-1 items-start">
-          <div className="salpim-result-card-category rounded-full bg-white text-[#613212] font-medium w-17 h-7 flex items-center justify-center shrink-0 whitespace-nowrap">{category}</div>
+          <div className="salpim-result-card-category rounded-full bg-white text-[#613212] font-medium px-3 py-1 flex items-center justify-center shrink-0 whitespace-nowrap w-fit">{category}</div>
           <span className="salpim-result-card-title font-bold text-[#613212] break-keep text-balance">{title}</span>
         </div>
 

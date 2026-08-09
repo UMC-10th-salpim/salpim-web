@@ -7,6 +7,7 @@ import { benefitApi, type BenefitListResult, getBenefitIcon } from "@/apis/benef
 import { useNavigate, useLocation } from "react-router-dom";
 import useUserStore from "@/store/userStore";
 import {useEffect, useRef, useState} from "react";
+import ScrollMoreIndicator from "@/components/common/ScrollMoreIndicator/ScrollMoreIndicator";
 
 // 이렇게 보내줘야함
 interface LocationState {
@@ -133,8 +134,8 @@ const BenefitPage = () => {
             <div className="relative bg-[#FFF7ED] rounded-4xl flex items-center border-3 border-[#E8B16A] py-[11px] pl-[114px] pr-8">
               <img src="/characters/salpimi_Good.png" alt="" className="absolute top-6 -left-px w-28 h-28"/>
               <div className="flex flex-col items-center gap-1">
-                <span className="salpim-result-banner-title font-semibold text-[#613212]">
-                  {userName ?? '회원'}님이 원하시는 혜택 <br/> {totalCount}가지를 찾았어요!
+                <span className="salpim-result-banner-title font-semibold text-center text-[#613212]">
+                  {userName ?? '회원'}님이 원하시는 혜택 {totalCount}가지를 찾았어요!
                 </span>
                 <span className="salpim-result-banner-subtitle font-medium text-center text-[#FF8A3D]">살피미와 함께 확인해요</span>
               </div>
@@ -148,9 +149,12 @@ const BenefitPage = () => {
               {benefits.map((benefit, index) => {
                 const isFirst = index === 0;
                 const isLast = index === benefits.length -1;
+                const isOnly = benefits.length === 1;
 
-                const roundedStyle = isFirst
-                  ? 'rounded-t-[32px] rounded-b-none'
+                const roundedStyle = isOnly
+                  ? 'rounded-t-[32px]'
+                  : isFirst
+                  ? 'rounded-b-[32px] rounded-t-none'
                   : isLast
                   ? 'rounded-b-[32px] rounded-t-none'
                   : 'rounded-none';
@@ -194,13 +198,14 @@ const BenefitPage = () => {
         )}
 
           <Button
-            className="h-16 px-[105.5px] py-[14px] !w-[calc(100%-28px)] mx-auto font-semibold" rounded="full" 
+            className="salpim-result-retry h-16 px-[105.5px] py-[14px] !w-[calc(100%-28px)] mx-auto font-semibold" rounded="full" 
             onClick={() => navigate('/benefits/search')}
           >
             다시 찾기
           </Button>
         </div>
       <BottomNavigation/>
+      <ScrollMoreIndicator/>
   </div>
   );
 };
