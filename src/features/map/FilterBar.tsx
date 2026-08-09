@@ -4,12 +4,19 @@ import type { FacilityMainCategory } from './types';
 interface FilterBarProps {
   selectedSubCategories: string[];
   onOpenCategory: (main: FacilityMainCategory) => void;
+  onUseCurrentLocation: () => void;
+  isLocating: boolean;
 }
 
-const FilterBar = ({ selectedSubCategories, onOpenCategory }: FilterBarProps) => {
+const FilterBar = ({
+  selectedSubCategories,
+  onOpenCategory,
+  onUseCurrentLocation,
+  isLocating,
+}: FilterBarProps) => {
   return (
     <section
-      className="absolute inset-x-0 top-0 z-30 flex flex-nowrap gap-2 overflow-x-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="absolute inset-x-0 top-0 z-30 flex flex-wrap items-center gap-2 px-4 py-3"
       aria-label="시설 카테고리 필터"
     >
       {FACILITY_CATEGORY_GROUPS.map(({ main: category, options }) => {
@@ -30,6 +37,29 @@ const FilterBar = ({ selectedSubCategories, onOpenCategory }: FilterBarProps) =>
           </button>
         );
       })}
+
+      <button
+        type="button"
+        onClick={onUseCurrentLocation}
+        disabled={isLocating}
+        aria-label="현재 위치에서 주변 시설 찾기"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-[#FF8A3D] bg-white text-[#FF6B00] shadow-sm disabled:opacity-60"
+      >
+        {isLocating ? (
+          <span className="h-5 w-5 animate-spin rounded-full border-[3px] border-[#FFD29E] border-t-[#FF6B00]" />
+        ) : (
+          <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" aria-hidden>
+            <circle cx="12" cy="12" r="4" fill="currentColor" />
+            <path
+              d="M12 2v3M12 19v3M2 12h3M19 12h3"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+            />
+            <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" />
+          </svg>
+        )}
+      </button>
     </section>
   );
 };

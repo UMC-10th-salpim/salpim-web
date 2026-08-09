@@ -23,7 +23,7 @@ const CategoryFilterSheet = ({
     <BottomSheet open={open && !!group} onClose={onClose} className="map-font-scope">
       <h2 className="mb-3 text-2xl font-bold text-gray-900">{mainCategory} 선택</h2>
 
-      <div role="radiogroup" aria-label={`${mainCategory} 세부 시설`} className="flex flex-col">
+      <div role="group" aria-label={`${mainCategory} 세부 시설`} className="flex flex-col">
         {group?.options.map((option) => {
           const selected = selectedSubCategories.includes(option);
 
@@ -31,7 +31,7 @@ const CategoryFilterSheet = ({
             <button
               key={option}
               type="button"
-              role="radio"
+              role="checkbox"
               aria-checked={selected}
               onClick={() => onSelect(option)}
               className="flex items-center gap-3 border-b border-gray-200 px-1 py-3 text-left text-2xl text-gray-800 last:border-b-0"
