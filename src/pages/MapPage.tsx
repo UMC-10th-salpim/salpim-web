@@ -37,6 +37,9 @@ const MapPage = () => {
   const [selectedSubCategories, setSelectedSubCategories] = useState<string[]>([]);
   const [openCategorySheet, setOpenCategorySheet] = useState<FacilityMainCategory | null>(null);
   const [selectedFacilityId, setSelectedFacilityId] = useState<string | null>(null);
+  const [currentLocationCenter, setCurrentLocationCenter] = useState<MapCenter | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   const { data: profile, isPending: isProfilePending } = useQuery({
     queryKey: ['mypage-summary', accessToken],
@@ -72,7 +75,8 @@ const MapPage = () => {
     setHomeLocation,
   ]);
 
-  const center = profileCenter ?? geocodedCenter ?? storedHomeCenter ?? DEFAULT_CENTER;
+  const homeCenter = profileCenter ?? geocodedCenter ?? storedHomeCenter ?? DEFAULT_CENTER;
+  const center = currentLocationCenter ?? homeCenter;
 
   const centerReady =
     storedHomeCenter !== null ||
@@ -111,17 +115,40 @@ const MapPage = () => {
     setSelectedFacilityId(null);
   };
 
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError('이 기기에서는 현재 위치를 확인할 수 없어요.');
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationError(null);
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setCurrentLocationCenter({ lat: coords.latitude, lng: coords.longitude });
+        setSelectedFacilityId(null);
+        setIsLocating(false);
+      },
+      () => {
+        setLocationError('현재 위치를 확인하지 못했어요. 위치 권한을 확인해 주세요.');
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+    );
+  };
+
   const handleSelectFacility = (facility: Facility) => {
     setSelectedFacilityId((currentId) => (currentId === facility.id ? null : facility.id));
   };
 
   return (
-    <main className="flex h-[100svh] flex-col bg-gray-50">
+    <main className="map-font-scope flex h-[100svh] flex-col bg-gray-50">
       <HeaderBar title="주변 혜택 시설" />
 
       <div className="relative flex flex-1 flex-col overflow-hidden pb-16">
         <MapView
           center={center}
+          centerType={currentLocationCenter ? 'current' : 'home'}
           facilities={filteredFacilities}
           hasCategorySelected={selectedSubCategories.length > 0}
           selectedFacilityId={selectedFacilityId}
@@ -131,7 +158,20 @@ const MapPage = () => {
         <FilterBar
           selectedSubCategories={selectedSubCategories}
           onOpenCategory={handleOpenCategory}
+          onUseCurrentLocation={handleUseCurrentLocation}
+          isLocating={isLocating}
         />
+
+        {locationError && (
+          <button
+            type="button"
+            role="alert"
+            onClick={() => setLocationError(null)}
+            className="absolute inset-x-4 bottom-20 z-40 rounded-2xl bg-[#613212] px-4 py-3 text-left text-base font-semibold text-white shadow-lg"
+          >
+            {locationError}
+          </button>
+        )}
 
         {selectedFacility && (
           <FacilitySummarySheet

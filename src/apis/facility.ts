@@ -17,6 +17,7 @@ interface ApiResponse<T> {
 }
 
 export interface FacilityBenefit {
+  benefitId: number;
   servId: string;
   region: string;
   serviceName: string;
@@ -174,7 +175,7 @@ export const searchAllFacilities = async (center: MapCenter): Promise<Facility[]
 
   const settled = await Promise.allSettled(tasks);
 
-  return settled.flatMap((result) => {
+  const results = settled.flatMap((result) => {
     if (result.status === 'rejected') {
       if (import.meta.env.DEV) {
         console.warn('[facility] 일부 카테고리 검색 실패', result.reason);
@@ -183,4 +184,7 @@ export const searchAllFacilities = async (center: MapCenter): Promise<Facility[]
     }
     return result.value;
   });
+
+  // 같은 카카오 장소가 여러 검색어에 잡혀도 지도에는 한 번만 표시한다.
+  return Array.from(new Map(results.map((facility) => [facility.id, facility])).values());
 };

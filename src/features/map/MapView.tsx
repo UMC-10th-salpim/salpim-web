@@ -7,6 +7,7 @@ const kakaoMapKey = import.meta.env.VITE_KAKAO_MAP_KEY?.trim() ?? '';
 
 interface MapViewProps {
   center: MapCenter;
+  centerType?: 'home' | 'current';
   facilities: Facility[];
   hasCategorySelected: boolean;
   selectedFacilityId?: string | null;
@@ -34,8 +35,18 @@ const HomePin = () => (
   </svg>
 );
 
+const CurrentLocationPin = () => (
+  <div
+    className="flex h-7 w-7 items-center justify-center rounded-full border-[3px] border-white bg-[#2F80ED] shadow-[0_2px_8px_rgba(47,128,237,0.45)]"
+    aria-hidden
+  >
+    <span className="h-2.5 w-2.5 rounded-full bg-white" />
+  </div>
+);
+
 const MapView = ({
   center,
+  centerType = 'home',
   facilities,
   hasCategorySelected,
   selectedFacilityId,
@@ -97,7 +108,7 @@ const MapView = ({
         style={{ width: '100%', height: '100%' }}
       >
         <CustomOverlayMap position={center} yAnchor={1}>
-          <HomePin />
+          {centerType === 'current' ? <CurrentLocationPin /> : <HomePin />}
         </CustomOverlayMap>
 
         {facilities.map((facility) => {

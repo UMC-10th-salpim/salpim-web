@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { searchAddress, toRegionResolvePayload } from '@/apis/address';
+import { reverseGeocodeAddress, searchAddress, toRegionResolvePayload } from '@/apis/address';
 import type { AddressResult } from '@/apis/address';
 import { authApi, getApiErrorMessage } from '@/apis/auth';
 import { mypageApi } from '@/apis/mypage';
@@ -40,6 +40,7 @@ const EditProfile = () => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<AddressResult[]>([]);
   const [searching, setSearching] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<AddressResult | null>(null);
 
   const [saved, setSaved] = useState(false);
@@ -114,11 +115,45 @@ const EditProfile = () => {
     }
   };
 
-  const handleUseCurrentLocation = () => {
-    // TODO: GPS 좌표 → 주소 변환 API 연동
-    setRoadAddress('현재 위치 기반 주소 (예시)');
-    setQuery('현재 위치 기반 주소 (예시)');
-    setResults([]);
+  const handleUseCurrentLocation = async () => {
+    if (!navigator.geolocation) {
+      setFormError('현재 기기에서는 위치 정보를 사용할 수 없어요.');
+      return;
+    }
+
+    setIsLocating(true);
+    setFormError('');
+
+    try {
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: false,
+          timeout: 20_000,
+          maximumAge: 30 * 60 * 1000,
+        });
+      });
+      const address = await reverseGeocodeAddress(
+        position.coords.latitude,
+        position.coords.longitude
+      );
+
+      setRoadAddress(address.roadAddress);
+      setQuery(address.roadAddress);
+      setSelectedAddress(address);
+      setDetail('');
+      setResults([]);
+    } catch (error) {
+      const positionError = error as GeolocationPositionError;
+      if (positionError.code === 1) {
+        setFormError('위치 권한이 거부되었어요. 브라우저 설정에서 위치 권한을 허용해 주세요.');
+      } else if (!window.isSecureContext) {
+        setFormError('현재 위치는 HTTPS 주소에서만 사용할 수 있어요.');
+      } else {
+        setFormError('현재 위치의 주소를 확인하지 못했어요. 잠시 후 다시 시도해 주세요.');
+      }
+    } finally {
+      setIsLocating(false);
+    }
   };
 
   const runSearch = async () => {
@@ -365,8 +400,9 @@ const EditProfile = () => {
       <div>
         <button
           type="button"
-          onClick={handleUseCurrentLocation}
-          className="flex min-h-[68px] w-full items-center justify-center gap-3 rounded-[18px] border-2 border-[#FFB263] bg-[#FFE1BB] text-[20px] font-extrabold text-[#7A4B20] transition-colors hover:bg-[#FFD7A5]"
+          onClick={() => void handleUseCurrentLocation()}
+          disabled={isLocating}
+          className="flex min-h-[68px] w-full items-center justify-center gap-3 rounded-[18px] border-2 border-[#FFB263] bg-[#FFE1BB] text-[20px] font-extrabold text-[#7A4B20] transition-colors hover:bg-[#FFD7A5] disabled:cursor-wait disabled:opacity-60"
         >
           <svg
             width="30"
@@ -385,7 +421,7 @@ const EditProfile = () => {
             />
             <circle cx="15" cy="15" r="3.5" fill="currentColor" />
           </svg>
-          현재 위치로 자동 설정
+          {isLocating ? '현재 위치 확인 중...' : '현재 위치로 자동 설정'}
         </button>
         <p className="mb-4 mt-3 text-center text-[15px] font-semibold text-[#81746A]">
           또는 직접 입력하기
