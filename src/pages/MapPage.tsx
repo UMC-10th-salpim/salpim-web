@@ -11,6 +11,7 @@ import FacilitySummarySheet from '@/features/map/FacilitySummarySheet';
 import FilterBar from '@/features/map/FilterBar';
 import MapView from '@/features/map/MapView';
 import { getMockFacilitiesNear } from '@/features/map/mockFacilities';
+import { FACILITY_CATEGORY_GROUPS } from '@/features/map/types';
 import type { Facility, FacilityMainCategory, MapCenter } from '@/features/map/types';
 import useUserStore from '@/store/userStore';
 
@@ -37,6 +38,9 @@ const MapPage = () => {
   const [selectedSubCategories, setSelectedSubCategories] = useState<string[]>([]);
   const [openCategorySheet, setOpenCategorySheet] = useState<FacilityMainCategory | null>(null);
   const [selectedFacilityId, setSelectedFacilityId] = useState<string | null>(null);
+  const [currentLocationCenter, setCurrentLocationCenter] = useState<MapCenter | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   const { data: profile, isPending: isProfilePending } = useQuery({
     queryKey: ['mypage-summary', accessToken],
@@ -72,7 +76,8 @@ const MapPage = () => {
     setHomeLocation,
   ]);
 
-  const center = profileCenter ?? geocodedCenter ?? storedHomeCenter ?? DEFAULT_CENTER;
+  const homeCenter = profileCenter ?? geocodedCenter ?? storedHomeCenter ?? DEFAULT_CENTER;
+  const center = currentLocationCenter ?? homeCenter;
 
   const centerReady =
     storedHomeCenter !== null ||
@@ -103,12 +108,41 @@ const MapPage = () => {
   };
 
   const handleSelectSubCategory = (subCategory: string) => {
-    setSelectedSubCategories((current) =>
-      current.includes(subCategory)
-        ? current.filter((category) => category !== subCategory)
-        : [...current, subCategory]
-    );
+    const group = FACILITY_CATEGORY_GROUPS.find(({ main }) => main === openCategorySheet);
+    if (!group) return;
+
+    setSelectedSubCategories((current) => {
+      const selectionsOutsideGroup = current.filter(
+        (category) => !group.options.includes(category)
+      );
+      return current.includes(subCategory)
+        ? selectionsOutsideGroup
+        : [...selectionsOutsideGroup, subCategory];
+    });
     setSelectedFacilityId(null);
+    setOpenCategorySheet(null);
+  };
+
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError('이 기기에서는 현재 위치를 확인할 수 없어요.');
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationError(null);
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setCurrentLocationCenter({ lat: coords.latitude, lng: coords.longitude });
+        setSelectedFacilityId(null);
+        setIsLocating(false);
+      },
+      () => {
+        setLocationError('현재 위치를 확인하지 못했어요. 위치 권한을 확인해 주세요.');
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 }
+    );
   };
 
   const handleSelectFacility = (facility: Facility) => {
@@ -116,12 +150,13 @@ const MapPage = () => {
   };
 
   return (
-    <main className="flex h-[100svh] flex-col bg-gray-50">
+    <main className="map-font-scope flex h-[100svh] flex-col bg-gray-50">
       <HeaderBar title="주변 혜택 시설" />
 
       <div className="relative flex flex-1 flex-col overflow-hidden pb-16">
         <MapView
           center={center}
+          centerType={currentLocationCenter ? 'current' : 'home'}
           facilities={filteredFacilities}
           hasCategorySelected={selectedSubCategories.length > 0}
           selectedFacilityId={selectedFacilityId}
@@ -132,6 +167,40 @@ const MapPage = () => {
           selectedSubCategories={selectedSubCategories}
           onOpenCategory={handleOpenCategory}
         />
+
+        <button
+          type="button"
+          onClick={handleUseCurrentLocation}
+          disabled={isLocating}
+          aria-label="현재 위치에서 주변 시설 찾기"
+          className="absolute bottom-5 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full border-2 border-[#FF8A3D] bg-white text-[#FF6B00] shadow-lg disabled:opacity-60"
+        >
+          {isLocating ? (
+            <span className="h-6 w-6 animate-spin rounded-full border-[3px] border-[#FFD29E] border-t-[#FF6B00]" />
+          ) : (
+            <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" aria-hidden>
+              <circle cx="12" cy="12" r="4" fill="currentColor" />
+              <path
+                d="M12 2v3M12 19v3M2 12h3M19 12h3"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+              />
+              <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" />
+            </svg>
+          )}
+        </button>
+
+        {locationError && (
+          <button
+            type="button"
+            role="alert"
+            onClick={() => setLocationError(null)}
+            className="absolute inset-x-4 bottom-20 z-40 rounded-2xl bg-[#613212] px-4 py-3 text-left text-base font-semibold text-white shadow-lg"
+          >
+            {locationError}
+          </button>
+        )}
 
         {selectedFacility && (
           <FacilitySummarySheet

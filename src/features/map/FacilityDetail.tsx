@@ -55,16 +55,20 @@ const FacilityDetail = ({
       <div className="rounded-2xl border-2 border-[#FFD29E] bg-white p-4 shadow-[0_4px_12px_rgba(91,53,24,0.08)]">
         <div className="flex items-center gap-3">
           <FacilityIcon category={facility.mainCategory} className="h-11 w-11" />
-          <div>
+          <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-[20px] font-extrabold leading-7 text-[#43230F]">{name}</h1>
+              <h1 className="break-words text-[20px] font-extrabold leading-7 text-[#43230F]">
+                {name}
+              </h1>
               {details?.isMyCenter && (
                 <span className="rounded-full bg-[#FFF0DE] px-2.5 py-1 text-xs font-bold text-[#E96F27]">
                   내 관할 센터
                 </span>
               )}
             </div>
-            <p className="mt-0.5 text-[15px] font-semibold leading-5 text-[#81746A]">{address}</p>
+            <p className="mt-0.5 break-words text-[15px] font-semibold leading-5 text-[#81746A]">
+              {address}
+            </p>
           </div>
         </div>
 
