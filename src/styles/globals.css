@@ -106,6 +106,21 @@ body {
   --salpim-search-chip: 20px;
   --salpim-search-sort: 20px;
   --salpim-search-submit: 30px;
+
+  --salpim-detail-category: 20px;
+  --salpim-detail-title: 24px;
+  --salpim-detail-badge: 20px;
+  --salpim-detail-summary: 24px;
+  --salpim-detail-summary-caption: 16px;
+  --salpim-detail-section-title: 24px;
+  --salpim-detail-section-button: 24px;
+  --salpim-detail-notice: 24px;
+  --salpim-detail-facility-name: 22px;
+  --salpim-detail-facility-info: 16x;
+  --salpim-detail-facility-link: 20px;
+  --salpim-detail-share-title: 24px;
+  --salpim-detail-share-button: 22px;
+  --salpim-detail-action: 30px;
 }
 
 [data-font-size='large'] {
@@ -138,6 +153,21 @@ body {
   --salpim-search-chip: 20px;
   --salpim-search-sort: 22px;
   --salpim-search-submit: 40px;
+
+  --salpim-detail-category: 24x;
+  --salpim-detail-title: 32px;
+  --salpim-detail-badge: 22px;
+  --salpim-detail-summary: 32px;
+  --salpim-detail-summary-caption: 20px;
+  --salpim-detail-section-title: 32px;
+  --salpim-detail-section-button: 30px;
+  --salpim-detail-notice: 28px;
+  --salpim-detail-facility-name: 24px;
+  --salpim-detail-facility-info: 20px;
+  --salpim-detail-facility-link: 20px;
+  --salpim-detail-share-title: 32px;
+  --salpim-detail-share-button: 24px;
+  --salpim-detail-action: 32px;
 }
 
 .salpim-header-title {
@@ -267,6 +297,62 @@ body {
 
 .salpim-search-submit {
   font-size: var(--salpim-search-submit) !important;
+}
+
+.salpim-detail-category {
+  font-size: var(--salpim-detail-category) !important;
+}
+
+.salpim-detail-title {
+  font-size: var(--salpim-detail-title) !important;
+}
+
+.salpim-detail-badge {
+  font-size: var(--salpim-detail-badge) !important;
+}
+
+.salpim-detail-summary {
+  font-size: var(--salpim-detail-summary) !important;
+}
+
+.salpim-detail-summary-caption {
+  font-size: var(--salpim-detail-summary-caption) !important;
+}
+
+.salpim-detail-section-title {
+  font-size: var(--salpim-detail-section-title) !important;
+}
+
+.salpim-detail-section-button {
+  font-size: var(--salpim-detail-section-button) !important;
+}
+
+.salpim-detail-notice {
+  font-size: var(--salpim-detail-notice) !important;
+}
+
+.salpim-detail-facility-name {
+  font-size: var(--salpim-detail-facility-name) !important;
+}
+
+.salpim-detail-facility-info {
+  font-size: var(--salpim-detail-facility-info) !important;
+}
+
+.salpim-detail-facility-link {
+  font-size: var(--salpim-detail-facility-link) !important;
+}
+
+.salpim-detail-share-title {
+  font-size: var(--salpim-detail-share-title) !important;
+}
+
+.salpim-detail-share-button {
+  font-size: var(--salpim-detail-share-button) !important;
+}
+
+.salpim-detail-action {
+  font-size: var(--salpim-detail-action) !important;
 }
 
 button,
