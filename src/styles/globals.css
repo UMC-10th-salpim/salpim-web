@@ -414,6 +414,7 @@ body {
 
 .salpim-helper-submit {
   font-size: var(--salpim-helper-submit) !important;
+}
 
 .salpim-result-banner-title {
   font-size: var(--salpim-result-banner-title) !important;
