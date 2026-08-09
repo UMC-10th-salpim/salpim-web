@@ -17,6 +17,7 @@ interface ApiResponse<T> {
 }
 
 export interface FacilityBenefit {
+  benefitId: number;
   servId: string;
   region: string;
   serviceName: string;
