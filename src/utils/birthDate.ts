@@ -43,3 +43,17 @@ export const validateBirthDate = (
   return age > MAX_SIGNUP_AGE ? 'too-old' : 'valid';
 };
 
+export const calculateAge = (birthDateString: string, currentDate = new Date()): number => {
+  const birthDate = new Date(birthDateString);
+  const today = new Date(currentDate);
+  today.setHours(0, 0, 0, 0);
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const hasNotHadBirthdayThisYear =
+    today.getMonth() < birthDate.getMonth() ||
+    (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate());
+
+  if (hasNotHadBirthdayThisYear) age -= 1;
+
+  return age;
+};
