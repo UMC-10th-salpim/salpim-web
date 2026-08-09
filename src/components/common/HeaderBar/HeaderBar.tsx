@@ -22,7 +22,7 @@ const HeaderBar = ({ title, onBack, className = '' }: HeaderBarProps) => {
       >
         <img src="/icons/back.png" alt="" aria-hidden className="h-6 w-6 object-contain" />
       </button>
-      <h1 className="text-[22px] font-extrabold leading-none text-[#6B4423]">{title}</h1>
+      <h1 className="salpim-header-title font-extrabold leading-none text-[#6B4423]">{title}</h1>
     </header>
   );
 };

@@ -13,26 +13,20 @@ const FilterBar = ({ selectedSubCategories, onOpenCategory }: FilterBarProps) =>
       aria-label="시설 카테고리 필터"
     >
       {FACILITY_CATEGORY_GROUPS.map(({ main: category, options }) => {
-        const selections = options.filter((option) => selectedSubCategories.includes(option));
-        const active = selections.length > 0;
-        const label =
-          selections.length === 1
-            ? selections[0]
-            : selections.length > 1
-              ? `${category} ${selections.length}`
-              : category;
+        const active = options.some((option) => selectedSubCategories.includes(option));
 
         return (
           <button
             key={category}
             type="button"
             onClick={() => onOpenCategory(category)}
-            className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border-2 border-[#FF8A3D] px-3 py-1.5 text-2xl font-semibold shadow-sm transition-colors ${
-              active ? 'bg-[#FF8A3D] text-white' : 'bg-white text-gray-700'
+            aria-pressed={active}
+            className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border-2 border-[#FF8A3D] bg-white px-3 py-1.5 text-2xl font-semibold shadow-sm transition-colors ${
+              active ? 'text-[#E85D04]' : 'text-gray-700'
             }`}
           >
-            <span>{label}</span>
-            <span>▾</span>
+            <span>{category}</span>
+            <span className="text-[#FF6B00]">▾</span>
           </button>
         );
       })}

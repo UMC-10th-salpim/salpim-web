@@ -45,7 +45,7 @@ const QuestionCard = ({
               role={multiple ? 'checkbox' : 'radio'}
               aria-checked={selected}
               onClick={() => handleSelect(option.value)}
-              className={`flex w-full items-center gap-3 rounded-full border px-4 py-3 justify-center text-[22px] font-semibold transition-colors shadow-[0_2px_2px_0_rgba(255,138,61,0.3)] ${
+              className={`salpim-survey-option flex w-full items-center gap-3 rounded-full border px-4 py-3 justify-center font-semibold transition-colors shadow-[0_2px_2px_0_rgba(255,138,61,0.3)] ${
                 selected
                   ? 'border-[#FF8A3D] bg-[#FF8A3D] text-white'
                   : 'bg-white text-[#FF8A3D] border-white'}`}

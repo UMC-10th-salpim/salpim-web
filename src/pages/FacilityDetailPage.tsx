@@ -37,7 +37,7 @@ const FacilityDetailPage = () => {
 
   if (!facility) {
     return (
-      <main className="flex min-h-[100svh] flex-col items-center justify-center gap-4 bg-gray-50 px-4 text-center">
+      <main className="map-font-scope flex min-h-[100svh] flex-col items-center justify-center gap-4 bg-gray-50 px-4 text-center">
         <h1 className="text-xl font-bold text-gray-900">시설 정보를 찾을 수 없습니다</h1>
         <p className="text-sm text-gray-600">목록에서 다시 시설을 선택해주세요.</p>
         <button
@@ -61,7 +61,7 @@ const FacilityDetailPage = () => {
       : null;
 
   return (
-    <main className="mx-auto min-h-[100svh] w-full max-w-md bg-[#FAF8F3] pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
+    <main className="map-font-scope mx-auto min-h-[100svh] w-full max-w-md bg-[#FAF8F3] pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
       <HeaderBar title="시설 자세히 보기" />
       <FacilityDetail
         facility={facility}
