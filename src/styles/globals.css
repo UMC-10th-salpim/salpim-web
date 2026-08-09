@@ -106,7 +106,7 @@ body {
   --salpim-search-chip: 20px;
   --salpim-search-sort: 20px;
   --salpim-search-submit: 30px;
-
+  
   --salpim-helper-title: 24px;
   --salpim-helper-guide: 16px;
   --salpim-helper-section-title: 22px;
@@ -116,6 +116,14 @@ body {
   --salpim-helper-notice: 18px;
   --salpim-helper-step: 20px;
   --salpim-helper-submit: 32px;
+
+  --salpim-result-banner-title: 23px;
+  --salpim-result-banner-subtitle: 16px;
+  --salpim-result-count: 24px;
+  --salpim-result-card-category: 14px;
+  --salpim-result-card-title: 18px;
+  --salpim-result-card-button: 12px;
+  --salpim-result-retry: 30px;
 }
 
 [data-font-size='large'] {
@@ -158,6 +166,14 @@ body {
   --salpim-helper-notice: 27px;
   --salpim-helper-step: 26px;
   --salpim-helper-submit: 40px;
+
+  --salpim-result-banner-title: 30px;
+  --salpim-result-banner-subtitle: 20px;
+  --salpim-result-count: 32px;
+  --salpim-result-card-category: 24px;
+  --salpim-result-card-title: 28px;
+  --salpim-result-card-button: 16px;
+  --salpim-result-retry: 40px;
 }
 
 .salpim-header-title {
@@ -194,6 +210,81 @@ body {
 
 .salpim-input-control {
   min-height: var(--salpim-input-height);
+}
+
+/*
+ * 지도·마이페이지는 기존 화면의 글자 단계를 유지한 채 큰글씨에서만 4px씩 확대한다.
+ * 하단 내비게이션의 32px 레이블은 4개 항목 겹침을 막기 위해 이 대상에서 제외한다.
+ */
+[data-font-size='large'] :is(.map-font-scope, .mypage-screen) .text-xs {
+  font-size: 16px !important;
+  line-height: 1.35 !important;
+}
+
+[data-font-size='large'] :is(.map-font-scope, .mypage-screen) [class~='text-[14px]'],
+[data-font-size='large'] :is(.map-font-scope, .mypage-screen) .text-sm {
+  font-size: 18px !important;
+  line-height: 1.35 !important;
+}
+
+[data-font-size='large'] :is(.map-font-scope, .mypage-screen) [class~='text-[15px]'] {
+  font-size: 19px !important;
+  line-height: 1.35 !important;
+}
+
+[data-font-size='large'] :is(.map-font-scope, .mypage-screen) [class~='text-[16px]'],
+[data-font-size='large'] :is(.map-font-scope, .mypage-screen) .text-base {
+  font-size: 20px !important;
+  line-height: 1.35 !important;
+}
+
+[data-font-size='large'] :is(.map-font-scope, .mypage-screen) [class~='text-[17px]'] {
+  font-size: 21px !important;
+  line-height: 1.35 !important;
+}
+
+[data-font-size='large'] :is(.map-font-scope, .mypage-screen) [class~='text-[18px]'],
+[data-font-size='large'] :is(.map-font-scope, .mypage-screen) .text-lg {
+  font-size: 22px !important;
+  line-height: 1.35 !important;
+}
+
+[data-font-size='large'] :is(.map-font-scope, .mypage-screen) [class~='text-[19px]'] {
+  font-size: 23px !important;
+  line-height: 1.35 !important;
+}
+
+[data-font-size='large'] :is(.map-font-scope, .mypage-screen) [class~='text-[20px]'],
+[data-font-size='large'] :is(.map-font-scope, .mypage-screen) .text-xl {
+  font-size: 24px !important;
+  line-height: 1.35 !important;
+}
+
+[data-font-size='large'] :is(.map-font-scope, .mypage-screen) [class~='text-[21px]'] {
+  font-size: 25px !important;
+  line-height: 1.35 !important;
+}
+
+[data-font-size='large'] :is(.map-font-scope, .mypage-screen) [class~='text-[22px]'] {
+  font-size: 26px !important;
+  line-height: 1.35 !important;
+}
+
+[data-font-size='large'] :is(.map-font-scope, .mypage-screen) .text-2xl {
+  font-size: 28px !important;
+  line-height: 1.35 !important;
+}
+
+[data-font-size='large'] .mypage-screen .mypage-label,
+[data-font-size='large'] .mypage-screen .mypage-field,
+[data-font-size='large'] .mypage-screen .mypage-field::placeholder {
+  font-size: 22px !important;
+  line-height: 1.35 !important;
+}
+
+[data-font-size='large'] .mypage-screen .mypage-primary-action {
+  min-height: 64px;
+  font-size: 28px !important;
 }
 
 .salpim-home-heading {
@@ -323,6 +414,33 @@ body {
 
 .salpim-helper-submit {
   font-size: var(--salpim-helper-submit) !important;
+
+.salpim-result-banner-title {
+  font-size: var(--salpim-result-banner-title) !important;
+}
+
+.salpim-result-banner-subtitle {
+  font-size: var(--salpim-result-banner-subtitle) !important;
+}
+
+.salpim-result-count {
+  font-size: var(--salpim-result-count) !important;
+}
+
+.salpim-result-card-category {
+  font-size: var(--salpim-result-card-category) !important;
+}
+
+.salpim-result-card-title {
+  font-size: var(--salpim-result-card-title) !important;
+}
+
+.salpim-result-card-button {
+  font-size: var(--salpim-result-card-button) !important;
+}
+
+.salpim-result-retry {
+  font-size: var(--salpim-result-retry) !important;
 }
 
 button,

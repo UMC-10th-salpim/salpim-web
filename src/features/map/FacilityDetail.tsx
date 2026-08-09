@@ -14,6 +14,7 @@ interface FacilityDetailProps {
   hasNextPage: boolean;
   isFetchingNextPage: boolean;
   onLoadMore: () => void;
+  onViewBenefit: (benefitId: number) => void;
 }
 
 interface FacilityNoticeProps {
@@ -44,6 +45,7 @@ const FacilityDetail = ({
   hasNextPage,
   isFetchingNextPage,
   onLoadMore,
+  onViewBenefit,
 }: FacilityDetailProps) => {
   const name = details?.name || facility.name;
   const address = details?.address || facility.address;
@@ -55,16 +57,20 @@ const FacilityDetail = ({
       <div className="rounded-2xl border-2 border-[#FFD29E] bg-white p-4 shadow-[0_4px_12px_rgba(91,53,24,0.08)]">
         <div className="flex items-center gap-3">
           <FacilityIcon category={facility.mainCategory} className="h-11 w-11" />
-          <div>
+          <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-[20px] font-extrabold leading-7 text-[#43230F]">{name}</h1>
+              <h1 className="break-words text-[20px] font-extrabold leading-7 text-[#43230F]">
+                {name}
+              </h1>
               {details?.isMyCenter && (
                 <span className="rounded-full bg-[#FFF0DE] px-2.5 py-1 text-xs font-bold text-[#E96F27]">
                   내 관할 센터
                 </span>
               )}
             </div>
-            <p className="mt-0.5 text-[15px] font-semibold leading-5 text-[#81746A]">{address}</p>
+            <p className="mt-0.5 break-words text-[15px] font-semibold leading-5 text-[#81746A]">
+              {address}
+            </p>
           </div>
         </div>
 
@@ -123,13 +129,26 @@ const FacilityDetail = ({
           <div className="flex flex-col gap-3">
             {benefits.map((benefit) => (
               <div
-                key={benefit.servId}
+                key={benefit.benefitId}
                 className="rounded-2xl border border-[#F4C78F] bg-[#FBE3BF] p-4"
               >
-                <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#613212]">
-                  {benefit.region || '전국'}
-                </span>
-                <h3 className="mt-2 text-base font-bold text-[#613212]">{benefit.serviceName}</h3>
+                <div className="flex items-end justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold text-[#613212]">
+                      {benefit.region || '전국'}
+                    </span>
+                    <h3 className="mt-2 break-words text-base font-bold text-[#613212]">
+                      {benefit.serviceName}
+                    </h3>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onViewBenefit(benefit.benefitId)}
+                    className="min-h-10 shrink-0 rounded-full bg-white px-4 text-sm font-extrabold text-[#E85D04] shadow-sm"
+                  >
+                    자세히 보기
+                  </button>
+                </div>
               </div>
             ))}
             {hasNextPage && (

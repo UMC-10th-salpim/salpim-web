@@ -13,8 +13,8 @@ const FacilitySummarySheet = ({ facility, onClose, onViewDetail }: FacilitySumma
     <div className="fixed inset-x-0 bottom-24 z-30 px-4">
       <div className="animate-slide-up mx-auto max-w-screen-sm rounded-2xl border border-gray-200 bg-white p-4 shadow-lg">
         <div className="flex items-start justify-between gap-3">
-          <div>
-            <h3 className="text-2xl font-bold text-gray-900">{facility.name}</h3>
+          <div className="min-w-0 flex-1">
+            <h3 className="break-words text-2xl font-bold text-gray-900">{facility.name}</h3>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <span className="text-2xl font-semibold text-[#FF8A3D]">
