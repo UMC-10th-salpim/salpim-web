@@ -1,6 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
 import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
 import { getFacilityDetails } from '@/apis/facility';
@@ -54,13 +53,10 @@ const FacilityDetailPage = () => {
 
   const firstPage = detailsQuery.data?.pages[0];
   const benefits = detailsQuery.data?.pages.flatMap((page) => page.benefits.data) ?? [];
-  const errorCode = axios.isAxiosError(detailsQuery.error)
-    ? (detailsQuery.error.response?.data as { code?: string } | undefined)?.code
-    : undefined;
-  const isOutsideMyServiceCenter = errorCode === 'MAP400_3';
+  const isOutsideMyServiceCenter = firstPage?.isMyCenter === false;
   const loadError = !accessToken
     ? '로그인 정보를 확인할 수 없어 시설 상세 정보를 불러오지 못했어요.'
-    : detailsQuery.isError && !isOutsideMyServiceCenter
+    : detailsQuery.isError
       ? '시설 상세 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
       : null;
 
