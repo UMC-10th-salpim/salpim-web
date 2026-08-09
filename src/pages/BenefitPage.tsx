@@ -83,6 +83,7 @@ const BenefitPage = () => {
               categoryIds,
               sort,
               cursor,
+              pageSize: 7,
           });
 
         if (ignore) return;
@@ -152,9 +153,9 @@ const BenefitPage = () => {
                 const isOnly = benefits.length === 1;
 
                 const roundedStyle = isOnly
-                  ? 'rounded-t-[32px]'
+                  ? 'rounded-[32px]'
                   : isFirst
-                  ? 'rounded-b-[32px] rounded-t-none'
+                  ? 'rounded-t-[32px] rounded-b-none'
                   : isLast
                   ? 'rounded-b-[32px] rounded-t-none'
                   : 'rounded-none';

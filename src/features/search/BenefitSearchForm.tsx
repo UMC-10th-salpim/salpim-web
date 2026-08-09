@@ -45,6 +45,7 @@ const BenefitSearchForm = () => {
         regionIds,
         categoryIds: categoryIds.length > 0 ? categoryIds : undefined,
         sort,
+        pageSize: 7,
       });
       navigate('/benefits', {state: { source : 'search', keyword, regionIds, categoryIds, sort, searchResult : result},
       });
