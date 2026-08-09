@@ -78,6 +78,7 @@ const FacilityDetailPage = () => {
         onLoadMore={() => {
           void detailsQuery.fetchNextPage();
         }}
+        onViewBenefit={(benefitId) => navigate(`/benefits/${benefitId}`)}
       />
       <BottomNavigation />
     </main>
