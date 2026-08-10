@@ -13,6 +13,10 @@ import MapView from '@/features/map/MapView';
 import { getMockFacilitiesNear } from '@/features/map/mockFacilities';
 import type { Facility, FacilityMainCategory, MapCenter } from '@/features/map/types';
 import useUserStore from '@/store/userStore';
+import useSettingsStore from '@/store/settingsStore';
+import LargeCategoryFilterSheet from '@/features/map/large/LargeCategoryFilterSheet';
+import LargeFacilitySummarySheet from '@/features/map/large/LargeFacilitySummarySheet';
+import LargeFilterBar from '@/features/map/large/LargeFilterBar';
 
 // 저장된 집 좌표를 확인하지 못했을 때만 사용하는 기본 중심 좌표 (서울시청)
 const DEFAULT_CENTER: MapCenter = { lat: 37.5665, lng: 126.978 };
@@ -30,6 +34,7 @@ const toMapCenter = (latitude?: number | null, longitude?: number | null): MapCe
 
 const MapPage = () => {
   const navigate = useNavigate();
+  const isLarge = useSettingsStore((state) => state.fontSize === 'large');
   const accessToken = useUserStore((state) => state.accessToken);
   const homeLatitude = useUserStore((state) => state.homeLatitude);
   const homeLongitude = useUserStore((state) => state.homeLongitude);
@@ -99,8 +104,9 @@ const MapPage = () => {
     return facilities.filter((facility) => selected.has(facility.subCategory));
   }, [facilities, selectedSubCategories]);
 
+  const visibleFacilities = filteredFacilities;
   const selectedFacility =
-    filteredFacilities.find((facility) => facility.id === selectedFacilityId) ?? null;
+    visibleFacilities.find((facility) => facility.id === selectedFacilityId) ?? null;
 
   const handleOpenCategory = (category: FacilityMainCategory) => {
     setOpenCategorySheet(category);
@@ -137,60 +143,132 @@ const MapPage = () => {
     );
   };
 
+  const handleLocationToggle = () => {
+    if (currentLocationCenter) {
+      setCurrentLocationCenter(null);
+      setSelectedFacilityId(null);
+      setLocationError(null);
+      return;
+    }
+
+    handleUseCurrentLocation();
+  };
+
   const handleSelectFacility = (facility: Facility) => {
     setSelectedFacilityId((currentId) => (currentId === facility.id ? null : facility.id));
   };
 
   return (
-    <main className="map-font-scope flex h-[100svh] flex-col bg-gray-50">
-      <HeaderBar title="주변 혜택 시설" />
+    <main className="flex h-[100svh] flex-col bg-gray-50">
+      <HeaderBar title="주변 혜택 시설" className={isLarge ? '!h-14 [&_h1]:!text-[25px]' : ''} />
 
       <div className="relative flex flex-1 flex-col overflow-hidden pb-16">
         <MapView
           center={center}
           centerType={currentLocationCenter ? 'current' : 'home'}
-          facilities={filteredFacilities}
+          facilities={visibleFacilities}
           hasCategorySelected={selectedSubCategories.length > 0}
           selectedFacilityId={selectedFacilityId}
           onSelectFacility={handleSelectFacility}
+          large={isLarge}
         />
 
-        <FilterBar
-          selectedSubCategories={selectedSubCategories}
-          onOpenCategory={handleOpenCategory}
-          onUseCurrentLocation={handleUseCurrentLocation}
-          isLocating={isLocating}
-        />
+        {isLarge ? (
+          <LargeFilterBar
+            selectedSubCategories={selectedSubCategories}
+            onOpenCategory={handleOpenCategory}
+          />
+        ) : (
+          <FilterBar
+            selectedSubCategories={selectedSubCategories}
+            onOpenCategory={handleOpenCategory}
+          />
+        )}
+
+        <button
+          type="button"
+          onClick={handleLocationToggle}
+          disabled={isLocating}
+          aria-label={currentLocationCenter ? '집 위치로 돌아가기' : '현재 위치에서 주변 시설 찾기'}
+          className="absolute bottom-20 left-4 z-40 flex h-14 w-14 items-center justify-center rounded-full border-[3px] border-[#FF8A3D] bg-white text-[#FF6B00] shadow-[0_4px_12px_rgba(47,36,27,0.2)] disabled:opacity-60"
+        >
+          {isLocating ? (
+            <span className="h-6 w-6 animate-spin rounded-full border-[3px] border-[#FFD29E] border-t-[#FF6B00]" />
+          ) : currentLocationCenter ? (
+            <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" aria-hidden>
+              <path
+                d="M2.75 10.25 12 2.5l9.25 7.75v9.25A2.5 2.5 0 0 1 18.75 22H5.25a2.5 2.5 0 0 1-2.5-2.5v-9.25Z"
+                fill="currentColor"
+              />
+              <path
+                d="M9 22v-7h6v7"
+                stroke="white"
+                strokeWidth="2.2"
+                strokeLinejoin="round"
+              />
+            </svg>
+          ) : (
+            <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" aria-hidden>
+              <circle cx="12" cy="12" r="4" fill="currentColor" />
+              <path
+                d="M12 2v3M12 19v3M2 12h3M19 12h3"
+                stroke="currentColor"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+              />
+              <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" />
+            </svg>
+          )}
+        </button>
 
         {locationError && (
           <button
             type="button"
             role="alert"
             onClick={() => setLocationError(null)}
-            className="absolute inset-x-4 bottom-20 z-40 rounded-2xl bg-[#613212] px-4 py-3 text-left text-base font-semibold text-white shadow-lg"
+            className="absolute inset-x-4 bottom-36 z-40 rounded-2xl bg-[#613212] px-4 py-3 text-left text-base font-semibold text-white shadow-lg"
           >
             {locationError}
           </button>
         )}
 
-        {selectedFacility && (
-          <FacilitySummarySheet
-            facility={selectedFacility}
-            onClose={() => setSelectedFacilityId(null)}
-            onViewDetail={(facility) =>
-              navigate(`/facility/${facility.id}`, { state: { facility } })
-            }
-          />
-        )}
+        {selectedFacility &&
+          (isLarge ? (
+            <LargeFacilitySummarySheet
+              facility={selectedFacility}
+              onClose={() => setSelectedFacilityId(null)}
+              onViewDetail={(facility) =>
+                navigate(`/facility/${facility.id}`, { state: { facility } })
+              }
+            />
+          ) : (
+            <FacilitySummarySheet
+              facility={selectedFacility}
+              onClose={() => setSelectedFacilityId(null)}
+              onViewDetail={(facility) =>
+                navigate(`/facility/${facility.id}`, { state: { facility } })
+              }
+            />
+          ))}
       </div>
 
-      <CategoryFilterSheet
-        open={openCategorySheet !== null}
-        mainCategory={openCategorySheet}
-        selectedSubCategories={selectedSubCategories}
-        onSelect={handleSelectSubCategory}
-        onClose={() => setOpenCategorySheet(null)}
-      />
+      {isLarge ? (
+        <LargeCategoryFilterSheet
+          open={openCategorySheet !== null}
+          mainCategory={openCategorySheet}
+          selectedSubCategories={selectedSubCategories}
+          onSelect={handleSelectSubCategory}
+          onClose={() => setOpenCategorySheet(null)}
+        />
+      ) : (
+        <CategoryFilterSheet
+          open={openCategorySheet !== null}
+          mainCategory={openCategorySheet}
+          selectedSubCategories={selectedSubCategories}
+          onSelect={handleSelectSubCategory}
+          onClose={() => setOpenCategorySheet(null)}
+        />
+      )}
 
       <BottomNavigation />
     </main>

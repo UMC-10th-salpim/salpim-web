@@ -8,7 +8,7 @@ import { isAccessTokenValid } from '@/utils/jwt';
 import { formatPhone } from '@/utils/phone';
 
 const landingButtonStyle =
-  'h-20 w-full rounded-xl py-0 !text-[32px] !font-semibold leading-none text-white';
+  'h-20 w-full rounded-xl !bg-[#FF843D] py-0 !text-[32px] !font-semibold leading-none text-white hover:!bg-[#FF843D]';
 
 const LANDING_CANVAS_WIDTH = 375;
 const LANDING_CANVAS_HEIGHT = 788;

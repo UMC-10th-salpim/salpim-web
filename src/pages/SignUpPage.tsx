@@ -16,6 +16,8 @@ import TermsAgreement from '@/features/onboarding/TermsAgreement';
 import type { TermsData } from '@/features/onboarding/TermsAgreement';
 import SummaryStep from '@/features/onboarding/SummaryStep';
 import { validateBirthDate } from '@/utils/birthDate';
+import useSettingsStore from '@/store/settingsStore';
+import LargeTermsAgreement from '@/features/onboarding/large/LargeTermsAgreement';
 
 const LOCAL_TOTAL_STEPS = 4; // 진행 표시 점 개수 (약관 동의/요약 화면 제외)
 const KAKAO_TOTAL_STEPS = 2;
@@ -26,6 +28,7 @@ const SignUpPage = () => {
   const setTokens = useUserStore((state) => state.setTokens);
   const setName = useUserStore((state) => state.setName);
   const setHomeLocation = useUserStore((state) => state.setHomeLocation);
+  const isLarge = useSettingsStore((state) => state.fontSize === 'large');
   const [step, setStep] = useState(0);
   const [kakaoSignupToken] = useState(() => sessionStorage.getItem(KAKAO_SIGNUP_TOKEN_KEY));
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -161,7 +164,12 @@ const SignUpPage = () => {
         {step === 3 && (
           <SecurityQuestionStep value={security} onChange={setSecurity} onNext={next} />
         )}
-        {step === 4 && <TermsAgreement value={terms} onChange={setTerms} onSubmit={next} />}
+        {step === 4 &&
+          (isLarge ? (
+            <LargeTermsAgreement value={terms} onChange={setTerms} onSubmit={next} />
+          ) : (
+            <TermsAgreement value={terms} onChange={setTerms} onSubmit={next} />
+          ))}
         {step === 5 && (
           <SummaryStep
             info={info}
