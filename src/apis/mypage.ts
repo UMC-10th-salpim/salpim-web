@@ -88,7 +88,7 @@ export const mypageApi = {
   },
 
   withdraw: async () => {
-    const { data } = await client.delete<ApiResponse<null>>('/members/me');
+    const { data } = await client.delete<ApiResponse<null>>('/users/me');
     return data;
   },
 };
