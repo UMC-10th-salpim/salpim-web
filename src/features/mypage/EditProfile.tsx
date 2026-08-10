@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ensureAddressRegion,
+  normalizeLocationCoordinates,
   reverseGeocodeAddress,
   searchAddress,
   toRegionResolvePayload,
@@ -227,14 +228,19 @@ const EditProfile = () => {
         regionId = region.regionId;
       }
 
+      const coordinates = normalizeLocationCoordinates(
+        location.latitude,
+        location.longitude
+      );
+
       await mypageApi.updateProfile({
         name: name.trim(),
         birthDate: `${birthYear}-${birthMonth.padStart(2, '0')}-${birthDay.padStart(2, '0')}`,
         gender: gender === 'male' ? 'MALE' : 'FEMALE',
         roadAddress: location.roadAddress,
         detailAddress: detail.trim(),
-        latitude: location.latitude,
-        longitude: location.longitude,
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude,
         regionId,
         ...(phoneVerificationToken
           ? {
@@ -243,7 +249,7 @@ const EditProfile = () => {
             }
           : {}),
       });
-      setHomeLocation(location.latitude, location.longitude);
+      setHomeLocation(coordinates.latitude, coordinates.longitude);
       await queryClient.invalidateQueries({ queryKey: ['mypage-summary'] });
       setSaved(true);
     } catch (error) {

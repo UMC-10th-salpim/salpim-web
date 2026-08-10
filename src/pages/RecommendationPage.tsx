@@ -38,7 +38,6 @@ const ChevronRight = ({ className = 'h-5 w-5 text-gray-400' }: { className?: str
 
 interface DeadlineCardProps {
   benefit?: DeadlineSoonBenefit;
-  progress: number;
   activeIndex: number;
   totalCards: number;
   onDetail: () => void;
@@ -48,7 +47,6 @@ interface DeadlineCardProps {
 
 const DeadlineCard = ({
   benefit,
-  progress,
   activeIndex,
   totalCards,
   onDetail,
@@ -102,20 +100,7 @@ const DeadlineCard = ({
       </div>
     </div>
 
-    {expanded ? (
-      <div className="border-b border-gray-200 pb-3" />
-    ) : (
-      <div className="flex items-center border-b border-gray-200 pb-3">
-        <div className="flex flex-1 gap-1">
-          {Array.from({ length: 7 }).map((_, index) => (
-            <span
-              key={index}
-              className={`h-1.5 flex-1 rounded-full ${index < progress ? 'bg-brand-400' : 'bg-gray-200'}`}
-            />
-          ))}
-        </div>
-      </div>
-    )}
+    <div className="border-b border-gray-200 pb-3" />
 
     <div className={`mt-2 flex items-center ${showPagination ? 'justify-between' : 'justify-end'}`}>
       {showPagination && (
@@ -157,12 +142,10 @@ const RecommendationPage = () => {
     refetchOnWindowFocus: false,
   });
   const deadlineCards = [
-    { id: 'guide', progress: 5, benefit: undefined },
+    { id: 'guide', benefit: undefined },
     ...favoriteDeadlineBenefits.slice(0, 2).map((benefit) => ({
       id: `favorite-${benefit.benefitId}`,
       benefit,
-      progress:
-        benefit.dDay === null ? 0 : Math.max(1, 7 - Math.min(Math.max(benefit.dDay, 0), 6)),
     })),
   ];
 
@@ -245,7 +228,6 @@ const RecommendationPage = () => {
               <DeadlineCard
                 key={card.id}
                 benefit={card.benefit}
-                progress={card.progress}
                 activeIndex={activeDeadlineIndex}
                 totalCards={deadlineCards.length}
                 expanded={isLargeFont}
