@@ -98,6 +98,13 @@ const LoginPage = () => {
     return (
       <div className="min-h-[100svh] w-full overflow-y-auto bg-brand-50">
         <main className="relative mx-auto min-h-[788px] w-full max-w-[375px] bg-brand-50 px-[18px] pt-6">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="absolute left-6 top-[26px] z-40 flex h-12 min-w-[88px] items-center justify-center rounded-full bg-[#FFB700] px-4 text-[28px] font-bold leading-none text-white transition-colors hover:bg-[#F5A900] active:scale-95"
+          >
+            이전
+          </button>
           <img
             src="/assets/Salpimi/Notebook.png"
             alt="살피미"
