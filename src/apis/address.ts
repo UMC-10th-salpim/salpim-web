@@ -5,6 +5,7 @@
 const KAKAO_LOCAL_URL = 'https://dapi.kakao.com/v2/local/search/address.json';
 const KAKAO_COORD_TO_ADDRESS_URL = 'https://dapi.kakao.com/v2/local/geo/coord2address.json';
 const PAGE_SIZE = 10;
+const LOCATION_COORDINATE_PRECISION = 7;
 
 let kakaoMapServicesLoader: Promise<void> | null = null;
 
@@ -24,6 +25,11 @@ export interface RegionResolvePayload {
   sigungu: string;
   generalGu: string;
   administrativeArea: string;
+}
+
+export interface NormalizedLocationCoordinates {
+  latitude: number;
+  longitude: number;
 }
 
 export interface AddressSearchResponse {
@@ -249,6 +255,32 @@ export const ensureAddressRegion = async (address: AddressResult): Promise<Addre
     city: firstNonEmpty(address.city, completedResult.city),
     district: firstNonEmpty(address.district, completedResult.district),
     eupMyeonDong: firstNonEmpty(address.eupMyeonDong, completedResult.eupMyeonDong),
+  };
+};
+
+/**
+ * 회원가입과 개인정보 수정에서 백엔드로 전달하는 좌표 형식을 통일한다.
+ * 위치 API가 반환하는 긴 소수 값은 백엔드 숫자 필드의 허용 자릿수를
+ * 초과할 수 있으므로 WGS84 좌표를 검증한 뒤 소수점 7자리로 제한한다.
+ */
+export const normalizeLocationCoordinates = (
+  latitude: number,
+  longitude: number
+): NormalizedLocationCoordinates => {
+  if (
+    !Number.isFinite(latitude) ||
+    latitude < -90 ||
+    latitude > 90 ||
+    !Number.isFinite(longitude) ||
+    longitude < -180 ||
+    longitude > 180
+  ) {
+    throw new Error('위치 좌표가 올바르지 않습니다.');
+  }
+
+  return {
+    latitude: Number(latitude.toFixed(LOCATION_COORDINATE_PRECISION)),
+    longitude: Number(longitude.toFixed(LOCATION_COORDINATE_PRECISION)),
   };
 };
 
