@@ -189,7 +189,7 @@ const OnboardingPage = () => {
               />
             </div>
             <OnboardingButton
-              className="salpim-action-button salpim-onboarding-action absolute inset-x-8 bottom-[max(40px,calc(20px+env(safe-area-inset-bottom)))] z-20 h-20 w-auto py-0 !font-semibold leading-none"
+              className="salpim-action-button salpim-onboarding-action absolute inset-x-8 bottom-[max(40px,calc(20px+env(safe-area-inset-bottom)))] z-20 h-20 w-auto !bg-[#FF843D] py-0 !font-semibold leading-none hover:!bg-[#FF843D]"
               onClick={finish}
             >
               시작하기

@@ -12,6 +12,7 @@ interface MapViewProps {
   hasCategorySelected: boolean;
   selectedFacilityId?: string | null;
   onSelectFacility?: (facility: Facility) => void;
+  large?: boolean;
 }
 
 // 두 좌표 사이의 직선 거리를 미터 단위로 계산 (Haversine)
@@ -51,6 +52,7 @@ const MapView = ({
   hasCategorySelected,
   selectedFacilityId,
   onSelectFacility,
+  large = false,
 }: MapViewProps) => {
   const [loading, error] = useKakaoLoader({
     appkey: kakaoMapKey,
@@ -130,12 +132,14 @@ const MapView = ({
               >
                 <FacilityIcon
                   category={facility.mainCategory}
-                  className={selected ? 'ring-4 ring-[#FF8A3D] ring-offset-2' : ''}
+                  className={`${large ? 'h-14 w-14' : ''} ${
+                    selected ? 'ring-4 ring-[#FF8A3D] ring-offset-2' : ''
+                  }`}
                 />
                 <span
-                  className={`whitespace-nowrap rounded-full border-2 bg-white px-3 py-1 text-xs font-bold text-gray-900 shadow-md ${
-                    selected ? 'border-[#FF8A3D]' : 'border-transparent'
-                  }`}
+                  className={`whitespace-nowrap rounded-full border-2 bg-white px-3 py-1 font-bold text-gray-900 shadow-md ${
+                    large ? 'text-[16px] leading-none' : 'text-xs'
+                  } ${selected ? 'border-[#FF8A3D]' : 'border-transparent'}`}
                 >
                   {facility.name}
                 </span>

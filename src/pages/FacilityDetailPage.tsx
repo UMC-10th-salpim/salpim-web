@@ -3,15 +3,19 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
 import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
 import { getFacilityDetails } from '@/apis/facility';
+import { getApiErrorMessage } from '@/apis/auth';
 import FacilityDetail from '@/features/map/FacilityDetail';
 import type { Facility } from '@/features/map/types';
 import useUserStore from '@/store/userStore';
+import useSettingsStore from '@/store/settingsStore';
+import LargeFacilityDetail from '@/features/map/large/LargeFacilityDetail';
 
 const FacilityDetailPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const facility = (location.state as { facility?: Facility } | null)?.facility;
   const accessToken = useUserStore((state) => state.accessToken);
+  const isLarge = useSettingsStore((state) => state.fontSize === 'large');
 
   const detailsQuery = useInfiniteQuery({
     queryKey: ['facility-details', facility?.id],
@@ -57,29 +61,52 @@ const FacilityDetailPage = () => {
   const loadError = !accessToken
     ? '로그인 정보를 확인할 수 없어 시설 상세 정보를 불러오지 못했어요.'
     : detailsQuery.isError
-      ? '시설 상세 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
+      ? getApiErrorMessage(
+          detailsQuery.error,
+          '시설 상세 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
+        )
       : null;
 
   return (
-    <main className="map-font-scope mx-auto min-h-[100svh] w-full max-w-md bg-[#FAF8F3] pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
-      <HeaderBar title="시설 자세히 보기" />
-      <FacilityDetail
-        facility={facility}
-        details={firstPage}
-        benefits={benefits}
-        isLoading={detailsQuery.isLoading}
-        isOutsideMyServiceCenter={isOutsideMyServiceCenter}
-        errorMessage={loadError}
-        onRetry={() => {
-          void detailsQuery.refetch();
-        }}
-        hasNextPage={detailsQuery.hasNextPage}
-        isFetchingNextPage={detailsQuery.isFetchingNextPage}
-        onLoadMore={() => {
-          void detailsQuery.fetchNextPage();
-        }}
-        onViewBenefit={(benefitId) => navigate(`/benefits/${benefitId}`)}
-      />
+    <main className="mx-auto min-h-[100svh] w-full max-w-md bg-[#FAF8F3] pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
+      <HeaderBar title="시설 자세히 보기" className={isLarge ? '!h-14 [&_h1]:!text-[25px]' : ''} />
+      {isLarge ? (
+        <LargeFacilityDetail
+          facility={facility}
+          details={firstPage}
+          benefits={benefits}
+          isLoading={detailsQuery.isLoading}
+          isOutsideMyServiceCenter={isOutsideMyServiceCenter}
+          errorMessage={loadError}
+          onRetry={() => {
+            void detailsQuery.refetch();
+          }}
+          hasNextPage={detailsQuery.hasNextPage}
+          isFetchingNextPage={detailsQuery.isFetchingNextPage}
+          onLoadMore={() => {
+            void detailsQuery.fetchNextPage();
+          }}
+          onViewBenefit={(benefitId) => navigate(`/benefits/${benefitId}`)}
+        />
+      ) : (
+        <FacilityDetail
+          facility={facility}
+          details={firstPage}
+          benefits={benefits}
+          isLoading={detailsQuery.isLoading}
+          isOutsideMyServiceCenter={isOutsideMyServiceCenter}
+          errorMessage={loadError}
+          onRetry={() => {
+            void detailsQuery.refetch();
+          }}
+          hasNextPage={detailsQuery.hasNextPage}
+          isFetchingNextPage={detailsQuery.isFetchingNextPage}
+          onLoadMore={() => {
+            void detailsQuery.fetchNextPage();
+          }}
+          onViewBenefit={(benefitId) => navigate(`/benefits/${benefitId}`)}
+        />
+      )}
       <BottomNavigation />
     </main>
   );

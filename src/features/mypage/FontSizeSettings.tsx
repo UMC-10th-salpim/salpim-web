@@ -68,7 +68,7 @@ const FontSizeSettings = () => {
       <button
         type="button"
         onClick={handleSave}
-        className={`${primaryButton} !mt-auto !min-h-14 !flex-none !text-[22px]`}
+        className={`${primaryButton} !mt-auto !min-h-14 !flex-none !bg-[#FF843D] !text-[22px] hover:!bg-[#FF843D]`}
       >
         저장하기
       </button>

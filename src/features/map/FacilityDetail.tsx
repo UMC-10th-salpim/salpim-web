@@ -56,7 +56,7 @@ const FacilityDetail = ({
     <article className="mx-auto flex w-full max-w-md flex-col gap-4 bg-[#FAF8F3] px-4 py-5">
       <div className="rounded-2xl border-2 border-[#FFD29E] bg-white p-4 shadow-[0_4px_12px_rgba(91,53,24,0.08)]">
         <div className="flex items-center gap-3">
-          <FacilityIcon category={facility.mainCategory} className="h-11 w-11" />
+          <FacilityIcon category={facility.mainCategory} className="h-11 w-11" showShadow={false} />
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="break-words text-[20px] font-extrabold leading-7 text-[#43230F]">

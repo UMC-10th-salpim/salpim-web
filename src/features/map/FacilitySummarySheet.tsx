@@ -14,24 +14,24 @@ const FacilitySummarySheet = ({ facility, onClose, onViewDetail }: FacilitySumma
       <div className="animate-slide-up mx-auto max-w-screen-sm rounded-2xl border border-gray-200 bg-white p-4 shadow-lg">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <h3 className="break-words text-2xl font-bold text-gray-900">{facility.name}</h3>
+            <h3 className="break-words text-xl font-bold text-gray-900">{facility.name}</h3>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <span className="text-2xl font-semibold text-[#FF8A3D]">
+            <span className="text-base font-semibold text-[#FF8A3D]">
               {facility.distanceFromHome}
             </span>
             <button
               type="button"
               onClick={onClose}
               aria-label="닫기"
-              className="text-2xl leading-none text-gray-400"
+              className="text-xl leading-none text-gray-400"
             >
               ×
             </button>
           </div>
         </div>
 
-        <div className="mt-3 flex flex-col gap-1.5 text-2xl text-gray-600">
+        <div className="mt-3 flex flex-col gap-1.5 text-base text-gray-600">
           <p className="flex items-center gap-1.5">
             <PinIcon />
             {facility.address} {facility.detailAddress}
@@ -52,12 +52,12 @@ const FacilitySummarySheet = ({ facility, onClose, onViewDetail }: FacilitySumma
           {facility.phone && (
             <a
               href={`tel:${facility.phone}`}
-              className="flex h-14 items-center justify-center rounded-xl border border-[#FF8A3D] text-2xl font-semibold text-[#FF8A3D]"
+              className="flex h-14 items-center justify-center rounded-xl border border-[#FF8A3D] text-lg font-semibold text-[#FF8A3D]"
             >
               전화하기
             </a>
           )}
-          <Button rounded="xl" className="h-14 text-2xl" onClick={() => onViewDetail(facility)}>
+          <Button rounded="xl" className="h-14 text-lg" onClick={() => onViewDetail(facility)}>
             시설 자세히 보기
           </Button>
         </div>
