@@ -56,6 +56,7 @@ const MapView = ({
 }: MapViewProps) => {
   const [loading, error] = useKakaoLoader({
     appkey: kakaoMapKey,
+    libraries: ['services'],
   });
 
   const mapRef = useRef<kakao.maps.Map | null>(null);
