@@ -21,12 +21,12 @@ const FilterBar = ({ selectedSubCategories, onOpenCategory }: FilterBarProps) =>
             type="button"
             onClick={() => onOpenCategory(category)}
             aria-pressed={active}
-            className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border-2 border-[#FF8A3D] bg-white px-3 py-1.5 text-base font-semibold shadow-sm transition-colors ${
-              active ? 'text-[#E85D04]' : 'text-gray-700'
+            className={`flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border-2 border-[#FF8A3D] px-3 py-1.5 text-base font-semibold shadow-sm transition-colors ${
+              active ? 'bg-[#FF8A3D] text-white' : 'bg-white text-gray-700'
             }`}
           >
             <span>{category}</span>
-            <span className="text-[#FF6B00]">▾</span>
+            <span className={active ? 'text-white' : 'text-[#FF6B00]'}>▾</span>
           </button>
         );
       })}

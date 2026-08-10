@@ -13,14 +13,7 @@ const LargeFilterBar = ({ selectedSubCategories, onOpenCategory }: LargeFilterBa
       aria-label="시설 카테고리 필터"
     >
       {FACILITY_CATEGORY_GROUPS.map(({ main: category, options }) => {
-        const selections = options.filter((option) => selectedSubCategories.includes(option));
-        const active = selections.length > 0;
-        const label =
-          selections.length === 1
-            ? selections[0]
-            : selections.length > 1
-              ? `${category} ${selections.length}`
-              : category;
+        const active = options.some((option) => selectedSubCategories.includes(option));
 
         return (
           <button
@@ -32,7 +25,7 @@ const LargeFilterBar = ({ selectedSubCategories, onOpenCategory }: LargeFilterBa
               active ? 'bg-[#FF8A3D] text-white' : 'bg-white text-[#43230F]'
             }`}
           >
-            <span>{label}</span>
+            <span>{category}</span>
             <span aria-hidden className={active ? 'text-white' : 'text-[#FF8A3D]'}>
               ▾
             </span>

@@ -11,6 +11,7 @@ import FacilitySummarySheet from '@/features/map/FacilitySummarySheet';
 import FilterBar from '@/features/map/FilterBar';
 import MapView from '@/features/map/MapView';
 import { getMockFacilitiesNear } from '@/features/map/mockFacilities';
+import { FACILITY_CATEGORY_GROUPS } from '@/features/map/types';
 import type { Facility, FacilityMainCategory, MapCenter } from '@/features/map/types';
 import useUserStore from '@/store/userStore';
 import useSettingsStore from '@/store/settingsStore';
@@ -113,11 +114,16 @@ const MapPage = () => {
   };
 
   const handleSelectSubCategory = (subCategory: string) => {
-    setSelectedSubCategories((current) =>
-      current.includes(subCategory)
-        ? current.filter((category) => category !== subCategory)
-        : [...current, subCategory]
-    );
+    const group = FACILITY_CATEGORY_GROUPS.find(({ options }) => options.includes(subCategory));
+    if (!group) return;
+
+    setSelectedSubCategories((current) => {
+      const selectionsInGroup = current.filter((category) => group.options.includes(category));
+
+      return current.includes(subCategory)
+        ? selectionsInGroup.filter((category) => category !== subCategory)
+        : [...selectionsInGroup, subCategory];
+    });
     setSelectedFacilityId(null);
   };
 

@@ -1,5 +1,4 @@
-import FacilityIcon from '../FacilityIcon';
-import { ClockIcon, PinIcon } from '../InfoIcons';
+import { ClockIcon, HomeIcon, PinIcon } from '../InfoIcons';
 import type { Facility } from '../types';
 
 interface LargeFacilitySummarySheetProps {
@@ -13,48 +12,53 @@ const LargeFacilitySummarySheet = ({
   onClose,
   onViewDetail,
 }: LargeFacilitySummarySheetProps) => (
-  <aside className="fixed inset-x-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-30">
-    <div className="animate-slide-up mx-auto w-full max-w-[343px] rounded-[24px] border border-[#E4E7EB] bg-white p-4 shadow-[0_6px_20px_rgba(38,31,25,0.18)]">
-      <div className="flex items-start gap-3">
-        <FacilityIcon category={facility.mainCategory} className="h-14 w-14" />
+  <aside className="fixed inset-x-0 bottom-24 z-30 px-4">
+    <div className="animate-slide-up mx-auto max-w-screen-sm rounded-2xl border border-gray-200 bg-white p-4 shadow-lg">
+      <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <h2 className="truncate text-[23px] font-extrabold leading-[1.25] text-[#172033]">
-                {facility.name}
-              </h2>
-              <p className="mt-0.5 text-[17px] font-bold text-[#FF7A32]">
-                우리 집에서 {facility.distanceFromHome}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="시설 정보 닫기"
-              className="flex h-8 w-8 shrink-0 items-center justify-center text-[28px] leading-none text-[#9AA1AE]"
-            >
-              ×
-            </button>
-          </div>
-
-          <p className="mt-2 flex items-start gap-1.5 break-keep text-[17px] font-semibold leading-6 text-[#667085]">
-            <PinIcon />
-            <span>{facility.address}</span>
-          </p>
-          {facility.operatingHours && (
-            <p className="mt-1 flex items-center gap-1.5 text-[17px] font-semibold text-[#667085]">
-              <ClockIcon />
-              {facility.operatingHours}
-            </p>
-          )}
+          <h2 className="break-words text-[25px] font-extrabold leading-tight text-gray-900">
+            {facility.name}
+          </h2>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="text-[19px] font-bold text-[#FF8A3D]">
+            {facility.distanceFromHome}
+          </span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="시설 정보 닫기"
+            className="text-[28px] leading-none text-gray-400"
+          >
+            ×
+          </button>
         </div>
       </div>
 
-      <div className="mt-3 flex items-center gap-2">
+      <div className="mt-3 flex flex-col gap-2 text-[19px] font-semibold leading-7 text-gray-600">
+        <p className="flex items-start gap-2">
+          <PinIcon />
+          <span>
+            {facility.address} {facility.detailAddress}
+          </span>
+        </p>
+        {facility.operatingHours && (
+          <p className="flex items-center gap-2">
+            <ClockIcon />
+            {facility.operatingHours}
+          </p>
+        )}
+        <p className="flex items-center gap-2">
+          <HomeIcon />
+          우리 집에서 {facility.distanceFromHome}
+        </p>
+      </div>
+
+      <div className="mt-4 flex flex-col gap-2">
         {facility.phone && (
           <a
             href={`tel:${facility.phone}`}
-            className="flex h-11 min-w-[108px] items-center justify-center rounded-full border-2 border-[#FF8A3D] px-4 text-[18px] font-extrabold text-[#FF7A32]"
+            className="flex h-14 items-center justify-center rounded-xl border-2 border-[#FF8A3D] text-[21px] font-extrabold text-[#FF8A3D]"
           >
             전화하기
           </a>
@@ -62,7 +66,7 @@ const LargeFacilitySummarySheet = ({
         <button
           type="button"
           onClick={() => onViewDetail(facility)}
-          className="flex h-11 min-w-0 flex-1 items-center justify-center rounded-full bg-[#FF8A3D] px-4 text-[18px] font-extrabold text-white"
+          className="flex h-14 items-center justify-center rounded-xl bg-[#FF8A3D] text-[21px] font-extrabold text-white"
         >
           시설 자세히 보기
         </button>
