@@ -1,7 +1,9 @@
 import Button from "@/components/common/Button/Button";
 import { useNavigate } from "react-router-dom";
 import useBenefitStore from "@/store/benefitStore";
+import useUserStore from "@/store/userStore";
 import { useEffect } from "react"; 
+import { updateFavorite, getBenefitShareInfo } from "@/apis/benefit";
 
 interface BenefitDetailProps {
   isOnline : boolean;
@@ -17,14 +19,45 @@ interface BenefitDetailProps {
   targetPerson: string;
   url?: string;
   facilityName?: string;
-  facilityDistance?: string;
-  facilityHours?: string;
 }
 
-const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, easySummary, eligibility, benefitContent, targetPerson, url, facilityName, facilityDistance, facilityHours}:BenefitDetailProps) => {
+const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, easySummary, eligibility, benefitContent, targetPerson, url, facilityName}:BenefitDetailProps) => {
   const navigate = useNavigate();
   const isLiked = useBenefitStore((state) => state.isLiked(id));
   const toggleLike = useBenefitStore((state) => state.toggleLike);
+  const accessToken = useUserStore((state)=>state.accessToken);
+    
+  const requireLogin = () => {
+    window.location.href = 'https://salpim.me/';
+  };
+
+  const handleGoHomepage = () => {
+    if (!accessToken) {
+      requireLogin();
+      return;
+    }
+    url && window.open(url, '_blank');
+  };
+
+  const handleGoHelper = () => {
+    if (!accessToken) {
+      requireLogin();
+      return;
+    }
+    navigate(`/helper/${id}`)
+  };
+
+  const handleToggleLike = async () => {
+    const nextIsFavorite = !isLiked;
+    toggleLike(id);
+
+    try {
+      await updateFavorite(id, nextIsFavorite);
+    } catch(error) {
+      console.error('찜하기 실패', error);
+      toggleLike(id);
+    }
+  }
 
 useEffect(()=>{
   if(!window.Kakao.isInitialized()){
@@ -32,15 +65,20 @@ useEffect(()=>{
   }
 }, []);
 
-const handleKakaoShare = () => {
-  window.Kakao.Share.sendCustom({
-    templateId: 135487,
-    templateArgs: {
-      title: title,
-      deadline: deadline,
-      ageLimit: ageLimit,
-    },
-  });
+const handleKakaoShare = async () => {
+  try {
+    const shareInfo = await getBenefitShareInfo(id);
+    window.Kakao.Share.sendCustom({
+      templateId: 135487,
+      templateArgs: {
+        title: shareInfo.title,
+        summary: shareInfo.summary,
+        benefitId: String(id),
+      },
+    });
+  } catch (error) {
+    console.error('공유 정보 조회 실패', error);
+  }
 }
 
   return (
@@ -51,7 +89,7 @@ const handleKakaoShare = () => {
         <div className="flex items-center gap-2 pl-2">
           <div className="salpim-detail-category rounded-full bg-white text-[#613212] font-medium min-w-23 min-h-8 flex items-center justify-center shrink-0 whitespace-nowrap px-3 py-1">{category}</div>
           <button type="button" aria-label="찜하기" className="ml-auto"
-            onClick={()=>toggleLike(id)}
+            onClick={handleToggleLike}
           >
             <img src={isLiked ? '/icons/heart_fill.png' : '/icons/heart.png'} alt="찜하기" className="w-[32px] h-[32px]"/>
           </button>
@@ -111,10 +149,9 @@ const handleKakaoShare = () => {
                   <img src="/icons/building.png" className="w-10 h-10"/>
                 </div>
                 <div className="flex flex-col">
-                  <span className="salpim-detail-facility-name font-semibold">{facilityName}</span>
+                  <span className="salpim-detail-facility-name font-semibold">{facilityName}행정 복지 센터</span>
                   <div className="flex items-center gap-2">
-                    <span className="salpim-detail-facility-info text-[#613212] font-regular">{facilityDistance}</span>
-                    <span className="salpim-detail-facility-info text-[#613212] font-regular">{facilityHours}</span>
+                    <span className="salpim-detail-facility-info text-[#613212] font-regular">09:00~18:00</span>
                   </div>
                 </div>
             </div>
@@ -148,11 +185,11 @@ const handleKakaoShare = () => {
       {isOnline ? (
         <div className="flex gap-2">
           <Button rounded="full" className="salpim-detail-action flex-1 h-16 font-semibold text-[#FAFAFA]"
-            onClick={()=> url && window.open(url, '_blank')}>홈페이지</Button>
-          <Button rounded="full" className="salpim-detail-action flex-1 h-16 font-semibold text-[#FAFAFA]" onClick={()=>navigate(`/helper/${id}`)}>신청 도우미</Button>
+            onClick={handleGoHomepage}>홈페이지</Button>
+          <Button rounded="full" className="salpim-detail-action flex-1 h-16 font-semibold text-[#FAFAFA]" onClick={handleGoHelper}>신청 도우미</Button>
         </div>
       ) : (
-        <Button rounded="full" className="salpim-detail-action h-16 font-semibold text-[#FAFAFA] mx-[52.5px]" onClick={()=>navigate(`/helper/${id}`)}>신청도우미</Button>
+        <Button rounded="full" className="salpim-detail-action h-16 font-semibold text-[#FAFAFA] mx-[52.5px]" onClick={handleGoHelper}>신청도우미</Button>
       )}
     </div>
   );

@@ -42,7 +42,7 @@ const BenefitDetailPage = () => {
     <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-[#FAF8F3] pb-[calc(5rem+env(safe-area-inset-bottom))]">
       <HeaderBar title="혜택 자세히 보기"/>
       <BenefitDetail
-        isOnline={!!detail.applicationUrl} //TODO : 신청도우미랑 생각
+        isOnline={detail.isOnlineApplicationAvailable}
         id={Number(id)}
         category={detail.welfareCategoryName}
         title={detail.title}
@@ -57,8 +57,6 @@ const BenefitDetailPage = () => {
 
         //TODO : API 없음
         facilityName={undefined}
-        facilityDistance={undefined}
-        facilityHours={undefined}
         />
       <ScrollMoreIndicator/>
       <BottomNavigation/>
