@@ -11,6 +11,7 @@ interface BenefitDetailProps {
   icon: string;
   deadline: string;
   ageLimit: string;
+  easySummary: string;
   eligibility: string;
   benefitContent: string;
   targetPerson: string;
@@ -20,7 +21,7 @@ interface BenefitDetailProps {
   facilityHours?: string;
 }
 
-const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, eligibility, benefitContent, targetPerson, url, facilityName, facilityDistance, facilityHours}:BenefitDetailProps) => {
+const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, easySummary, eligibility, benefitContent, targetPerson, url, facilityName, facilityDistance, facilityHours}:BenefitDetailProps) => {
   const navigate = useNavigate();
   const isLiked = useBenefitStore((state) => state.isLiked(id));
   const toggleLike = useBenefitStore((state) => state.toggleLike);
@@ -47,9 +48,9 @@ const handleKakaoShare = () => {
       {/* 상단 카드 형식 */}
       <div className="bg-[#FBE3BF] rounded-xl p-4 flex flex-col gap-2">
         {/*chip + 찜하기*/}
-        <div className="flex items-center justify-between pl-2">
-          <div className="salpim-detail-category rounded-full bg-white text-[#613212] font-medium w-23 h-8 flex items-center justify-center shrink-0 whitespace-nowrap">{category}</div>
-          <button type="button" aria-label="찜하기"
+        <div className="flex items-center gap-2 pl-2">
+          <div className="salpim-detail-category rounded-full bg-white text-[#613212] font-medium min-w-23 min-h-8 flex items-center justify-center shrink-0 whitespace-nowrap px-3 py-1">{category}</div>
+          <button type="button" aria-label="찜하기" className="ml-auto"
             onClick={()=>toggleLike(id)}
           >
             <img src={isLiked ? '/icons/heart_fill.png' : '/icons/heart.png'} alt="찜하기" className="w-[32px] h-[32px]"/>
@@ -68,7 +69,7 @@ const handleKakaoShare = () => {
         <div className="bg-[#FFF7ED] border border-3 border-[#E8B16A] rounded-4xl p-[11px] flex items-center gap-1 ">
           <img src="/characters/salpimi_Notebook.png" className="w-28 h-28"/>
           <div className="flex flex-col gap-2">
-            <span className="salpim-detail-summary font-semibold text-[#613212] break-keep text-balance text-center">병원 갈 때 드는 돈을 나라에서 일부 도와주는 제도예요!</span>
+            <span className="salpim-detail-summary font-semibold text-[#613212] break-keep text-balance text-center">{easySummary}</span>
             <span className="salpim-detail-summary-caption text-[#FF8A3D] text-center">살피미가 쉽게 설명해줘요</span>
           </div>
         </div>

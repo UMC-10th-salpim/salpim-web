@@ -94,6 +94,28 @@ export const getBenefitIcon = (category: string): string => {
   return matched?.icon ?? DEFAULT_BENEFIT_ICON;
 };
 
+export type AgeConditionStatus = 'NO_RESTRICTION' | 'RESTRICTED' | 'UNKNOWN';
+
+export interface BenefitDetailResult {
+  title: string;
+  easySummary: string;
+  whoCanReceive: string;
+  whatYouReceive: string;
+  recommendedFor: string;
+  applicationStartDate : string | null;
+  applicationEndDate : string | null;
+  applicationUrl : string | null;
+  welfareCategoryName : string;
+  minAge : number | null;
+  maxAge : number | null;
+  ageConditionStatus : AgeConditionStatus;
+}
+
+export const getBenefitDetail = async (benefitId : number) : Promise<BenefitDetailResult> => {
+  const {data} = await client.get<ApiResponse<BenefitDetailResult>>(`/benefits/${benefitId}`);
+  return data.result;
+}
+
 export const MOCK_BENEFITS: Benefit[] = [
   { 
     id: 1, 
