@@ -77,17 +77,21 @@ const slides: IntroSlide[] = [
             className="h-12 w-[260px] object-fill"
           />
         </div>
-        <div className="mt-6">
+        <div className="relative mt-6">
           <HelpSlideChatBubble>
             건강·병원비가
             <br />
             걱정되시나요?
           </HelpSlideChatBubble>
-        </div>
-        <div className="mt-[10px] flex justify-end pr-4">
-          <div className="salpim-onboarding-description flex h-12 w-[260px] items-center justify-center rounded-full bg-[#FFD9BF] font-semibold text-white">
-            병원비가 걱정돼요
+          <div className="mt-[10px] flex justify-end pr-4">
+            <div className="salpim-onboarding-description flex h-12 w-[260px] items-center justify-center rounded-full bg-[#FFD9BF] font-semibold text-white">
+              병원비가 걱정돼요
+            </div>
           </div>
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-10 bg-[linear-gradient(to_bottom,transparent_0%,rgba(250,248,243,0.38)_35%,rgba(250,248,243,0.82)_70%,#FAF8F3_100%)]"
+          />
         </div>
       </div>
     ),
@@ -227,12 +231,6 @@ const OnboardingPage = () => {
                 {current.extra}
               </div>
             </div>
-            {step === 1 && (
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-20 bg-[linear-gradient(to_bottom,transparent_0%,#FAF8F3_100%)]"
-              />
-            )}
             <div className="absolute bottom-[max(40px,calc(20px+env(safe-area-inset-bottom)))] left-[22px] z-20 flex gap-4">
               <OnboardingButton className={splitButtonStyle} onClick={finish}>
                 건너뛰기

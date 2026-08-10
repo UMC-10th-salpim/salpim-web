@@ -108,6 +108,55 @@ export const getBenefitIcon = (category: string): string => {
   return matched?.icon ?? DEFAULT_BENEFIT_ICON;
 };
 
+export type AgeConditionStatus = 'NO_RESTRICTION' | 'RESTRICTED' | 'UNKNOWN';
+
+export interface BenefitDetailResult {
+  title: string;
+  easySummary: string;
+  whoCanReceive: string;
+  whatYouReceive: string;
+  recommendedFor: string;
+  applicationStartDate : string | null;
+  applicationEndDate : string | null;
+  applicationUrl : string | null;
+  welfareCategoryName : string;
+  minAge : number | null;
+  maxAge : number | null;
+  ageConditionStatus : AgeConditionStatus;
+  isOnlineApplicationAvailable: boolean; 
+}
+
+export const getBenefitDetail = async (benefitId : number) : Promise<BenefitDetailResult> => {
+  const {data} = await client.get<ApiResponse<BenefitDetailResult>>(`/benefits/${benefitId}`);
+  return data.result;
+}
+
+export interface FavoriteResult {
+  benefitId: number;
+  isFavorite: boolean;
+}
+
+export const updateFavorite = async (
+  benefitId : number,
+  isFavorite: boolean,
+): Promise <FavoriteResult> => {
+  const {data} = await client.put<ApiResponse<FavoriteResult>> (
+    `/benefits/${benefitId}/favorite`,
+    {isFavorite}
+  );
+    return data.result;
+}
+
+export interface BenefitShareResult {
+  title: string;
+  summary: string;
+}
+
+export const getBenefitShareInfo = async (benefitId: number): Promise<BenefitShareResult> => {
+  const { data } = await client.get<ApiResponse<BenefitShareResult>>(`/benefits/${benefitId}/share`);
+  return data.result;
+};
+
 export const MOCK_BENEFITS: Benefit[] = [
   { 
     id: 1, 
