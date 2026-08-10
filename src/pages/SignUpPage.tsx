@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi, getKakaoAuthorizeUrl, getSignupErrorMessage } from '@/apis/auth';
-import { ensureAddressRegion, reverseGeocodeAddress, toRegionResolvePayload } from '@/apis/address';
+import {
+  ensureAddressRegion,
+  normalizeLocationCoordinates,
+  reverseGeocodeAddress,
+  toRegionResolvePayload,
+} from '@/apis/address';
 import useUserStore from '@/store/userStore';
 import ProgressDots from '@/features/onboarding/ProgressDots';
 import OnboardingForm from '@/features/onboarding/OnboardingForm';
@@ -88,6 +93,10 @@ const SignUpPage = () => {
       const completeAddress = await ensureAddressRegion(address);
       const location = await authApi.geocodeAddress(address.roadAddress);
       const region = await authApi.resolveRegion(toRegionResolvePayload(completeAddress));
+      const coordinates = normalizeLocationCoordinates(
+        location.latitude,
+        location.longitude
+      );
 
       const signupProfile = {
         name: info.name.trim(),
@@ -96,8 +105,8 @@ const SignUpPage = () => {
         phoneNumber: info.phone,
         roadAddress: location.roadAddress,
         detailAddress: address.detail.trim(),
-        latitude: location.latitude,
-        longitude: location.longitude,
+        latitude: coordinates.latitude,
+        longitude: coordinates.longitude,
         regionId: region.regionId,
       };
 
