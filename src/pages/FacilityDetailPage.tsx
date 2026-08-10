@@ -57,15 +57,22 @@ const FacilityDetailPage = () => {
 
   const firstPage = detailsQuery.data?.pages[0];
   const benefits = detailsQuery.data?.pages.flatMap((page) => page.benefits.data) ?? [];
-  const isOutsideMyServiceCenter = firstPage?.isMyCenter === false;
+  const apiErrorMessage = detailsQuery.isError
+    ? getApiErrorMessage(
+        detailsQuery.error,
+        '시설 상세 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
+      )
+    : null;
+  const isOutsideMyServiceCenter =
+    firstPage?.isMyCenter === false || Boolean(apiErrorMessage?.includes('관할 행정동'));
+  const hasNoAvailableBenefits = Boolean(
+    apiErrorMessage?.includes('행정복지센터나 주민센터가 아닙니다')
+  );
   const loadError = !accessToken
     ? '로그인 정보를 확인할 수 없어 시설 상세 정보를 불러오지 못했어요.'
-    : detailsQuery.isError
-      ? getApiErrorMessage(
-          detailsQuery.error,
-          '시설 상세 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'
-        )
-      : null;
+    : isOutsideMyServiceCenter || hasNoAvailableBenefits
+      ? null
+      : apiErrorMessage;
 
   return (
     <main className="mx-auto min-h-[100svh] w-full max-w-md bg-[#FAF8F3] pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
@@ -77,6 +84,7 @@ const FacilityDetailPage = () => {
           benefits={benefits}
           isLoading={detailsQuery.isLoading}
           isOutsideMyServiceCenter={isOutsideMyServiceCenter}
+          hasNoAvailableBenefits={hasNoAvailableBenefits}
           errorMessage={loadError}
           onRetry={() => {
             void detailsQuery.refetch();
@@ -95,6 +103,7 @@ const FacilityDetailPage = () => {
           benefits={benefits}
           isLoading={detailsQuery.isLoading}
           isOutsideMyServiceCenter={isOutsideMyServiceCenter}
+          hasNoAvailableBenefits={hasNoAvailableBenefits}
           errorMessage={loadError}
           onRetry={() => {
             void detailsQuery.refetch();

@@ -9,6 +9,7 @@ interface FacilityDetailProps {
   benefits: FacilityBenefit[];
   isLoading: boolean;
   isOutsideMyServiceCenter: boolean;
+  hasNoAvailableBenefits: boolean;
   errorMessage: string | null;
   onRetry: () => void;
   hasNextPage: boolean;
@@ -40,6 +41,7 @@ const FacilityDetail = ({
   benefits,
   isLoading,
   isOutsideMyServiceCenter,
+  hasNoAvailableBenefits,
   errorMessage,
   onRetry,
   hasNextPage,
@@ -112,6 +114,8 @@ const FacilityDetail = ({
           </p>
         ) : isOutsideMyServiceCenter ? (
           <FacilityNotice message="주소가 달라서 신청할 수 없어요. 신청 안내는 주소지에 맞는 주민센터에서 확인해 주세요." />
+        ) : hasNoAvailableBenefits ? (
+          <FacilityNotice message="현재 제공하고 있는 혜택이 없어 신청할 수 없어요. 혜택 찾기를 진행해 주세요." />
         ) : errorMessage ? (
           <div className="rounded-2xl border-2 border-[#FFD29E] bg-white p-4">
             <p role="alert" className="text-[16px] font-semibold leading-6 text-[#81746A]">
@@ -167,7 +171,11 @@ const FacilityDetail = ({
         )}
       </section>
 
-      {!isLoading && !isOutsideMyServiceCenter && !errorMessage && benefits.length > 0 && (
+      {!isLoading &&
+        !isOutsideMyServiceCenter &&
+        !hasNoAvailableBenefits &&
+        !errorMessage &&
+        benefits.length > 0 && (
         <div className="flex items-center gap-3 rounded-2xl bg-[#FBE3BF] p-4">
           <img
             src="/characters/salpimi_Good.png"
