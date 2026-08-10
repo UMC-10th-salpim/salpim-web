@@ -4,11 +4,14 @@ import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigat
 import { useParams } from 'react-router-dom';
 import { BenefitApplicationHelperResult, getBenefitApplicationHelper } from '@/apis/helper';
 import { useEffect, useState } from 'react';
+import { mypageApi, type MyPageSummary } from '@/apis/mypage';
+import { calculateAge } from '@/utils/birthDate';
 import ScrollMoreIndicator from '@/components/common/ScrollMoreIndicator/ScrollMoreIndicator';
 
 const HelperPage = () => {
   const {id} = useParams();
   const [benefit, setBenefit] = useState<BenefitApplicationHelperResult | null>(null);
+  const [profile, setProfile] = useState<MyPageSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -18,8 +21,14 @@ const HelperPage = () => {
     setIsLoading(true);
     setError(false);
 
-    getBenefitApplicationHelper(Number(id))
-      .then(setBenefit)
+    Promise.all([
+      getBenefitApplicationHelper(Number(id)),
+      mypageApi.getSummary(),
+    ])
+      .then(([benefitResult, profileResult]) => {
+        setBenefit(benefitResult);
+        setProfile(profileResult);
+      })
       .catch((err)=>{
         console.error('신청도우미 조회 실패', err);
         setError(true);
@@ -36,7 +45,7 @@ const HelperPage = () => {
     );
   }
 
-  if (error || !benefit) {
+  if (error || !benefit || !profile) {
     return (
       <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-[#FAF8F3]">
         <HeaderBar title='신청 도우미'/>
@@ -59,6 +68,9 @@ const HelperPage = () => {
         applicationEndDate={benefit.applicationEndDate}
         organization={benefit.organization}
         isRegionSatisfied={benefit.isRegionSatisfied}
+        userAge={calculateAge(profile.birthDate)}
+        userSido={profile.sido}
+        userSigungu={profile.sigungu}
       />
       <ScrollMoreIndicator/>
       <BottomNavigation />

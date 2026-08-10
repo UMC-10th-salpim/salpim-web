@@ -1,7 +1,7 @@
 import client from '@/apis/client';
 
-// 신청 방법 : 방문 | 온라인 | 전화
-export type ApplicationType = 'VISIT' | 'ONLINE' | 'PHONE';
+// 신청 방법 : 방문 | 온라인 | 전화 | 이외에
+export type ApplicationType = 'VISIT' | 'ONLINE' | 'PHONE' | 'OTHER';
 // 연령 조건 상태 : 제한 없음 | 제한 있음 | 확인 불가
 export type AgeConditionStatus = 'NO_RESTRICTION' | 'RESTRICTED' | 'UNKNOWN';
 
