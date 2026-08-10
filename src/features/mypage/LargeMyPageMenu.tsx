@@ -221,15 +221,15 @@ const LargeMyPageMenu = () => {
               </svg>
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[20px] font-extrabold text-[#613212]">마감 임박 혜택 표시</p>
+              <p className="text-[20px] font-extrabold text-[#613212]">찜한 혜택 알림 표시</p>
               <p className="mt-0.5 break-keep text-[15px] font-bold leading-5 text-[#FF7A32]">
-                홈 화면에서 곧 마감되는 혜택을 알려 줘요.
+                홈 화면에서 찜한 혜택을 보여줘요.
               </p>
             </div>
             <Toggle
               checked={deadlineAlertEnabled}
               onChange={toggleDeadlineAlert}
-              label="마감 임박 혜택 표시"
+              label="찜한 혜택 알림 표시"
             />
           </div>
 

@@ -1,20 +1,69 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Modal from '@/components/common/Modal/Modal';
 import { inputStyle, labelStyle, primaryButton } from '@/features/onboarding/styles';
 
-const InquiryForm = () => {
+type InquiryStatus = 'form' | 'submitting' | 'success' | 'error';
+
+interface InquiryFormProps {
+  onErrorStateChange?: (isError: boolean) => void;
+}
+
+const InquiryForm = ({ onErrorStateChange }: InquiryFormProps) => {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [sent, setSent] = useState(false);
+  const [status, setStatus] = useState<InquiryStatus>('form');
 
   const isValid = title.trim() !== '' && content.trim() !== '';
 
-  const handleSend = () => {
-    // TODO: 문의 등록 API 연동
-    setSent(true);
+  const handleSend = async () => {
+    if (!isValid || status === 'submitting') return;
+    setStatus('submitting');
+
+    try {
+      // TODO: 문의 등록 API가 제공되면 이 위치에서 요청한다.
+      if (!navigator.onLine) throw new Error('offline');
+      await Promise.resolve();
+      setStatus('success');
+      onErrorStateChange?.(false);
+    } catch {
+      setStatus('error');
+      onErrorStateChange?.(true);
+    }
   };
+
+  if (status === 'success' || status === 'error') {
+    const isSuccess = status === 'success';
+
+    return (
+      <main className="mypage-content items-center px-4 pb-0 pt-20 text-center">
+        <img
+          src="/characters/salpimi_Dog.png"
+          alt="강아지 모양 살피미"
+          className="h-[132px] w-[164px] object-contain"
+        />
+        <p className="mt-7 whitespace-pre-line text-[18px] font-extrabold leading-7 text-[#613212]">
+          {isSuccess
+            ? '문의가 정상적으로 접수되었습니다.'
+            : '오류가 발생하였습니다.\n잠시 후 다시 시도해 주세요.'}
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            if (isSuccess) {
+              navigate('/mypage');
+              return;
+            }
+            setStatus('form');
+            onErrorStateChange?.(false);
+          }}
+          className="mt-auto min-h-[54px] w-full rounded-[10px] bg-[#FF843D] text-[22px] font-extrabold text-white"
+        >
+          {isSuccess ? '완료하기' : '문의 보내기'}
+        </button>
+      </main>
+    );
+  }
 
   return (
     <main className="mypage-content gap-4">
@@ -59,22 +108,12 @@ const InquiryForm = () => {
 
       <button
         type="button"
-        onClick={handleSend}
-        disabled={!isValid}
+        onClick={() => void handleSend()}
+        disabled={!isValid || status === 'submitting'}
         className={`${primaryButton} !mt-auto !min-h-14 !flex-none !text-[22px]`}
       >
-        문의 보내기
+        {status === 'submitting' ? '문의 보내는 중...' : '문의 보내기'}
       </button>
-
-      <Modal
-        open={sent}
-        title="문의가 접수되었어요!"
-        confirmText="확인"
-        onConfirm={() => navigate('/mypage')}
-        onClose={() => setSent(false)}
-      >
-        빠르게 확인하고 답변드릴게요.
-      </Modal>
     </main>
   );
 };

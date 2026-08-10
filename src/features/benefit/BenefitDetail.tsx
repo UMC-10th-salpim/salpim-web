@@ -36,7 +36,7 @@ const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, easyS
       requireLogin();
       return;
     }
-    url && window.open(url, '_blank');
+    if (url) window.open(url, '_blank');
   };
 
   const handleGoHelper = () => {

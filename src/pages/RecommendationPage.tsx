@@ -132,18 +132,19 @@ const RecommendationPage = () => {
   const userName = useUserStore((state) => state.name);
   const setName = useUserStore((state) => state.setName);
   const isLargeFont = useSettingsStore((state) => state.fontSize === 'large');
+  const favoriteAlertEnabled = useSettingsStore((state) => state.deadlineAlertEnabled);
   const [activeDeadlineIndex, setActiveDeadlineIndex] = useState(0);
   const deadlineScrollRef = useRef<HTMLDivElement>(null);
   const { data: favoriteDeadlineBenefits = [] } = useQuery({
     queryKey: ['favorite-benefits', 'deadline-soon', accessToken],
     queryFn: benefitApi.getFavoriteDeadlineSoon,
-    enabled: Boolean(accessToken),
+    enabled: Boolean(accessToken && favoriteAlertEnabled),
     retry: false,
     refetchOnWindowFocus: false,
   });
   const deadlineCards = [
     { id: 'guide', benefit: undefined },
-    ...favoriteDeadlineBenefits.slice(0, 2).map((benefit) => ({
+    ...(favoriteAlertEnabled ? favoriteDeadlineBenefits : []).slice(0, 2).map((benefit) => ({
       id: `favorite-${benefit.benefitId}`,
       benefit,
     })),
@@ -213,8 +214,8 @@ const RecommendationPage = () => {
           </div>
         </div>
 
-        {/* 마감 임박 카드 */}
-        <section aria-label="마감 임박 지원금" className="relative w-full">
+        {/* 찜한 혜택 알림 카드 */}
+        <section aria-label="찜한 혜택 알림" className="relative w-full">
           <div
             ref={deadlineScrollRef}
             onScroll={(event) => {
