@@ -23,6 +23,13 @@ export interface BenefitListResult {
   totalCount: number;
 }
 
+export interface DeadlineSoonBenefit {
+  benefitId: number;
+  title: string;
+  applicationEndDate: string | null;
+  dDay: number | null;
+}
+
 export const benefitApi = {
   //살피미 추천
   getRecommendationResult : async (params: {
@@ -55,6 +62,13 @@ export const benefitApi = {
       },
     });
     return data.result;
+  },
+
+  getFavoriteDeadlineSoon: async () => {
+    const { data } = await client.get<ApiResponse<DeadlineSoonBenefit[]>>(
+      '/benefits/favorites/deadline-soon'
+    );
+    return data.result ?? [];
   },
 };
 

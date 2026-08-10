@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { reverseGeocodeAddress, searchAddress, toRegionResolvePayload } from '@/apis/address';
+import {
+  ensureAddressRegion,
+  reverseGeocodeAddress,
+  searchAddress,
+  toRegionResolvePayload,
+} from '@/apis/address';
 import type { AddressResult } from '@/apis/address';
 import { authApi, getApiErrorMessage } from '@/apis/auth';
 import { mypageApi } from '@/apis/mypage';
@@ -192,7 +197,7 @@ const EditProfile = () => {
 
     try {
       const addressChanged = roadAddress.trim() !== profileSummary?.roadAddress.trim();
-      let coordinates = {
+      let location = {
         roadAddress: profileSummary?.roadAddress ?? roadAddress.trim(),
         latitude: profileSummary?.latitude ?? 0,
         longitude: profileSummary?.longitude ?? 0,
@@ -208,15 +213,17 @@ const EditProfile = () => {
             addressSearch.results[0] ??
             null;
         }
-        if (!addressInfo?.eupMyeonDong) {
-          throw new Error('행정구역을 확인할 수 없습니다.');
-        }
+        if (!addressInfo) throw new Error('행정구역을 확인할 수 없습니다.');
 
-        const [resolvedCoordinates, region] = await Promise.all([
-          authApi.geocodeAddress(roadAddress),
-          authApi.resolveRegion(toRegionResolvePayload(addressInfo)),
+        // 회원가입과 동일하게 누락된 행정구역을 먼저 보완한 뒤
+        // 도로명 주소 좌표와 regionId를 조회해 위치 필드를 구성한다.
+        const completeAddress = await ensureAddressRegion(addressInfo);
+
+        const [resolvedLocation, region] = await Promise.all([
+          authApi.geocodeAddress(roadAddress.trim()),
+          authApi.resolveRegion(toRegionResolvePayload(completeAddress)),
         ]);
-        coordinates = resolvedCoordinates;
+        location = resolvedLocation;
         regionId = region.regionId;
       }
 
@@ -224,10 +231,10 @@ const EditProfile = () => {
         name: name.trim(),
         birthDate: `${birthYear}-${birthMonth.padStart(2, '0')}-${birthDay.padStart(2, '0')}`,
         gender: gender === 'male' ? 'MALE' : 'FEMALE',
-        roadAddress: coordinates.roadAddress,
+        roadAddress: location.roadAddress,
         detailAddress: detail.trim(),
-        latitude: Number(coordinates.latitude.toFixed(7)),
-        longitude: Number(coordinates.longitude.toFixed(7)),
+        latitude: location.latitude,
+        longitude: location.longitude,
         regionId,
         ...(phoneVerificationToken
           ? {
@@ -236,7 +243,7 @@ const EditProfile = () => {
             }
           : {}),
       });
-      setHomeLocation(coordinates.latitude, coordinates.longitude);
+      setHomeLocation(location.latitude, location.longitude);
       await queryClient.invalidateQueries({ queryKey: ['mypage-summary'] });
       setSaved(true);
     } catch (error) {

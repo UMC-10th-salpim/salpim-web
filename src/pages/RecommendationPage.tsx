@@ -1,16 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
 import ScrollMoreIndicator from '@/components/common/ScrollMoreIndicator/ScrollMoreIndicator';
 import useSettingsStore from '@/store/settingsStore';
 import useUserStore from '@/store/userStore';
 import { mypageApi } from '@/apis/mypage';
-
-const DEADLINE_BENEFITS = [
-  { id: 1, title: 'OOO 지원금 신청', daysLeft: 2, progress: 5 },
-  { id: 2, title: 'OOO 생활비 지원', daysLeft: 5, progress: 3 },
-  { id: 3, title: 'OOO 의료비 지원', daysLeft: 7, progress: 1 },
-];
+import { benefitApi } from '@/apis/benefit';
+import type { DeadlineSoonBenefit } from '@/apis/benefit';
 
 const HeartIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" className="h-7 w-7 text-brand-500">
@@ -40,30 +37,30 @@ const ChevronRight = ({ className = 'h-5 w-5 text-gray-400' }: { className?: str
 );
 
 interface DeadlineCardProps {
-  title: string;
-  daysLeft: number;
+  benefit?: DeadlineSoonBenefit;
   progress: number;
   activeIndex: number;
+  totalCards: number;
   onDetail: () => void;
   expanded?: boolean;
   showPagination?: boolean;
 }
 
 const DeadlineCard = ({
-  title,
-  daysLeft,
+  benefit,
   progress,
   activeIndex,
+  totalCards,
   onDetail,
   expanded = false,
   showPagination = true,
 }: DeadlineCardProps) => (
   <article
-    className={`${expanded ? 'h-fit' : 'h-[222px] snap-start'} w-full shrink-0 rounded-lg border border-gray-100 bg-white p-4 shadow-sm`}
+    className={`${expanded ? 'h-fit' : 'min-h-[222px] snap-start'} w-full shrink-0 rounded-lg border border-gray-100 bg-white p-4 shadow-sm`}
   >
     <div className="flex gap-2">
       <span className="flex h-8 min-w-[58px] items-center justify-center rounded-full bg-brand-500 px-2.5 text-base font-bold text-white">
-        D-{daysLeft}
+        {benefit ? '찜한 혜택' : '복지 혜택'}
       </span>
       <span className="flex h-8 min-w-[86px] items-center justify-center rounded-full bg-brand-100 px-2.5 text-base font-bold text-brand-600">
         신청 가능
@@ -75,35 +72,57 @@ const DeadlineCard = ({
         <CalendarIcon />
       </div>
       <div>
-        <p className="salpim-home-card-title font-bold leading-[1.2] text-gray-900">
-          {title}
-          <br />
-          <span className="text-[#FF8A3D]">마감 {daysLeft}일 전</span>이에요!
-        </p>
+        {benefit ? (
+          <p
+            className={`${expanded ? 'text-[21px]' : 'salpim-home-card-title'} font-bold leading-[1.3] text-gray-900`}
+          >
+            <span className="line-clamp-2 break-keep">{benefit.title}</span>
+            <span className="block text-[#FF8A3D]">
+              {benefit.dDay === 0
+                ? '오늘 마감이에요!'
+                : benefit.dDay !== null
+                  ? `마감 ${benefit.dDay}일 전이에요!`
+                  : benefit.applicationEndDate
+                    ? `${benefit.applicationEndDate.replace(/-/g, '.')} 마감이에요!`
+                    : '마감일을 확인해 보세요!'}
+            </span>
+          </p>
+        ) : (
+          <p
+            className={`${expanded ? 'text-[21px]' : 'salpim-home-card-title'} font-bold leading-[1.3] text-gray-900`}
+          >
+            놓치기 전에 <span className="text-[#FF8A3D]">혜택</span>을
+            <br />
+            확인해 보세요!
+          </p>
+        )}
         <p className="salpim-deadline-card-description mt-1 whitespace-nowrap text-[#8A5A34]">
           지금 신청하면 놓치지 않아요.
         </p>
       </div>
     </div>
 
-    <div className="flex items-center justify-between border-b border-gray-200 pb-3">
-      <div className="flex flex-1 gap-1 pr-3">
-        {Array.from({ length: 7 }).map((_, index) => (
-          <span
-            key={index}
-            className={`h-1.5 flex-1 rounded-full ${index < progress ? 'bg-brand-400' : 'bg-gray-200'}`}
-          />
-        ))}
+    {expanded ? (
+      <div className="border-b border-gray-200 pb-3" />
+    ) : (
+      <div className="flex items-center border-b border-gray-200 pb-3">
+        <div className="flex flex-1 gap-1">
+          {Array.from({ length: 7 }).map((_, index) => (
+            <span
+              key={index}
+              className={`h-1.5 flex-1 rounded-full ${index < progress ? 'bg-brand-400' : 'bg-gray-200'}`}
+            />
+          ))}
+        </div>
       </div>
-      <span className="shrink-0 text-base font-medium text-gray-400">{daysLeft}일 남음</span>
-    </div>
+    )}
 
     <div className={`mt-2 flex items-center ${showPagination ? 'justify-between' : 'justify-end'}`}>
       {showPagination && (
         <div className="flex items-center gap-2" aria-hidden>
-          {DEADLINE_BENEFITS.map((benefit, index) => (
+          {Array.from({ length: totalCards }).map((_, index) => (
             <span
-              key={benefit.id}
+              key={index}
               className={`h-2 rounded-full transition-all ${
                 index === activeIndex ? 'w-6 bg-brand-500' : 'w-2 bg-brand-200'
               }`}
@@ -129,6 +148,35 @@ const RecommendationPage = () => {
   const setName = useUserStore((state) => state.setName);
   const isLargeFont = useSettingsStore((state) => state.fontSize === 'large');
   const [activeDeadlineIndex, setActiveDeadlineIndex] = useState(0);
+  const deadlineScrollRef = useRef<HTMLDivElement>(null);
+  const { data: favoriteDeadlineBenefits = [] } = useQuery({
+    queryKey: ['favorite-benefits', 'deadline-soon', accessToken],
+    queryFn: benefitApi.getFavoriteDeadlineSoon,
+    enabled: Boolean(accessToken),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  const deadlineCards = [
+    { id: 'guide', progress: 5, benefit: undefined },
+    ...favoriteDeadlineBenefits.slice(0, 2).map((benefit) => ({
+      id: `favorite-${benefit.benefitId}`,
+      benefit,
+      progress:
+        benefit.dDay === null ? 0 : Math.max(1, 7 - Math.min(Math.max(benefit.dDay, 0), 6)),
+    })),
+  ];
+
+  const scrollToDeadlineCard = (targetIndex: number) => {
+    const nextIndex = Math.min(deadlineCards.length - 1, Math.max(0, targetIndex));
+    const container = deadlineScrollRef.current;
+    if (!container) return;
+
+    container.scrollTo({
+      left: nextIndex * (container.clientWidth + 12),
+      behavior: 'smooth',
+    });
+    setActiveDeadlineIndex(nextIndex);
+  };
 
   useEffect(() => {
     if (!accessToken) return;
@@ -183,29 +231,52 @@ const RecommendationPage = () => {
         </div>
 
         {/* 마감 임박 카드 */}
-        <section aria-label="마감 임박 지원금" className="w-full">
+        <section aria-label="마감 임박 지원금" className="relative w-full">
           <div
+            ref={deadlineScrollRef}
             onScroll={(event) => {
               const { scrollLeft, clientWidth } = event.currentTarget;
               const index = Math.round(scrollLeft / (clientWidth + 12));
-              setActiveDeadlineIndex(
-                Math.min(DEADLINE_BENEFITS.length - 1, Math.max(0, index))
-              );
+              setActiveDeadlineIndex(Math.min(deadlineCards.length - 1, Math.max(0, index)));
             }}
             className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {DEADLINE_BENEFITS.map((benefit) => (
+            {deadlineCards.map((card) => (
               <DeadlineCard
-                key={benefit.id}
-                title={benefit.title}
-                daysLeft={benefit.daysLeft}
-                progress={benefit.progress}
+                key={card.id}
+                benefit={card.benefit}
+                progress={card.progress}
                 activeIndex={activeDeadlineIndex}
+                totalCards={deadlineCards.length}
                 expanded={isLargeFont}
-                onDetail={() => navigate('/benefits')}
+                onDetail={() =>
+                  navigate(card.benefit ? `/benefits/${card.benefit.benefitId}` : '/benefits')
+                }
               />
             ))}
           </div>
+
+          {activeDeadlineIndex > 0 && (
+            <button
+              type="button"
+              onClick={() => scrollToDeadlineCard(activeDeadlineIndex - 1)}
+              aria-label="이전 혜택 보기"
+              className="absolute -left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#EEE5DC] bg-white text-[#FF843D] shadow-[0_3px_10px_rgba(97,50,18,0.16)]"
+            >
+              <ChevronRight className="h-7 w-7 rotate-180 text-[#FF843D]" />
+            </button>
+          )}
+
+          {activeDeadlineIndex < deadlineCards.length - 1 && (
+            <button
+              type="button"
+              onClick={() => scrollToDeadlineCard(activeDeadlineIndex + 1)}
+              aria-label="다음 혜택 보기"
+              className="absolute -right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#EEE5DC] bg-white text-[#FF843D] shadow-[0_3px_10px_rgba(97,50,18,0.16)]"
+            >
+              <ChevronRight className="h-7 w-7 text-[#FF843D]" />
+            </button>
+          )}
         </section>
 
         {/* 살피미 추천 혜택 */}
@@ -223,7 +294,7 @@ const RecommendationPage = () => {
             <button
               type="button"
               onClick={() => navigate('/benefits/search')}
-              className="salpim-home-card-title absolute inset-x-3 bottom-2.5 h-16 rounded-full bg-brand-500 py-0 !font-semibold text-white transition-colors hover:bg-brand-600"
+              className="salpim-home-card-title absolute inset-x-3 bottom-2.5 h-16 rounded-full bg-[#FF843D] py-0 !font-semibold text-white transition-colors hover:bg-[#FF843D]"
             >
               살피미에게 바로 물어보기
             </button>
