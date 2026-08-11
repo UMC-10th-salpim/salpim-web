@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ensureAddressRegion,
   normalizeLocationCoordinates,
+  normalizeRoadAddress,
   reverseGeocodeAddress,
   searchAddress,
   toRegionResolvePayload,
@@ -237,7 +238,7 @@ const EditProfile = () => {
         name: name.trim(),
         birthDate: `${birthYear}-${birthMonth.padStart(2, '0')}-${birthDay.padStart(2, '0')}`,
         gender: gender === 'male' ? 'MALE' : 'FEMALE',
-        roadAddress: location.roadAddress,
+        roadAddress: normalizeRoadAddress(roadAddress || location.roadAddress),
         detailAddress: detail.trim(),
         latitude: coordinates.latitude,
         longitude: coordinates.longitude,

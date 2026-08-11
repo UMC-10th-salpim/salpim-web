@@ -1,18 +1,21 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getBenefitDetail, type BenefitDetailResult, getBenefitIcon, getMyWelfareCenter} from "@/apis/benefit";
+import { benefitApi, getBenefitDetail, type BenefitDetailResult, getBenefitIcon, getMyWelfareCenter} from "@/apis/benefit";
 import { getAgeLimitText, getDeadlineText } from "@/utils/benefitText";
 import BenefitDetail from "@/features/benefit/BenefitDetail";
 import HeaderBar from "@/components/common/HeaderBar/HeaderBar";
 import BottomNavigation from "@/components/common/BottomNavigation/BottomNavigation";
 import ScrollMoreIndicator from "@/components/common/ScrollMoreIndicator/ScrollMoreIndicator";
+import useUserStore from "@/store/userStore";
 
 const BenefitDetailPage = () => {
   const {id} = useParams();
   const [detail, setDetail] = useState<BenefitDetailResult | null>(null);
   const [welfareCenter, setWelfareCenter] = useState<string | undefined>(undefined);
+  const [initialIsFavorite, setInitialIsFavorite] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
+  const accessToken = useUserStore((state) => state.accessToken);
 
   useEffect(()=>{
     if (!id) return;
@@ -25,17 +28,24 @@ const BenefitDetailPage = () => {
         console.error('복지관 정보 조회 실패', err);
         return null;
       }),
+      accessToken
+        ? benefitApi.isFavoriteBenefit(Number(id)).catch((err) => {
+            console.error('찜 상태 조회 실패', err);
+            return false;
+          })
+        : Promise.resolve(false),
     ])
-      .then(([detailResult, welfareResult]) => {
+      .then(([detailResult, welfareResult, favoriteResult]) => {
         setDetail(detailResult);
         setWelfareCenter(welfareResult?.welfareCenter);
+        setInitialIsFavorite(detailResult.isFavorite ?? favoriteResult);
       })
       .catch((err)=> {
         console.error('혜택 상세 조회 실패', err);
         setError(true);
       })
       .finally(()=>setIsLoading(false));
-  },[id]);
+  },[accessToken, id]);
 
   if (isLoading) {
     return (
@@ -66,6 +76,7 @@ const BenefitDetailPage = () => {
         targetPerson={detail.recommendedFor}
         url={detail.applicationUrl ?? undefined}
         facilityName={welfareCenter}
+        initialIsLiked={initialIsFavorite}
         />
       <ScrollMoreIndicator/>
       <BottomNavigation/>

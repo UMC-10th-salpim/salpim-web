@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { benefitApi, updateFavorite } from '@/apis/benefit';
 import { getDeadlineText } from '@/utils/benefitText';
 import useUserStore from '@/store/userStore';
+import useBenefitStore from '@/store/benefitStore';
 
 const LikedBenefits = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const accessToken = useUserStore((state) => state.accessToken);
+  const setLiked = useBenefitStore((state) => state.setLiked);
   const [removingId, setRemovingId] = useState<number | null>(null);
   const [removeError, setRemoveError] = useState('');
 
@@ -33,6 +35,7 @@ const LikedBenefits = () => {
 
     try {
       await updateFavorite(benefitId, false);
+      setLiked(benefitId, false);
       await queryClient.invalidateQueries({ queryKey: ['favorite-benefits'] });
     } catch {
       setRemoveError('찜을 해제하지 못했어요. 잠시 후 다시 시도해 주세요.');

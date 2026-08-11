@@ -231,6 +231,13 @@ export const reverseGeocodeAddress = async (
 const firstNonEmpty = (...values: Array<string | null | undefined>): string =>
   values.find((value) => value?.trim())?.trim() ?? '';
 
+/** 현재 위치와 직접 검색 모두 공식 시·도 전체 명칭으로 저장한다. */
+export const normalizeRoadAddress = (roadAddress: string): string => {
+  const normalized = roadAddress.replace(/\s+/g, ' ').trim();
+  const [sido = '', ...rest] = normalized.split(' ');
+  return [SIDO_FULL_NAMES[sido] ?? sido, ...rest].filter(Boolean).join(' ');
+};
+
 const toAddressResult = (
   roadAddress: KakaoRoadAddress,
   jibunAddress?: KakaoJibunAddress | null
@@ -288,26 +295,34 @@ export const toRegionResolvePayload = (address: AddressResult): RegionResolvePay
  * 회원가입 직전에 주소를 다시 조회해 백엔드 필수 지역값을 완성한다.
  */
 export const ensureAddressRegion = async (address: AddressResult): Promise<AddressResult> => {
-  if (hasCompleteRegion(address)) return address;
+  let completedResult: AddressResult | undefined;
 
-  const response = await searchAddress(address.roadAddress, 1);
-  const normalizedRoadAddress = address.roadAddress.replace(/\s+/g, ' ').trim();
-  const exactResult = response.results.find(
-    (result) => result.roadAddress.replace(/\s+/g, ' ').trim() === normalizedRoadAddress
-  );
-  const completedResult =
-    (exactResult && hasCompleteRegion(exactResult) ? exactResult : undefined) ??
-    response.results.find(hasCompleteRegion);
+  try {
+    // 역지오코딩은 법정동(region_3depth_name)만 주는 경우가 있어
+    // 도로명 주소를 다시 조회하고 행정동(region_3depth_h_name)을 우선 사용한다.
+    const response = await searchAddress(address.roadAddress, 1);
+    const normalizedRoadAddress = normalizeRoadAddress(address.roadAddress);
+    const exactResult = response.results.find(
+      (result) => normalizeRoadAddress(result.roadAddress) === normalizedRoadAddress
+    );
+    completedResult =
+      (exactResult && hasCompleteRegion(exactResult) ? exactResult : undefined) ??
+      response.results.find(hasCompleteRegion);
+  } catch (error) {
+    if (!hasCompleteRegion(address)) throw error;
+  }
 
-  if (!completedResult) {
+  if (!completedResult && !hasCompleteRegion(address)) {
     throw new Error('선택한 주소의 읍·면·동 정보를 확인하지 못했습니다.');
   }
 
   return {
     ...address,
-    city: firstNonEmpty(address.city, completedResult.city),
-    district: firstNonEmpty(address.district, completedResult.district),
-    eupMyeonDong: firstNonEmpty(address.eupMyeonDong, completedResult.eupMyeonDong),
+    roadAddress: normalizeRoadAddress(address.roadAddress),
+    city: firstNonEmpty(completedResult?.city, address.city),
+    district: firstNonEmpty(completedResult?.district, address.district),
+    // 재조회 결과의 행정동을 기존 역지오코딩의 법정동보다 우선한다.
+    eupMyeonDong: firstNonEmpty(completedResult?.eupMyeonDong, address.eupMyeonDong),
   };
 };
 

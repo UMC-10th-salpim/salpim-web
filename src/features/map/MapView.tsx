@@ -137,7 +137,8 @@ const MapView = ({
               <button
                 type="button"
                 onClick={() => onSelectFacility?.(facility)}
-                className="flex flex-col items-center gap-0.5"
+                className="flex items-center justify-center"
+                aria-label={`${facility.name} 시설 정보 보기`}
                 aria-pressed={selected}
               >
                 <FacilityIcon
@@ -146,13 +147,6 @@ const MapView = ({
                     selected ? 'ring-4 ring-[#FF8A3D] ring-offset-2' : ''
                   }`}
                 />
-                <span
-                  className={`whitespace-nowrap rounded-full border-2 bg-white px-3 py-1 font-bold text-gray-900 shadow-md ${
-                    large ? 'text-[16px] leading-none' : 'text-xs'
-                  } ${selected ? 'border-[#FF8A3D]' : 'border-transparent'}`}
-                >
-                  {facility.name}
-                </span>
               </button>
             </CustomOverlayMap>
           );

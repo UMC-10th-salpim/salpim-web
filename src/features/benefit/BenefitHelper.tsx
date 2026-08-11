@@ -29,7 +29,7 @@ const getAgeConditionText = (
   if (minAge !== null && maxAge !== null) return `나이 조건 (만 ${minAge}세 이상 ${maxAge}세 미만)`;
   if (minAge !== null) return `나이 조건 (만 ${minAge}세 이상)`;
   if (maxAge !== null) return `나이 조건 (만 ${maxAge}세 미만)`;
-  return '나이 조건 확인 중';
+  return '나이 조건 확인 필요';
 };
 
 // 지역
