@@ -54,6 +54,11 @@ const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, easyS
   };
 
   const handleToggleLike = async () => {
+    if (!accessToken) {
+      requireLogin();
+      return;
+    }
+
     const nextIsFavorite = !isLiked;
     setLiked(id, nextIsFavorite);
 
@@ -128,7 +133,7 @@ const handleKakaoShare = async () => {
         <div className="flex flex-col gap-2">
           <div>
             <span className="salpim-detail-section-title font-bold text-[#613212]">누가 받을까?</span>
-            <div className="salpim-detail-section-button border border-[#FED7AA] border-4 rounded-2xl mt-1 text-center font-bold p-4 break-keep text-balance">{eligibility}</div>
+            <div className="salpim-detail-section-button border border-[#FED7AA] border-4 rounded-2xl mt-1 text-center font-bold p-4 break-keep [overflow-wrap:anywhere] text-balance">{eligibility}</div>
           </div>
 
           <div>
@@ -138,7 +143,7 @@ const handleKakaoShare = async () => {
 
           <div>
             <span className="salpim-detail-section-title font-bold text-[#613212]">어떤 사람이 받으면 좋을까?</span>
-            <div className="salpim-detail-section-button border border-[#FED7AA] border-4 rounded-2xl p-4 mt-1 text-center font-bold break-keep text-balance">{targetPerson}</div>
+            <div className="salpim-detail-section-button border border-[#FED7AA] border-4 rounded-2xl p-4 mt-1 text-center font-bold break-keep [overflow-wrap:anywhere] text-balance">{targetPerson}</div>
           </div>
         </div>
 
@@ -146,7 +151,7 @@ const handleKakaoShare = async () => {
         {isOnline && (
           <div className="bg-[#FFF7ED] rounded-4xl border border-3 border-[#E8B16A] p-3 flex items-center">
             <img src="/characters/salpimi_Wall.png" className="w-28 h-28"/>
-            <span className="salpim-detail-notice text-center font-semibold text-[#613212] break-keep text-balance">이 혜택은 인터넷에서 신청해야해요! <br/> 공식 사이트에서 신청해 주세요.</span>
+            <span className="salpim-detail-notice text-center font-semibold text-[#613212] break-keep [overflow-wrap:anywhere] text-balance">이 혜택은 인터넷에서 신청해야해요! <br/> 공식 사이트에서 신청해 주세요.</span>
           </div>
         )}
       </div>
@@ -170,7 +175,7 @@ const handleKakaoShare = async () => {
 
             <div
               className="flex items-center gap-1 cursor-pointer"
-              onClick={()=>navigate('/map' , { state: { focusFacilityName: fullFacilityName} })}
+              onClick={()=>navigate('/map' , { state: { focusFacilityName: facilityName} })}
             >
               <span className="salpim-detail-facility-link text-[#2B2B2B] font-medium">지도</span>
               <img src="/icons/path.png" className="w-10 h-10"/>

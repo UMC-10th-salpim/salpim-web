@@ -9,6 +9,9 @@ export interface BottomNavigationItem {
 interface BottomNavigationProps {
   items?: BottomNavigationItem[];
   className?: string;
+  activePaths?: string[];
+  onBeforeNavigate?: () => boolean;
+
 }
 
 const defaultItems: BottomNavigationItem[] = [
@@ -18,7 +21,7 @@ const defaultItems: BottomNavigationItem[] = [
   { label: '마이', path: '/mypage', activePaths: ['/mypage'] },
 ];
 
-const BottomNavigation = ({ items = defaultItems, className = '' }: BottomNavigationProps) => {
+const BottomNavigation = ({ items = defaultItems, className = '', onBeforeNavigate }: BottomNavigationProps) => {
   const { pathname } = useLocation();
 
   const isActivePath = (item: BottomNavigationItem) => {
@@ -28,6 +31,12 @@ const BottomNavigation = ({ items = defaultItems, className = '' }: BottomNaviga
       if (activePath === '/') return pathname === '/';
       return pathname === activePath || pathname.startsWith(`${activePath}/`);
     });
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (onBeforeNavigate && !onBeforeNavigate()) {
+      e.preventDefault();
+    }
   };
 
   return (
@@ -43,6 +52,7 @@ const BottomNavigation = ({ items = defaultItems, className = '' }: BottomNaviga
             <NavLink
               key={item.path}
               to={item.path}
+              onClick={handleClick}          
               className={`flex items-center justify-center font-bold transition-all ${
                 active ? 'text-[32px] text-[#FF8A3D]' : 'text-[32px] text-[#8B7355] hover:text-brand-500'
               }`}

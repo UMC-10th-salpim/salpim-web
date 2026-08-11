@@ -45,13 +45,13 @@ const QuestionCard = ({
               role={multiple ? 'checkbox' : 'radio'}
               aria-checked={selected}
               onClick={() => handleSelect(option.value)}
-              className={`salpim-survey-option flex w-full items-center gap-3 rounded-full border px-4 py-3 justify-center font-semibold transition-colors shadow-[0_2px_2px_0_rgba(255,138,61,0.3)] ${
+              className={`salpim-survey-option flex w-full items-center gap-3 rounded-full border px-6 py-3 font-semibold transition-colors shadow-[0_2px_2px_0_rgba(255,138,61,0.3)] ${
                 selected
                   ? 'border-[#FF8A3D] bg-[#FF8A3D] text-white'
                   : 'bg-white text-[#FF8A3D] border-white'}`}
             >
-              {option.icon && <img src={selected ? option.icon.replace('.png', '_choice.png') : option.icon} alt="" className='w-8 h-8'/>}
-              <span className="items-center font-semibold">{option.label}</span>
+              {option.icon && <img src={selected ? option.icon.replace('.png', '_choice.png') : option.icon} alt="" className='w-8 h-8 shrink-0'/>}
+              <span className="flex-1 text-center font-semibold">{option.label}</span>
             </button>
           );
         })}

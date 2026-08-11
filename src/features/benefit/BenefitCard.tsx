@@ -24,18 +24,17 @@ const BenefitCard = ({id, category, icon, title, className=''} : BenefitCardProp
           {icon && <img src={icon} alt="" className="w-10 h-10" />}
         </div>
                
-        <div className="flex flex-col flex-1 min-w-0 items-start">
+        <div className="flex flex-col flex-1 min-w-0 items-start gap-2">
           <div className="salpim-result-card-category rounded-full bg-white text-[#613212] font-medium px-3 py-1 flex items-center justify-center shrink-0 whitespace-nowrap w-fit">{category}</div>
-          <span className="salpim-result-card-title font-bold text-[#613212] break-keep text-balance">{title}</span>
+          <span className="salpim-result-card-title font-bold text-[#613212] break-keep [overflow-wrap:anywhere] text-balance">{title}</span>
+            <Button 
+              rounded="full"
+              className="salpim-result-card-button font-medium text-black !bg-[#FAF8F3] shrink-0 whitespace-nowrap  px-3 py-1 flex items-center w-fit self-end"
+              onClick={handleDetailClick}>
+                자세히보기
+              <img src="/icons/path.png" alt="화살표" className="w-4 h-5 pl-1"/>
+            </Button>
         </div>
-
-        <Button 
-          rounded="full"
-          className="salpim-result-card-button font-medium text-black !bg-[#FAF8F3] shrink-0 whitespace-nowrap  px-3 py-1 flex items-center self- mt-1"
-          onClick={handleDetailClick}>
-            자세히보기
-          <img src="/icons/path.png" alt="화살표" className="w-4 h-5 pl-1"/>
-        </Button>
       </Card>
     </div>
   );

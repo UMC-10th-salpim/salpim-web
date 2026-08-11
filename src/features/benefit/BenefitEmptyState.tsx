@@ -27,7 +27,7 @@ const BenefitEmptyState = ({source}: BenefitEmptyStateProps) => {
           alt=""
           className="absolute top-5 -left-3 w-25 h-25"
         />
-        <span className="text-2xl font-semibold text-center text-[#EF4444] break-keep">
+        <span className="salpim-empty-title font-semibold text-center text-[#EF4444] break-keep">
           현재 조건에 맞는 혜택을 <br /> 찾지 못했어요.
         </span>
       </div>
@@ -37,7 +37,7 @@ const BenefitEmptyState = ({source}: BenefitEmptyStateProps) => {
         {checklist.map((item) => (
           <div key={item} className="flex items-center gap-4">
             <img src="/icons/benefit/checkList.png" alt="" className="w-6 h-6" />
-            <span className="text-xl font-semibold text-[#8B5A2B] break-keep">
+            <span className="salpim-empty-guide font-semibold text-[#8B5A2B] break-keep">
               {item}
             </span>
           </div>
