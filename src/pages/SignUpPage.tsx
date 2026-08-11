@@ -21,7 +21,7 @@ import TermsAgreement from '@/features/onboarding/TermsAgreement';
 import type { TermsData } from '@/features/onboarding/TermsAgreement';
 import SummaryStep from '@/features/onboarding/SummaryStep';
 import { validateBirthDate } from '@/utils/birthDate';
-import useSettingsStore from '@/store/settingsStore';
+import useSettingsStore, { toServerWordSize } from '@/store/settingsStore';
 import LargeTermsAgreement from '@/features/onboarding/large/LargeTermsAgreement';
 
 const LOCAL_TOTAL_STEPS = 4; // 진행 표시 점 개수 (약관 동의/요약 화면 제외)
@@ -33,7 +33,8 @@ const SignUpPage = () => {
   const setTokens = useUserStore((state) => state.setTokens);
   const setName = useUserStore((state) => state.setName);
   const setHomeLocation = useUserStore((state) => state.setHomeLocation);
-  const isLarge = useSettingsStore((state) => state.fontSize === 'large');
+  const fontSize = useSettingsStore((state) => state.fontSize);
+  const isLarge = fontSize === 'large';
   const [step, setStep] = useState(0);
   const [kakaoSignupToken] = useState(() => sessionStorage.getItem(KAKAO_SIGNUP_TOKEN_KEY));
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -108,6 +109,7 @@ const SignUpPage = () => {
         latitude: coordinates.latitude,
         longitude: coordinates.longitude,
         regionId: region.regionId,
+        wordSize: toServerWordSize(fontSize),
       };
 
       if (kakaoSignupToken) {

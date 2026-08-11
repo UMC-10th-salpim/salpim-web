@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi, getKakaoLoginErrorMessage } from '@/apis/auth';
 import { mypageApi } from '@/apis/mypage';
 import useUserStore from '@/store/userStore';
+import useSettingsStore, { fromServerWordSize } from '@/store/settingsStore';
 
 const PROFILE_LOAD_ERROR_MESSAGE =
   '로그인은 완료됐지만 회원 이름을 불러오지 못했습니다. 다시 시도해 주세요.';
@@ -16,6 +17,7 @@ const OAuthKakaoPage = () => {
   const setName = useUserStore((state) => state.setName);
   const setHomeLocation = useUserStore((state) => state.setHomeLocation);
   const logout = useUserStore((state) => state.logout);
+  const setFontSize = useSettingsStore((state) => state.setFontSize);
   const handled = useRef(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -48,6 +50,8 @@ const OAuthKakaoPage = () => {
         }
 
         sessionStorage.removeItem('salpim-kakao-signup-token');
+        const serverFontSize = fromServerWordSize(result.wordSize);
+        if (serverFontSize) setFontSize(serverFontSize);
         setTokens(result.accessToken, result.refreshToken);
         const pendingHomeLocation = sessionStorage.getItem('salpim-pending-home-location');
         if (pendingHomeLocation) {
@@ -99,7 +103,7 @@ const OAuthKakaoPage = () => {
             : getKakaoLoginErrorMessage(error, '카카오 로그인에 실패했습니다. 다시 시도해 주세요.')
         );
       });
-  }, [params, navigate, logout, setHomeLocation, setName, setTokens]);
+  }, [params, navigate, logout, setFontSize, setHomeLocation, setName, setTokens]);
 
   if (errorMessage) {
     return (

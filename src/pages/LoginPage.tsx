@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi, getLoginErrorMessage } from '@/apis/auth';
 import OnboardingButton from '@/features/onboarding/ui/OnboardingButton';
 import OnboardingInput from '@/features/onboarding/ui/OnboardingInput';
 import useUserStore from '@/store/userStore';
-import { isAccessTokenValid } from '@/utils/jwt';
+import useSettingsStore, { fromServerWordSize } from '@/store/settingsStore';
 import { formatPhone } from '@/utils/phone';
 
 const landingButtonStyle =
@@ -24,16 +24,17 @@ const getLandingScale = () => {
 
 const LoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const step: 'landing' | 'login' = searchParams.get('step') === 'login' ? 'login' : 'landing';
-  const [phone, setPhone] = useState('');
+  const loginState = location.state as { phoneNumber?: string } | null;
+  const [phone, setPhone] = useState(() => formatPhone(loginState?.phoneNumber ?? ''));
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [landingScale, setLandingScale] = useState(getLandingScale);
-  const accessToken = useUserStore((state) => state.accessToken);
   const setTokens = useUserStore((state) => state.setTokens);
+  const setFontSize = useSettingsStore((state) => state.setFontSize);
   const isPasswordValid = /^\d{6}$/.test(password);
   const isLoginFormFilled = phone.replace(/\D/g, '').length === 11 && isPasswordValid;
 
@@ -52,45 +53,20 @@ const LoginPage = () => {
   }, []);
 
   const handleLogin = async () => {
-    if (!isLoginFormFilled || isLoggingIn || isChangingPassword) return;
+    if (!isLoginFormFilled || isLoggingIn) return;
     setIsLoggingIn(true);
     setLoginError('');
 
     try {
       const tokens = await authApi.loginLocal(phone, password);
+      const serverFontSize = fromServerWordSize(tokens.wordSize);
+      if (serverFontSize) setFontSize(serverFontSize);
       setTokens(tokens.accessToken, tokens.refreshToken);
       navigate('/recommendation', { replace: true });
     } catch (error) {
       setLoginError(getLoginErrorMessage(error, '로그인하지 못했어요. 다시 확인해 주세요.'));
     } finally {
       setIsLoggingIn(false);
-    }
-  };
-
-  const handleChangePassword = async () => {
-    if (isAccessTokenValid(accessToken)) {
-      navigate('/mypage/password');
-      return;
-    }
-
-    if (!isLoginFormFilled || isLoggingIn || isChangingPassword) {
-      setLoginError('전화번호와 현재 비밀번호를 입력한 뒤 눌러 주세요.');
-      return;
-    }
-
-    setIsChangingPassword(true);
-    setLoginError('');
-
-    try {
-      const tokens = await authApi.loginLocal(phone, password);
-      setTokens(tokens.accessToken, tokens.refreshToken);
-      navigate('/mypage/password');
-    } catch (error) {
-      setLoginError(
-        getLoginErrorMessage(error, '전화번호 또는 현재 비밀번호를 다시 확인해 주세요.')
-      );
-    } finally {
-      setIsChangingPassword(false);
     }
   };
 
@@ -141,11 +117,10 @@ const LoginPage = () => {
             </p>
             <button
               type="button"
-              onClick={() => void handleChangePassword()}
-              disabled={isLoggingIn || isChangingPassword}
-              className="min-h-12 rounded-full border-2 border-[#FFD29E] bg-white px-6 text-[24px] font-extrabold text-[#FF6B00] transition-colors hover:bg-[#FFF7ED] disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={() => navigate('/password/find', { state: { phoneNumber: phone } })}
+              className="min-h-12 rounded-full border-2 border-[#FFD29E] bg-white px-6 text-[24px] font-extrabold text-[#FF6B00] transition-colors hover:bg-[#FFF7ED]"
             >
-              {isChangingPassword ? '확인 중...' : '비밀번호 바꾸기'}
+              비밀번호 찾기
             </button>
           </div>
 
@@ -153,7 +128,7 @@ const LoginPage = () => {
             <OnboardingButton
               className="h-20 w-full py-0 !text-[32px] !font-semibold text-white"
               onClick={() => void handleLogin()}
-              disabled={!isLoginFormFilled || isLoggingIn || isChangingPassword}
+              disabled={!isLoginFormFilled || isLoggingIn}
             >
               {isLoggingIn ? '로그인 중...' : '시작하기'}
             </OnboardingButton>

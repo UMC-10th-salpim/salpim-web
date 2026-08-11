@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useSettingsStore from '@/store/settingsStore';
+import { toServerWordSize } from '@/store/settingsStore';
 import type { FontSize } from '@/store/settingsStore';
 import { primaryButton } from '@/features/onboarding/styles';
+import { mypageApi } from '@/apis/mypage';
+import { getApiErrorMessage } from '@/apis/auth';
 
 const OPTIONS: { value: FontSize; label: string }[] = [
   { value: 'medium', label: '중간' },
@@ -14,10 +17,24 @@ const FontSizeSettings = () => {
   const fontSize = useSettingsStore((state) => state.fontSize);
   const setFontSize = useSettingsStore((state) => state.setFontSize);
   const [selected, setSelected] = useState<FontSize>(fontSize);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
-  const handleSave = () => {
-    setFontSize(selected);
-    navigate(-1);
+  const handleSave = async () => {
+    if (isSaving) return;
+
+    setIsSaving(true);
+    setSaveError('');
+
+    try {
+      await mypageApi.updateWordSize(toServerWordSize(selected));
+      setFontSize(selected);
+      navigate(-1);
+    } catch (error) {
+      setSaveError(getApiErrorMessage(error, '글자 크기를 저장하지 못했어요. 다시 시도해 주세요.'));
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -67,11 +84,17 @@ const FontSizeSettings = () => {
 
       <button
         type="button"
-        onClick={handleSave}
+        onClick={() => void handleSave()}
+        disabled={isSaving}
         className={`${primaryButton} !mt-auto !min-h-14 !flex-none !bg-[#FF843D] !text-[22px] hover:!bg-[#FF843D]`}
       >
-        저장하기
+        {isSaving ? '저장 중...' : '저장하기'}
       </button>
+      {saveError && (
+        <p role="alert" className="text-center text-sm font-semibold text-red-500">
+          {saveError}
+        </p>
+      )}
     </main>
   );
 };
