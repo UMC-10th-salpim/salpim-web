@@ -4,9 +4,13 @@ import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
 import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
 import CurrentPasswordStep from '@/features/mypage/password/CurrentPasswordStep';
 import NewPasswordStep from '@/features/mypage/password/NewPasswordStep';
+import useUserStore from '@/store/userStore';
+import { useQueryClient } from '@tanstack/react-query';
 
 const PasswordChangePage = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const logout = useUserStore((state) => state.logout);
   const location = useLocation();
   const routeState = location.state as
     | { skipToNew?: boolean; recoveryAnswer?: string }
@@ -31,7 +35,11 @@ const PasswordChangePage = () => {
           verificationMethod={skipToNew ? 'RECOVERY_ANSWER' : 'CURRENT_PASSWORD'}
           currentPassword={skipToNew ? undefined : currentPassword}
           recoveryAnswer={skipToNew ? routeState?.recoveryAnswer : undefined}
-          onSaved={() => navigate('/mypage')}
+          onSaved={() => {
+            logout();
+            queryClient.clear();
+            navigate('/login', { replace: true });
+          }}
         />
       )}
 

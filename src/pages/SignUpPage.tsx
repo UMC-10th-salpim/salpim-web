@@ -4,6 +4,7 @@ import { authApi, getKakaoAuthorizeUrl, getSignupErrorMessage } from '@/apis/aut
 import {
   ensureAddressRegion,
   normalizeLocationCoordinates,
+  normalizeRoadAddress,
   reverseGeocodeAddress,
   toRegionResolvePayload,
 } from '@/apis/address';
@@ -104,7 +105,7 @@ const SignUpPage = () => {
         birthDate,
         gender: info.gender === 'male' ? ('MALE' as const) : ('FEMALE' as const),
         phoneNumber: info.phone,
-        roadAddress: location.roadAddress,
+        roadAddress: normalizeRoadAddress(address.roadAddress || location.roadAddress),
         detailAddress: address.detail.trim(),
         latitude: coordinates.latitude,
         longitude: coordinates.longitude,

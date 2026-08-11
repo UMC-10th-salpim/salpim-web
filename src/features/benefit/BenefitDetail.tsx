@@ -4,6 +4,7 @@ import useBenefitStore from "@/store/benefitStore";
 import useUserStore from "@/store/userStore";
 import { useEffect } from "react"; 
 import { updateFavorite, getBenefitShareInfo } from "@/apis/benefit";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface BenefitDetailProps {
   isOnline : boolean;
@@ -19,19 +20,19 @@ interface BenefitDetailProps {
   targetPerson: string;
   url?: string;
   facilityName?: string;
+  initialIsLiked?: boolean;
 }
 
-const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, easySummary, eligibility, benefitContent, targetPerson, url, facilityName}:BenefitDetailProps) => {
+const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, easySummary, eligibility, benefitContent, targetPerson, url, facilityName, initialIsLiked = false}:BenefitDetailProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const isLiked = useBenefitStore((state) => state.isLiked(id));
-  const toggleLike = useBenefitStore((state) => state.toggleLike);
+  const setLiked = useBenefitStore((state) => state.setLiked);
   const accessToken = useUserStore((state)=>state.accessToken);
     
   const fullFacilityName = facilityName ? `${facilityName} 행정복지센터` : undefined;
 
   const requireLogin = () => {
-      console.log('requireLogin 호출됨!!!');
-
     alert('로그인이 필요한 기능이에요. 로그인 페이지로 이동할게요.');
     window.location.href = 'https://salpim.me/';
   };
@@ -54,15 +55,21 @@ const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, easyS
 
   const handleToggleLike = async () => {
     const nextIsFavorite = !isLiked;
-    toggleLike(id);
+    setLiked(id, nextIsFavorite);
 
     try {
-      await updateFavorite(id, nextIsFavorite);
+      const result = await updateFavorite(id, nextIsFavorite);
+      setLiked(id, result.isFavorite);
+      await queryClient.invalidateQueries({ queryKey: ['favorite-benefits'] });
     } catch(error) {
       console.error('찜하기 실패', error);
-      toggleLike(id);
+      setLiked(id, isLiked);
     }
   }
+
+useEffect(()=>{
+  setLiked(id, initialIsLiked);
+}, [id, initialIsLiked, setLiked]);
 
 useEffect(()=>{
   if(!window.Kakao.isInitialized()){

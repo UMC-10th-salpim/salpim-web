@@ -95,6 +95,22 @@ export const benefitApi = {
     });
     return data.result;
   },
+
+  isFavoriteBenefit: async (benefitId: number) => {
+    let pageNumber = 0;
+
+    while (pageNumber < 100) {
+      const { data } = await client.get<ApiResponse<FavoriteBenefitPage>>('/benefits/favorites', {
+        params: { pageNumber, pageSize: 100 },
+      });
+      const page = data.result;
+      if (page.data.some((benefit) => benefit.benefitId === benefitId)) return true;
+      if (!page.hasNext) return false;
+      pageNumber += 1;
+    }
+
+    return false;
+  },
 };
 
 export interface Benefit {
@@ -148,7 +164,8 @@ export interface BenefitDetailResult {
   minAge : number | null;
   maxAge : number | null;
   ageConditionStatus : AgeConditionStatus;
-  isOnlineApplicationAvailable: boolean; 
+  isOnlineApplicationAvailable: boolean;
+  isFavorite?: boolean;
 }
 
 export const getBenefitDetail = async (benefitId : number) : Promise<BenefitDetailResult> => {

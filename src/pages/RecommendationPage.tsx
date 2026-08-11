@@ -227,52 +227,54 @@ const RecommendationPage = () => {
         </div>
 
         {/* 찜한 혜택 알림 카드 */}
-        <section aria-label="찜한 혜택 알림" className="relative w-full">
-          <div
-            ref={deadlineScrollRef}
-            onScroll={(event) => {
-              const { scrollLeft, clientWidth } = event.currentTarget;
-              const index = Math.round(scrollLeft / (clientWidth + 12));
-              setActiveDeadlineIndex(Math.min(deadlineCards.length - 1, Math.max(0, index)));
-            }}
-            className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {deadlineCards.map((card) => (
-              <DeadlineCard
-                key={card.id}
-                benefit={card.benefit}
-                activeIndex={activeDeadlineIndex}
-                totalCards={deadlineCards.length}
-                expanded={isLargeFont}
-                onDetail={() =>
-                  navigate(card.benefit ? `/benefits/${card.benefit.benefitId}` : '/benefits')
-                }
-              />
-            ))}
-          </div>
-
-          {activeDeadlineIndex > 0 && (
-            <button
-              type="button"
-              onClick={() => scrollToDeadlineCard(activeDeadlineIndex - 1)}
-              aria-label="이전 혜택 보기"
-              className="absolute -left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#EEE5DC] bg-white text-[#FF843D] shadow-[0_3px_10px_rgba(97,50,18,0.16)]"
+        {favoriteAlertEnabled && (
+          <section aria-label="찜한 혜택 알림" className="relative w-full">
+            <div
+              ref={deadlineScrollRef}
+              onScroll={(event) => {
+                const { scrollLeft, clientWidth } = event.currentTarget;
+                const index = Math.round(scrollLeft / (clientWidth + 12));
+                setActiveDeadlineIndex(Math.min(deadlineCards.length - 1, Math.max(0, index)));
+              }}
+              className="flex w-full snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
-              <ChevronRight className="h-7 w-7 rotate-180 text-[#FF843D]" />
-            </button>
-          )}
+              {deadlineCards.map((card) => (
+                <DeadlineCard
+                  key={card.id}
+                  benefit={card.benefit}
+                  activeIndex={activeDeadlineIndex}
+                  totalCards={deadlineCards.length}
+                  expanded={isLargeFont}
+                  onDetail={() =>
+                    navigate(card.benefit ? `/benefits/${card.benefit.benefitId}` : '/benefits')
+                  }
+                />
+              ))}
+            </div>
 
-          {activeDeadlineIndex < deadlineCards.length - 1 && (
-            <button
-              type="button"
-              onClick={() => scrollToDeadlineCard(activeDeadlineIndex + 1)}
-              aria-label="다음 혜택 보기"
-              className="absolute -right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#EEE5DC] bg-white text-[#FF843D] shadow-[0_3px_10px_rgba(97,50,18,0.16)]"
-            >
-              <ChevronRight className="h-7 w-7 text-[#FF843D]" />
-            </button>
-          )}
-        </section>
+            {activeDeadlineIndex > 0 && (
+              <button
+                type="button"
+                onClick={() => scrollToDeadlineCard(activeDeadlineIndex - 1)}
+                aria-label="이전 혜택 보기"
+                className="absolute -left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#EEE5DC] bg-white text-[#FF843D] shadow-[0_3px_10px_rgba(97,50,18,0.16)]"
+              >
+                <ChevronRight className="h-7 w-7 rotate-180 text-[#FF843D]" />
+              </button>
+            )}
+
+            {activeDeadlineIndex < deadlineCards.length - 1 && (
+              <button
+                type="button"
+                onClick={() => scrollToDeadlineCard(activeDeadlineIndex + 1)}
+                aria-label="다음 혜택 보기"
+                className="absolute -right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#EEE5DC] bg-white text-[#FF843D] shadow-[0_3px_10px_rgba(97,50,18,0.16)]"
+              >
+                <ChevronRight className="h-7 w-7 text-[#FF843D]" />
+              </button>
+            )}
+          </section>
+        )}
 
         {/* 살피미 추천 혜택 */}
         <section className="w-full">
