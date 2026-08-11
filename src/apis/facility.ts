@@ -118,6 +118,69 @@ const EXCLUDED_NAME_PREFIXES = ['CU', 'GS25', 'GS', '파리바게뜨'];
 const isExcludedFacilityName = (name: string) =>
   EXCLUDED_NAME_PREFIXES.some((prefix) => name.trim().toUpperCase().startsWith(prefix));
 
+const normalizeFacilityName = (name: string) => name.replace(/\s+/g, '').toLowerCase();
+
+const getWelfareFacilitySubCategory = (name: string) => {
+  if (/주민센터|행정복지센터/.test(name)) return '주민센터';
+  return '복지관';
+};
+
+// 홈의 "내 근처 혜택 시설"에서 전달받은 기관명을 실제 카카오 장소 좌표로 변환한다.
+export const searchFacilityByName = async (
+  facilityName: string,
+  center: MapCenter
+): Promise<Facility | null> => {
+  const key = import.meta.env.VITE_KAKAO_REST_API_KEY?.trim();
+  const query = facilityName.trim();
+  if (!key || !query) return null;
+
+  const hasFacilityType = /복지관|주민센터|행정복지센터|센터|보건소|병원|약국/.test(query);
+  // 현재 백엔드의 welfareCenter에는 기관명 대신 행정동명이 저장될 수 있다.
+  // 이 경우 해당 동의 행정복지센터를 우선 검색한다.
+  const locationQuery = hasFacilityType ? query : `${query} 행정복지센터`;
+
+  const params = new URLSearchParams({
+    query: locationQuery,
+    x: String(center.lng),
+    y: String(center.lat),
+    radius: '20000',
+    sort: 'distance',
+    size: '15',
+  });
+
+  const response = await fetch(`${KAKAO_LOCAL_KEYWORD_URL}?${params.toString()}`, {
+    headers: { Authorization: `KakaoAK ${key}` },
+  });
+  if (!response.ok) throw new Error(`기관 위치 검색 실패 (${response.status})`);
+
+  const data: KakaoKeywordResponse = await response.json();
+  const normalizedQuery = normalizeFacilityName(query);
+  const normalizedLocationQuery = normalizeFacilityName(locationQuery);
+  const matched = data.documents.find((document) => {
+    const normalizedName = normalizeFacilityName(document.place_name);
+    return (
+      normalizedName === normalizedLocationQuery ||
+      normalizedName.includes(normalizedLocationQuery) ||
+      normalizedName.includes(normalizedQuery)
+    );
+  });
+
+  if (!matched || isExcludedFacilityName(matched.place_name)) return null;
+
+  const subCategory = getWelfareFacilitySubCategory(matched.place_name);
+  return {
+    id: matched.id,
+    name: matched.place_name,
+    mainCategory: '생활지원',
+    subCategory,
+    address: matched.road_address_name || matched.address_name,
+    lat: Number(matched.y),
+    lng: Number(matched.x),
+    distanceFromHome: formatDistance(matched.distance),
+    phone: matched.phone || undefined,
+  };
+};
+
 const searchFacilitiesBySubCategory = async (
   mainCategory: FacilityMainCategory,
   subCategory: string,

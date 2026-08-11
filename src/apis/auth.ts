@@ -1,5 +1,6 @@
 import client from './client';
 import { createErrorMessageGetter } from './errorMessage';
+import type { ServerWordSize } from '@/store/settingsStore';
 
 const KAKAO_AUTHORIZE_URL = 'https://kauth.kakao.com/oauth/authorize';
 const KAKAO_REST_API_KEY_PATTERN = /^[a-f0-9]{32}$/i;
@@ -18,6 +19,10 @@ export interface PhoneVerificationSendResult {
 export interface PhoneVerificationConfirmResult {
   verified: boolean;
   message: string;
+}
+
+export interface PasswordResetVerifyResult {
+  passwordResetToken: string;
 }
 
 const PHONE_VERIFICATION_ERROR_MESSAGES: Record<string, string> = {
@@ -59,6 +64,7 @@ const KAKAO_LOGIN_ERROR_MESSAGES: Record<string, string> = {
 export interface TokenResult {
   accessToken: string;
   refreshToken: string;
+  wordSize?: ServerWordSize | null;
 }
 
 export interface KakaoLoginResult {
@@ -69,6 +75,7 @@ export interface KakaoLoginResult {
   accessToken: string | null;
   refreshToken: string | null;
   signupToken: string | null;
+  wordSize?: ServerWordSize | null;
 }
 
 export interface AddressLocationResult {
@@ -100,6 +107,7 @@ interface SignupProfile {
   latitude: number;
   longitude: number;
   regionId: number;
+  wordSize: ServerWordSize;
 }
 
 export interface LocalSignupRequest extends SignupProfile {
@@ -206,6 +214,27 @@ export const authApi = {
       password,
     });
     return unwrap(data);
+  },
+
+  verifyPasswordReset: async (
+    phoneNumber: string,
+    recoveryAnswer: string
+  ): Promise<PasswordResetVerifyResult> => {
+    const { data } = await client.post<ApiResponse<PasswordResetVerifyResult>>(
+      '/password-reset/verify',
+      {
+        phoneNumber: normalizePhoneNumber(phoneNumber),
+        recoveryAnswer: recoveryAnswer.trim(),
+      }
+    );
+    return unwrap(data);
+  },
+
+  resetPassword: async (passwordResetToken: string, newPassword: string) => {
+    await client.put<ApiResponse<unknown>>('/password-reset', {
+      passwordResetToken,
+      newPassword,
+    });
   },
 
   kakaoLogin: async (authorizationCode: string) => {

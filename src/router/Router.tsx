@@ -19,6 +19,7 @@ import EditProfilePage from '@/pages/EditProfilePage';
 import InquiryPage from '@/pages/InquiryPage';
 import PasswordChangePage from '@/pages/PasswordChangePage';
 import PasswordFindPage from '@/pages/PasswordFindPage';
+import PublicPasswordResetPage from '@/pages/PublicPasswordResetPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import HelperPage from '@/pages/HelperPage';
 
@@ -31,6 +32,7 @@ const router = createBrowserRouter([
       { path: 'login', element: <LoginPage /> },
       { path: 'onboarding', element: <OnboardingPage /> },
       { path: 'signup', element: <SignUpPage /> },
+      { path: 'password/find', element: <PublicPasswordResetPage /> },
       { path: 'oauth/kakao', element: <OAuthKakaoPage /> },
       { path: 'benefits/:id', element: <BenefitDetailPage /> },
       { path: '*', element: <NotFoundPage /> },

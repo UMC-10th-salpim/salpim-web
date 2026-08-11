@@ -194,10 +194,19 @@ export const reverseGeocodeAddress = async (
       const roadAddress = document?.road_address;
       if (roadAddress) return toAddressResult(roadAddress, document.address);
 
-      const jibunAddress = document?.address?.address_name;
+      const jibunAddress = document?.address;
       if (jibunAddress) {
-        const searchedRoadAddress = await searchRoadAddressByJibun(key, jibunAddress);
-        if (searchedRoadAddress) return searchedRoadAddress;
+        try {
+          const searchedRoadAddress = await searchRoadAddressByJibun(
+            key,
+            jibunAddress.address_name
+          );
+          if (searchedRoadAddress) return searchedRoadAddress;
+        } catch (error) {
+          console.warn('[address] 지번 주소의 도로명 주소 검색 실패, 지번 주소로 대체', error);
+        }
+
+        return toJibunAddressResult(jibunAddress);
       }
 
       throw new Error('현재 위치의 도로명 주소를 찾을 수 없습니다.');
@@ -234,6 +243,16 @@ const toAddressResult = (
     jibunAddress?.region_3depth_h_name,
     jibunAddress?.region_3depth_name,
     roadAddress.region_3depth_name
+  ),
+});
+
+const toJibunAddressResult = (jibunAddress: KakaoJibunAddress): AddressResult => ({
+  roadAddress: jibunAddress.address_name,
+  city: jibunAddress.region_1depth_name,
+  district: jibunAddress.region_2depth_name,
+  eupMyeonDong: firstNonEmpty(
+    jibunAddress.region_3depth_h_name,
+    jibunAddress.region_3depth_name
   ),
 });
 
@@ -402,6 +421,14 @@ const reverseGeocodeWithMapSdk = async (latitude: number, longitude: number): Pr
         return;
       }
 
+      const jibunAddress: KakaoJibunAddress = {
+        address_name: jibunAddressName,
+        region_1depth_name: jibunRegion.region_1depth_name,
+        region_2depth_name: jibunRegion.region_2depth_name,
+        region_3depth_name: jibunRegion.region_3depth_name,
+        region_3depth_h_name: jibunRegion.region_3depth_h_name,
+      };
+
       geocoder.addressSearch(jibunAddressName, (searchResult, searchStatus) => {
         const searchedDocument =
           searchStatus === window.kakao.maps.services.Status.OK
@@ -409,7 +436,7 @@ const reverseGeocodeWithMapSdk = async (latitude: number, longitude: number): Pr
             : null;
         const searchedRoadAddress = searchedDocument?.road_address;
         if (!searchedRoadAddress) {
-          reject(new Error('현재 위치의 도로명 주소를 찾을 수 없습니다.'));
+          resolve(toJibunAddressResult(jibunAddress));
           return;
         }
 

@@ -11,6 +11,7 @@ interface MapViewProps {
   facilities: Facility[];
   hasCategorySelected: boolean;
   selectedFacilityId?: string | null;
+  focusFacilityId?: string | null;
   onSelectFacility?: (facility: Facility) => void;
   large?: boolean;
 }
@@ -51,11 +52,13 @@ const MapView = ({
   facilities,
   hasCategorySelected,
   selectedFacilityId,
+  focusFacilityId,
   onSelectFacility,
   large = false,
 }: MapViewProps) => {
   const [loading, error] = useKakaoLoader({
     appkey: kakaoMapKey,
+    libraries: ['services'],
   });
 
   const mapRef = useRef<kakao.maps.Map | null>(null);
@@ -63,6 +66,13 @@ const MapView = ({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || facilities.length === 0) return;
+
+    const focusedFacility = facilities.find((facility) => facility.id === focusFacilityId);
+    if (focusedFacility) {
+      map.setCenter(new kakao.maps.LatLng(focusedFacility.lat, focusedFacility.lng));
+      map.setLevel(3);
+      return;
+    }
 
     const nearest = facilities.reduce((closest, facility) =>
       getDistanceMeters(center, facility) < getDistanceMeters(center, closest) ? facility : closest
@@ -72,7 +82,7 @@ const MapView = ({
     bounds.extend(new kakao.maps.LatLng(center.lat, center.lng));
     bounds.extend(new kakao.maps.LatLng(nearest.lat, nearest.lng));
     map.setBounds(bounds, 80);
-  }, [facilities, center]);
+  }, [facilities, center, focusFacilityId]);
 
   if (!kakaoMapKey) {
     return (

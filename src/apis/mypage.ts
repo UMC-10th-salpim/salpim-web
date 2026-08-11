@@ -1,4 +1,5 @@
 import client from './client';
+import type { ServerWordSize } from '@/store/settingsStore';
 
 interface ApiResponse<T> {
   isSuccess: boolean;
@@ -21,6 +22,10 @@ export interface MyPageSummary {
   sigungu: string;
   generalGu: string;
   administrativeArea: string;
+}
+
+export interface WelfareCenterInfo {
+  welfareCenter: string | null;
 }
 
 export interface UpdateProfileRequest {
@@ -51,8 +56,19 @@ export const mypageApi = {
     return data.result;
   },
 
+  getWelfareCenter: async () => {
+    const { data } = await client.get<ApiResponse<WelfareCenterInfo>>(
+      '/users/me/welfare-center'
+    );
+    return data.result;
+  },
+
   updateProfile: async (request: UpdateProfileRequest) => {
     await client.put<ApiResponse<null>>('/users/me', request);
+  },
+
+  updateWordSize: async (wordSize: ServerWordSize) => {
+    await client.put<ApiResponse<null>>('/users/me/word-size', { wordSize });
   },
 
   sendPhoneVerificationCode: async (phoneNumber: string) => {
