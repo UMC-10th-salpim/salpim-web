@@ -9,10 +9,10 @@ const INTERESTS = ['건강·의료', '생활비·요금', '돌봄·생활', '주
 const INTEREST_CATEGORY_ID_MAP: Record<string, number> = {
   '건강·의료': 1,
   '생활비·요금': 2,
-  '돌봄·생활': 3,
-  '주거 지원': 4,
-  '일자리·활동': 5,
-  '문화·배움': 6,
+  '돌봄·생활': 4,
+  '주거 지원': 3,
+  '일자리·활동': 6,
+  '문화·배움': 5,
 };
 
 type Sort = 'popular' | 'deadline' ;
@@ -66,16 +66,15 @@ const BenefitSearchForm = () => {
   };
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-md flex-col bg-[#FAF8F3] p-4 pb-26 gap-[10px]">
-      {/* 탭 */}
+    <div className="flex flex-1 flex-col p-4 pb-26 gap-[10px]">      {/* 탭 */}
       <div className="flex justify-center gap-4 pb-4 mx-11">
         <button
-          className="salpim-search-tab rounded-full px-4 py-3 font-semibold border border-[#FFD7AA] border-3 text-[#FF8A3D]"
+          className="salpim-search-tab flex-1 rounded-full px-4 py-3 font-semibold border border-[#FFD7AA] border-3 text-[#FF8A3D] whitespace-nowrap"
           onClick={() => navigate('/survey')}
         >
           살피미 추천
         </button>
-        <button className="salpim-search-tab rounded-full w-33 px-4 py-3 font-semibold bg-[#FF8A3D] text-white">
+        <button className="salpim-search-tab flex-1 rounded-full w-33 px-4 py-3 font-semibold bg-[#FF8A3D] text-white whitespace-nowrap">
           직접 찾기
         </button>
       </div>

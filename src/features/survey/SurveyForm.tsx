@@ -27,13 +27,13 @@ const SurveyForm = ({
     step === 0 ? `안녕하세요 ${userName}님!\n${current.question}` : current.question;
 
   return (
-    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-brand-50/40 px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-4">
+    <div className="flex flex-1 flex-col p-4">
       {/*탭*/}
       <div className='flex justify-center gap-4 mb-4 mx-11'>
-        <button className='salpim-survey-tab rounded-full px-4 py-3 font-semibold bg-[#FF8A3D] text-white'>
+        <button className='salpim-survey-tab rounded-full flex-1 px-4 py-3 font-semibold bg-[#FF8A3D] text-white whitespace-nowrap'>
           살피미 추천
         </button>
-        <button className="salpim-survey-tab rounded-full w-33 px-4 py-3 font-semibold border border-[#FFD7AA] border-3 text-[#FF8A3D]"
+        <button className="salpim-survey-tab flex-1 rounded-full px-4 py-3 font-semibold border border-[#FFD7AA] border-3 text-[#FF8A3D] whitespace-nowrap"
           onClick={() => navigate('/benefits/search')}
         >
           직접 찾기
@@ -52,7 +52,7 @@ const SurveyForm = ({
       {/* 말풍선 */}
       <div className="flex items-center mb-2.5">
         <img src='/characters/salpimi_Dog.png' className='w-22 h-22 shrink-0'/>
-        <div className="bg-[#FFF3EB] rounded-[20px] rounded-bl-[1px] border border-[#FF913D] border-[0.5px] px-2.5 py-2.5">
+        <div className="bg-[#FFF3EB] rounded-[20px] rounded-bl-[1px] border border-[#FF913D] border-1 px-2.5 py-2.5">
           <span className='salpim-survey-bubble font-regular text-[#613212] whitespace-pre-line'>{questionText}</span>
         </div>
       </div>

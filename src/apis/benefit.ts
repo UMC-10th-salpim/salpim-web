@@ -182,6 +182,14 @@ export const getBenefitShareInfo = async (benefitId: number): Promise<BenefitSha
   return data.result;
 };
 
+export interface WelfareCenterResult {
+  welfareCenter : string;
+}
+
+export const getMyWelfareCenter = async () : Promise<WelfareCenterResult> => {
+  const {data} = await client.get<ApiResponse<WelfareCenterResult>>('/users/me/welfare-center');
+  return data.result;
+}
 export const MOCK_BENEFITS: Benefit[] = [
   { 
     id: 1, 
