@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getBenefitDetail, type BenefitDetailResult, getBenefitIcon} from "@/apis/benefit";
+import { getBenefitDetail, type BenefitDetailResult, getBenefitIcon, getMyWelfareCenter} from "@/apis/benefit";
 import { getAgeLimitText, getDeadlineText } from "@/utils/benefitText";
 import BenefitDetail from "@/features/benefit/BenefitDetail";
 import HeaderBar from "@/components/common/HeaderBar/HeaderBar";
@@ -10,6 +10,7 @@ import ScrollMoreIndicator from "@/components/common/ScrollMoreIndicator/ScrollM
 const BenefitDetailPage = () => {
   const {id} = useParams();
   const [detail, setDetail] = useState<BenefitDetailResult | null>(null);
+  const [welfareCenter, setWelfareCenter] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -18,8 +19,17 @@ const BenefitDetailPage = () => {
     setIsLoading(true);
     setError(false);
 
-    getBenefitDetail(Number(id))
-      .then(setDetail)
+    Promise.all([
+      getBenefitDetail(Number(id)),
+      getMyWelfareCenter().catch((err)=> {
+        console.error('복지관 정보 조회 실패', err);
+        return null;
+      }),
+    ])
+      .then(([detailResult, welfareResult]) => {
+        setDetail(detailResult);
+        setWelfareCenter(welfareResult?.welfareCenter);
+      })
       .catch((err)=> {
         console.error('혜택 상세 조회 실패', err);
         setError(true);
@@ -39,7 +49,8 @@ const BenefitDetailPage = () => {
   if (error || !detail) return <div>찾을 수 없다</div>;
 
   return (
-    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-[#FAF8F3] pb-[calc(5rem+env(safe-area-inset-bottom))]">
+    
+    <div className="bg-[#FAF8F3] min-h-[100svh] w-full pb-[calc(5rem+env(safe-area-inset-bottom))] max-w-md mx-auto">
       <HeaderBar title="혜택 자세히 보기"/>
       <BenefitDetail
         isOnline={detail.isOnlineApplicationAvailable}
@@ -54,9 +65,7 @@ const BenefitDetailPage = () => {
         benefitContent={detail.whatYouReceive}
         targetPerson={detail.recommendedFor}
         url={detail.applicationUrl ?? undefined}
-
-        //TODO : API 없음
-        facilityName={undefined}
+        facilityName={welfareCenter}
         />
       <ScrollMoreIndicator/>
       <BottomNavigation/>
