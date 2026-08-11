@@ -142,6 +142,18 @@ const RecommendationPage = () => {
     retry: false,
     refetchOnWindowFocus: false,
   });
+  const {
+    data: welfareCenterInfo,
+    isLoading: isWelfareCenterLoading,
+    isError: isWelfareCenterError,
+  } = useQuery({
+    queryKey: ['mypage', 'welfare-center', accessToken],
+    queryFn: mypageApi.getWelfareCenter,
+    enabled: Boolean(accessToken),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+  const welfareCenterName = welfareCenterInfo?.welfareCenter?.trim() ?? '';
   const deadlineCards = [
     { id: 'guide', benefit: undefined },
     ...(favoriteAlertEnabled ? favoriteDeadlineBenefits : []).slice(0, 2).map((benefit) => ({
@@ -276,7 +288,7 @@ const RecommendationPage = () => {
             </div>
             <button
               type="button"
-              onClick={() => navigate('/benefits/search')}
+              onClick={() => navigate('/survey')}
               className="salpim-home-card-title absolute inset-x-3 bottom-2.5 h-16 rounded-full bg-[#FF843D] py-0 !font-semibold text-white transition-colors hover:bg-[#FF843D]"
             >
               살피미에게 바로 물어보기
@@ -289,15 +301,25 @@ const RecommendationPage = () => {
           <h2 className="salpim-home-heading mb-3 font-bold text-[#613212]">내 근처 혜택 시설</h2>
           <button
             type="button"
-            onClick={() => navigate('/map')}
+            onClick={() =>
+              navigate('/map', {
+                state: welfareCenterName ? { focusFacilityName: welfareCenterName } : undefined,
+              })
+            }
             className="flex h-[106px] w-full items-center justify-between rounded-[32px] bg-white px-5 py-4 !font-semibold shadow-sm"
           >
             <span className="min-w-0 text-left">
               <span className="salpim-home-card-title block font-semibold text-gray-900">
-                지도에서 가까운 시설 찾기
+                {isWelfareCenterLoading
+                  ? '내 근처 복지관을 찾고 있어요'
+                  : welfareCenterName || '지도에서 가까운 시설 찾기'}
               </span>
               <span className="salpim-home-card-body mt-1 block font-medium text-gray-500">
-                현재 위치 주변의 복지관, 주민센터, 병원을 확인해 보세요.
+                {welfareCenterName
+                  ? '회원님의 지역 담당 복지관이에요. 지도에서 위치를 확인해 보세요.'
+                  : isWelfareCenterError
+                    ? '복지관 정보를 불러오지 못했어요. 지도에서 주변 시설을 확인해 보세요.'
+                    : '현재 위치 주변의 복지관, 주민센터, 병원을 확인해 보세요.'}
               </span>
             </span>
             <ChevronRight className="ml-3 h-5 w-5 shrink-0 text-gray-400" />

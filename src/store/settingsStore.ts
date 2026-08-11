@@ -1,6 +1,18 @@
 import { create } from 'zustand';
 
 export type FontSize = 'medium' | 'large';
+export type ServerWordSize = 'MEDIUM' | 'LARGE';
+
+export const fromServerWordSize = (
+  wordSize: ServerWordSize | null | undefined
+): FontSize | null => {
+  if (wordSize === 'MEDIUM') return 'medium';
+  if (wordSize === 'LARGE') return 'large';
+  return null;
+};
+
+export const toServerWordSize = (fontSize: FontSize): ServerWordSize =>
+  fontSize === 'large' ? 'LARGE' : 'MEDIUM';
 
 export const FONT_SIZE_STORAGE_KEY = 'salpim-font-size';
 

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
 import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
-import { searchAllFacilities } from '@/apis/facility';
+import { searchAllFacilities, searchFacilityByName } from '@/apis/facility';
 import { mypageApi } from '@/apis/mypage';
 import { authApi } from '@/apis/auth';
 import CategoryFilterSheet from '@/features/map/CategoryFilterSheet';
@@ -35,6 +35,10 @@ const toMapCenter = (latitude?: number | null, longitude?: number | null): MapCe
 
 const MapPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const focusFacilityName = (
+    location.state as { focusFacilityName?: string } | null
+  )?.focusFacilityName?.trim();
   const isLarge = useSettingsStore((state) => state.fontSize === 'large');
   const accessToken = useUserStore((state) => state.accessToken);
   const homeLatitude = useUserStore((state) => state.homeLatitude);
@@ -89,7 +93,7 @@ const MapPage = () => {
     !accessToken ||
     (!isProfilePending && (!needsAddressGeocoding || !isGeocodingPending));
 
-  const { data: facilities = [] } = useQuery({
+  const { data: nearbyFacilities = [] } = useQuery({
     queryKey: ['facilities', 'home', center.lat, center.lng],
     queryFn: async () => {
       const realFacilities = await searchAllFacilities(center);
@@ -97,6 +101,60 @@ const MapPage = () => {
     },
     enabled: centerReady,
   });
+
+  const {
+    data: searchedFacility = null,
+    isError: isFacilitySearchError,
+    isFetched: isFacilitySearchFetched,
+  } = useQuery({
+    queryKey: ['facility', 'by-name', focusFacilityName, homeCenter.lat, homeCenter.lng],
+    queryFn: () => searchFacilityByName(focusFacilityName ?? '', homeCenter),
+    enabled: centerReady && Boolean(focusFacilityName),
+    retry: false,
+    refetchOnWindowFocus: false,
+  });
+
+  const fallbackFacility = useMemo(() => {
+    if (!focusFacilityName) return null;
+    const normalizedTarget = focusFacilityName.replace(/\s+/g, '').toLowerCase();
+    return (
+      nearbyFacilities.find((facility) =>
+        facility.name.replace(/\s+/g, '').toLowerCase().includes(normalizedTarget)
+      ) ?? null
+    );
+  }, [focusFacilityName, nearbyFacilities]);
+  const focusedFacility = searchedFacility ?? fallbackFacility;
+
+  const facilities = useMemo(() => {
+    if (!focusedFacility) return nearbyFacilities;
+
+    return [
+      focusedFacility,
+      ...nearbyFacilities.filter((facility) => facility.id !== focusedFacility.id),
+    ];
+  }, [focusedFacility, nearbyFacilities]);
+
+  useEffect(() => {
+    if (!focusedFacility) return;
+
+    setSelectedSubCategories((current) =>
+      current.includes(focusedFacility.subCategory)
+        ? current
+        : [...current, focusedFacility.subCategory]
+    );
+    setSelectedFacilityId(focusedFacility.id);
+  }, [focusedFacility]);
+
+  useEffect(() => {
+    if (
+      !focusFacilityName ||
+      focusedFacility ||
+      (!isFacilitySearchError && !isFacilitySearchFetched)
+    ) {
+      return;
+    }
+    setLocationError('해당 기관의 위치를 찾지 못했어요. 카테고리에서 주변 시설을 확인해 주세요.');
+  }, [focusFacilityName, focusedFacility, isFacilitySearchError, isFacilitySearchFetched]);
 
   const filteredFacilities = useMemo(() => {
     if (selectedSubCategories.length === 0) return [];
@@ -175,6 +233,7 @@ const MapPage = () => {
           facilities={visibleFacilities}
           hasCategorySelected={selectedSubCategories.length > 0}
           selectedFacilityId={selectedFacilityId}
+          focusFacilityId={focusedFacility?.id}
           onSelectFacility={handleSelectFacility}
           large={isLarge}
         />
