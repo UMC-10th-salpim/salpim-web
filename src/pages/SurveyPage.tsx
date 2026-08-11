@@ -14,10 +14,10 @@ const firstQuestion : SurveyQuestion = {
     options: [
       { value: 1, label: '의료 지원이 필요해요', icon: '/icons/benefit/hospital.png' },
       { value: 2, label: '생활비가 부족해요', icon: '/icons/benefit/money.png' },
-      { value: 4, label: '주거 지원이 필요해요', icon: '/icons/benefit/house.png' },
-      { value: 3, label: '돌봄이 필요해요', icon: '/icons/benefit/handshake.png' },
-      { value: 6, label: '문화 활동을 원해요', icon: '/icons/benefit/mask.png' },
-      { value: 5, label: '일자리를 찾고 있어요', icon: '/icons/benefit/work.png' },
+      { value: 3, label: '주거 지원이 필요해요', icon: '/icons/benefit/house.png' },
+      { value: 4, label: '돌봄이 필요해요', icon: '/icons/benefit/handshake.png' },
+      { value: 5, label: '문화 활동을 원해요', icon: '/icons/benefit/mask.png' },
+      { value: 6, label: '일자리를 찾고 있어요', icon: '/icons/benefit/work.png' },
     ],
   };
 
@@ -64,7 +64,6 @@ const SurveyPage = () => {
         });
       } catch (error) {
         console.error('2단계 질문 조회 실패', error);
-        // TODO : API 실패 시 mock 데이터 사용
         setSecondQuestion(SECOND_QUESTIONS[categoryId] ?? null);
       } finally {
         if (requestId === latesRequestRef.current) {
@@ -94,8 +93,7 @@ const SurveyPage = () => {
   }
 
   return (
-    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-[#FAF8F3]">
-      <HeaderBar title="혜택 안내" onBack={handleBack}/>
+    <div className="w-full mx-auto flex min-h-[100svh] max-w-md flex-col bg-[#FAF8F3] pb-[calc(5rem+env(safe-area-inset-bottom))]">      <HeaderBar title="혜택 안내" onBack={handleBack}/>
       <SurveyForm
         current={current}
         currentValue={currentValue}

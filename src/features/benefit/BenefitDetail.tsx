@@ -27,7 +27,12 @@ const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, easyS
   const toggleLike = useBenefitStore((state) => state.toggleLike);
   const accessToken = useUserStore((state)=>state.accessToken);
     
+  const fullFacilityName = facilityName ? `${facilityName} 행정복지센터` : undefined;
+
   const requireLogin = () => {
+      console.log('requireLogin 호출됨!!!');
+
+    alert('로그인이 필요한 기능이에요. 로그인 페이지로 이동할게요.');
     window.location.href = 'https://salpim.me/';
   };
 
@@ -105,9 +110,9 @@ const handleKakaoShare = async () => {
       <div className="flex flex-col gap-8 mx-[16.5px]">
         {/* 설명 박스 */}
         <div className="bg-[#FFF7ED] border border-3 border-[#E8B16A] rounded-4xl p-[11px] flex items-center gap-1 ">
-          <img src="/characters/salpimi_Notebook.png" className="w-28 h-28"/>
-          <div className="flex flex-col gap-2">
-            <span className="salpim-detail-summary font-semibold text-[#613212] break-keep text-balance text-center">{easySummary}</span>
+          <img src="/characters/salpimi_Notebook.png" className="w-28 h-28 shrink-0"/>
+          <div className="flex flex-col gap-2 min-w-0 flex-1">
+            <span className="salpim-detail-summary font-semibold text-[#613212] break-keep [overflow-wrap:anywhere] text-balance text-center">{easySummary}</span>
             <span className="salpim-detail-summary-caption text-[#FF8A3D] text-center">살피미가 쉽게 설명해줘요</span>
           </div>
         </div>
@@ -142,14 +147,14 @@ const handleKakaoShare = async () => {
         {/*가까운 기관 안내*/}
         {!isOnline && (
           <div className="flex flex-col gap-2">
-            <span className="salpim-detail-share-title pl-4 font-bold text-[#613212]">가까운 기관에서 도움받기</span>
+            <span className="salpim-detail-share-title pl-4 font-bold text-[#613212]">우리 동네 복지관에서 도움받기</span>
             <div className="bg-[#FBE3BF] rounded-4xl p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="rounded-full bg-[#FAFAFA] w-16 h-16 flex items-center justift-center pl-3">
                   <img src="/icons/building.png" className="w-10 h-10"/>
                 </div>
                 <div className="flex flex-col">
-                  <span className="salpim-detail-facility-name font-semibold">{facilityName}행정 복지 센터</span>
+                  <span className="salpim-detail-facility-name font-semibold">{fullFacilityName ?? '배정된 복지관 정보가 없어요'}</span>
                   <div className="flex items-center gap-2">
                     <span className="salpim-detail-facility-info text-[#613212] font-regular">09:00~18:00</span>
                   </div>
@@ -158,7 +163,7 @@ const handleKakaoShare = async () => {
 
             <div
               className="flex items-center gap-1 cursor-pointer"
-              onClick={()=>navigate('/map')}
+              onClick={()=>navigate('/map' , { state: { focusFacilityName: fullFacilityName} })}
             >
               <span className="salpim-detail-facility-link text-[#2B2B2B] font-medium">지도</span>
               <img src="/icons/path.png" className="w-10 h-10"/>

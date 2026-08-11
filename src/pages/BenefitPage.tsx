@@ -113,15 +113,14 @@ const BenefitPage = () => {
   // 로딩 수정
   if (isLoading) {
     return (
-      <div className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center bg-[#FAF8F3]">
-        <span className="text-lg font-semibold text-[#613212]">혜택을 찾고 있어요...</span>
+      <div className="mx-auto w-full flex min-h-dvh max-w-md flex-col items-center justify-center bg-[#FAF8F3]">
+        <span className="text-2xl font-semibold text-[#613212]">혜택을 찾고 있어요</span>
       </div>
     )
   }
 
   return (
-    <div className="mx-auto flex min-h-[100svh] max-w-md flex-col bg-[#FAF8F3] pb-[calc(6rem+env(safe-area-inset-bottom))]">
-      <HeaderBar title="혜택 결과" />
+    <div className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col bg-[#FAF8F3] pb-[calc(6rem+env(safe-area-inset-bottom))]">      <HeaderBar title="혜택 결과" />
 
       <div className="p-4 flex flex-col gap-4 flex-1">
         { isMissingOptionId ? (
@@ -198,8 +197,8 @@ const BenefitPage = () => {
         )}
 
           <Button
-            className="salpim-result-retry h-16 px-[105.5px] py-[14px] !w-[calc(100%-28px)] mx-auto font-semibold" rounded="full" 
-            onClick={() => navigate('/benefits/search')}
+            className="salpim-result-retry h-16 py-[14px] !w-[calc(100%-28px)] mx-auto font-semibold" rounded="full" 
+            onClick={() => navigate('/survey')}
           >
             다시 찾기
           </Button>
