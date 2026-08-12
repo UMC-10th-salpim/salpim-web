@@ -41,3 +41,9 @@ export interface MapCenter {
   lat: number;
   lng: number;
 }
+
+export interface MapRestoreState {
+  selectedFacilityId: string;
+  selectedSubCategories: string[];
+  currentLocationCenter: MapCenter | null;
+}

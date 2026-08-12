@@ -122,19 +122,19 @@ const LargeMyPageMenu = () => {
 
   return (
     <main className="flex w-full flex-1 flex-col gap-7 bg-[#FAF8F3] px-4 pb-7 pt-5">
-      <div className="flex items-center gap-4 rounded-[24px] border-[3px] border-[#F2BD76] bg-white px-5 py-4 shadow-[0_3px_10px_rgba(97,50,18,0.06)]">
+      <div className="flex min-h-[132px] items-center justify-center gap-3 rounded-[24px] border-[3px] border-[#F2BD76] bg-white px-3 py-4 text-center shadow-[0_3px_10px_rgba(97,50,18,0.06)]">
         <img
           src="/characters/salpimi_Hi.png"
           alt="인사하는 살피미"
-          className="h-24 w-24 shrink-0 object-contain"
+          className="h-[76px] w-[76px] shrink-0 object-contain"
         />
-        <div className="min-w-0">
-          <p className="break-keep text-[27px] font-extrabold leading-[1.25] text-[#3F2A1D]">
+        <div className="min-w-0 text-center">
+          <p className="break-keep !text-center text-[25px] font-extrabold leading-[1.25] text-[#3F2A1D]">
             안녕하세요,
             <br />
             {displayName} 님!
           </p>
-          <p className="mt-1 break-keep text-[18px] font-extrabold leading-6 text-[#F07B32]">
+          <p className="mt-1 break-keep !text-center text-[18px] font-extrabold leading-6 text-[#F07B32]">
             {displayRegion}
           </p>
         </div>

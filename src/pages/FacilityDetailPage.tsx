@@ -5,7 +5,7 @@ import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigat
 import { getFacilityDetails } from '@/apis/facility';
 import { getApiErrorMessage } from '@/apis/auth';
 import FacilityDetail from '@/features/map/FacilityDetail';
-import type { Facility } from '@/features/map/types';
+import type { Facility, MapRestoreState } from '@/features/map/types';
 import useUserStore from '@/store/userStore';
 import useSettingsStore from '@/store/settingsStore';
 import LargeFacilityDetail from '@/features/map/large/LargeFacilityDetail';
@@ -13,7 +13,11 @@ import LargeFacilityDetail from '@/features/map/large/LargeFacilityDetail';
 const FacilityDetailPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const facility = (location.state as { facility?: Facility } | null)?.facility;
+  const routeState = location.state as
+    | { facility?: Facility; mapState?: MapRestoreState }
+    | null;
+  const facility = routeState?.facility;
+  const mapState = routeState?.mapState;
   const accessToken = useUserStore((state) => state.accessToken);
   const isLarge = useSettingsStore((state) => state.fontSize === 'large');
 
@@ -76,7 +80,16 @@ const FacilityDetailPage = () => {
 
   return (
     <main className="mx-auto min-h-[100svh] w-full max-w-md bg-[#FAF8F3] pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
-      <HeaderBar title="시설 자세히 보기" className={isLarge ? '!h-14 [&_h1]:!text-[25px]' : ''} />
+      <HeaderBar
+        title="시설 자세히 보기"
+        onBack={() =>
+          navigate('/map', {
+            replace: true,
+            state: mapState ? { restoreMap: mapState } : undefined,
+          })
+        }
+        className={isLarge ? '!h-14 [&_h1]:!text-[25px]' : ''}
+      />
       {isLarge ? (
         <LargeFacilityDetail
           facility={facility}

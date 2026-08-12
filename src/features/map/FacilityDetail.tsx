@@ -2,6 +2,7 @@ import type { FacilityBenefit, FacilityDetails } from '@/apis/facility';
 import FacilityIcon from './FacilityIcon';
 import { ClockIcon, HomeIcon, PinIcon } from './InfoIcons';
 import type { Facility } from './types';
+import BenefitServiceIcon from './BenefitServiceIcon';
 
 interface FacilityDetailProps {
   facility: Facility;
@@ -70,9 +71,6 @@ const FacilityDetail = ({
                 </span>
               )}
             </div>
-            <p className="mt-0.5 break-words text-[15px] font-semibold leading-5 text-[#81746A]">
-              {address}
-            </p>
           </div>
         </div>
 
@@ -130,37 +128,36 @@ const FacilityDetail = ({
             </button>
           </div>
         ) : benefits.length > 0 ? (
-          <div className="flex flex-col gap-3">
+          <div className="overflow-hidden rounded-[22px] border border-[#F3D4A9] bg-[#FFE5BE]">
             {benefits.map((benefit) => (
-              <div
+              <article
                 key={benefit.benefitId}
-                className="rounded-2xl border border-[#F4C78F] bg-[#FBE3BF] p-4"
+                className="grid min-h-[76px] grid-cols-[52px_minmax(0,1fr)_auto] items-center gap-2 border-b-[3px] border-white px-3 py-2 last:border-b-0"
               >
-                <div className="flex items-end justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-bold text-[#613212]">
-                      {benefit.region || '전국'}
-                    </span>
-                    <h3 className="mt-2 break-words text-base font-bold text-[#613212]">
-                      {benefit.serviceName}
-                    </h3>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => onViewBenefit(benefit.benefitId)}
-                    className="min-h-10 shrink-0 rounded-full bg-white px-4 text-sm font-extrabold text-[#E85D04] shadow-sm"
-                  >
-                    자세히 보기
-                  </button>
+                <BenefitServiceIcon serviceName={benefit.serviceName} className="h-[52px] w-[52px]" />
+                <div className="min-w-0">
+                  <span className="inline-flex rounded-full bg-white px-3 py-0.5 text-[13px] font-bold text-[#76533C]">
+                    지원금
+                  </span>
+                  <h3 className="mt-1 line-clamp-2 break-keep text-[16px] font-extrabold leading-[1.2] text-[#613212]">
+                    {benefit.serviceName}
+                  </h3>
                 </div>
-              </div>
+                <button
+                  type="button"
+                  onClick={() => onViewBenefit(benefit.benefitId)}
+                  className="whitespace-nowrap rounded-full bg-white px-2.5 py-1.5 text-[12px] font-bold text-[#613212]"
+                >
+                  자세히 보기 &gt;
+                </button>
+              </article>
             ))}
             {hasNextPage && (
               <button
                 type="button"
                 onClick={onLoadMore}
                 disabled={isFetchingNextPage}
-                className="min-h-12 rounded-xl border border-[#FF8A3D] bg-white px-4 text-sm font-semibold text-[#FF8A3D] disabled:opacity-50"
+                className="min-h-12 w-full border-t-[3px] border-white bg-[#FFF5E7] px-4 text-sm font-extrabold text-[#E96F27] disabled:opacity-50"
               >
                 {isFetchingNextPage ? '더 불러오는 중...' : '혜택 더 보기'}
               </button>
@@ -176,14 +173,16 @@ const FacilityDetail = ({
         !hasNoAvailableBenefits &&
         !errorMessage &&
         benefits.length > 0 && (
-        <div className="flex items-center gap-3 rounded-2xl bg-[#FBE3BF] p-4">
+        <div className="flex min-h-[104px] items-center rounded-[24px] border-2 border-[#F2B15D] bg-white px-2 py-2">
           <img
             src="/characters/salpimi_Good.png"
             alt="안내하는 살피미"
-            className="h-14 w-14 shrink-0 object-contain"
+            className="h-[82px] w-[82px] shrink-0 self-end object-contain"
           />
-          <p className="text-[16px] font-extrabold leading-6 text-[#613212]">
-            표시된 혜택은 {name}에서 신청할 수 있어요! 방문 전 전화로 확인해 주세요.
+          <p className="flex-1 break-keep text-center text-[16px] font-extrabold leading-6 text-[#613212]">
+            해당 혜택은 {name}에서 신청할 수 있어요!
+            <br />
+            방문 전 전화 확인을 추천해요.
           </p>
         </div>
       )}
