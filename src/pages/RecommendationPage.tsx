@@ -118,9 +118,9 @@ const DeadlineCard = ({
       <button
         type="button"
         onClick={onDetail}
-        className="flex h-[33px] min-w-[115px] items-center justify-center gap-0.5 rounded-full bg-gray-200/80 px-2 text-base !font-semibold text-gray-500"
+        className="flex h-[33px] min-w-[115px] items-center justify-center gap-0.5 rounded-full bg-gray-200/80 px-3 text-base !font-semibold text-gray-500"
       >
-        자세히 보기 <ChevronRight />
+        {benefit ? '자세히 보기' : '찜한 혜택 보기'} <ChevronRight />
       </button>
     </div>
   </article>
@@ -140,6 +140,7 @@ const RecommendationPage = () => {
     queryFn: benefitApi.getFavoriteDeadlineSoon,
     enabled: Boolean(accessToken && favoriteAlertEnabled),
     retry: false,
+    refetchOnMount: 'always',
     refetchOnWindowFocus: false,
   });
   const {
@@ -154,6 +155,11 @@ const RecommendationPage = () => {
     refetchOnWindowFocus: false,
   });
   const welfareCenterName = welfareCenterInfo?.welfareCenter?.trim() ?? '';
+  const welfareCenterDisplayName = welfareCenterName
+    ? /행정복지센터$/.test(welfareCenterName)
+      ? welfareCenterName
+      : `${welfareCenterName} 행정복지센터`
+    : '';
   const deadlineCards = [
     { id: 'guide', benefit: undefined },
     ...(favoriteAlertEnabled ? favoriteDeadlineBenefits : []).slice(0, 2).map((benefit) => ({
@@ -246,7 +252,9 @@ const RecommendationPage = () => {
                   totalCards={deadlineCards.length}
                   expanded={isLargeFont}
                   onDetail={() =>
-                    navigate(card.benefit ? `/benefits/${card.benefit.benefitId}` : '/benefits')
+                    navigate(
+                      card.benefit ? `/benefits/${card.benefit.benefitId}` : '/mypage/liked'
+                    )
                   }
                 />
               ))}
@@ -313,15 +321,15 @@ const RecommendationPage = () => {
             <span className="min-w-0 text-left">
               <span className="salpim-home-card-title block font-semibold text-gray-900">
                 {isWelfareCenterLoading
-                  ? '내 근처 복지관을 찾고 있어요'
-                  : welfareCenterName || '지도에서 가까운 시설 찾기'}
+                  ? '내 근처 행정복지센터를 찾고 있어요'
+                  : welfareCenterDisplayName || '지도에서 가까운 시설 찾기'}
               </span>
               <span className="salpim-home-card-body mt-1 block font-medium text-gray-500">
                 {welfareCenterName
-                  ? '회원님의 지역 담당 복지관이에요. 지도에서 위치를 확인해 보세요.'
+                  ? '회원님의 지역 담당 행정복지센터예요. 지도에서 위치를 확인해 보세요.'
                   : isWelfareCenterError
-                    ? '복지관 정보를 불러오지 못했어요. 지도에서 주변 시설을 확인해 보세요.'
-                    : '현재 위치 주변의 복지관, 주민센터, 병원을 확인해 보세요.'}
+                    ? '행정복지센터 정보를 불러오지 못했어요. 지도에서 주변 시설을 확인해 보세요.'
+                    : '현재 위치 주변의 행정복지센터, 주민센터, 병원을 확인해 보세요.'}
               </span>
             </span>
             <ChevronRight className="ml-3 h-5 w-5 shrink-0 text-gray-400" />

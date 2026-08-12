@@ -36,7 +36,7 @@ const OAuthKakaoPage = () => {
       .then(async (result) => {
         if (result.isNewMember && result.nextStep === 'SIGNUP_REQUIRED' && result.signupToken) {
           sessionStorage.setItem('salpim-kakao-signup-token', result.signupToken);
-          navigate('/onboarding', { replace: true });
+          navigate('/font-size?next=kakao-signup', { replace: true });
           return;
         }
 
@@ -51,8 +51,12 @@ const OAuthKakaoPage = () => {
 
         sessionStorage.removeItem('salpim-kakao-signup-token');
         const serverFontSize = fromServerWordSize(result.wordSize);
-        if (serverFontSize) setFontSize(serverFontSize);
-        setTokens(result.accessToken, result.refreshToken);
+        if (!serverFontSize) {
+          throw new Error('서버에서 글자 크기 설정을 불러오지 못했습니다.');
+        }
+        // 화면을 이동하기 전에 서버에 저장된 글자 크기를 로컬 설정과 UI에 동시에 반영한다.
+        setFontSize(serverFontSize);
+        setTokens(result.accessToken, result.refreshToken, 'KAKAO');
         const pendingHomeLocation = sessionStorage.getItem('salpim-pending-home-location');
         if (pendingHomeLocation) {
           try {

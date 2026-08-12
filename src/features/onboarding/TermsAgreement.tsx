@@ -20,6 +20,7 @@ const TERMS: { key: TermKey; label: string }[] = [
 interface TermsAgreementProps {
   value: TermsData;
   onChange: (data: TermsData) => void;
+  onBack: () => void;
   onSubmit: () => void;
 }
 
@@ -42,7 +43,7 @@ const CheckBox = ({ checked }: { checked: boolean }) => (
   </span>
 );
 
-const TermsAgreement = ({ value, onChange, onSubmit }: TermsAgreementProps) => {
+const TermsAgreement = ({ value, onChange, onBack, onSubmit }: TermsAgreementProps) => {
   const [openTerm, setOpenTerm] = useState<TermKey | null>(null);
   const allChecked = TERMS.every(({ key }) => value[key]);
 
@@ -55,6 +56,12 @@ const TermsAgreement = ({ value, onChange, onSubmit }: TermsAgreementProps) => {
     });
 
   const toggle = (key: keyof TermsData) => onChange({ ...value, [key]: !value[key] });
+
+  const closeTermAndAgree = () => {
+    if (!openTerm) return;
+    onChange({ ...value, [openTerm]: true });
+    setOpenTerm(null);
+  };
 
   return (
     <>
@@ -114,13 +121,16 @@ const TermsAgreement = ({ value, onChange, onSubmit }: TermsAgreementProps) => {
         </div>
       </div>
 
-      <div className="-mx-0.5 flex shrink-0 pt-4">
+      <div className="-mx-0.5 flex shrink-0 gap-4 pt-4">
+        <button type="button" onClick={onBack} className={primaryButton}>
+          이전
+        </button>
         <button type="button" onClick={onSubmit} disabled={!allChecked} className={primaryButton}>
           다음
         </button>
       </div>
 
-      {openTerm && <TermsDetail termKey={openTerm} onClose={() => setOpenTerm(null)} />}
+      {openTerm && <TermsDetail termKey={openTerm} onClose={closeTermAndAgree} />}
     </>
   );
 };

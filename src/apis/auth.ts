@@ -70,6 +70,7 @@ export interface TokenResult {
 export interface KakaoLoginResult {
   isNewMember: boolean;
   nextStep: 'LOGIN_COMPLETE' | 'SIGNUP_REQUIRED';
+  loginType?: 'KAKAO' | null;
   // 현재 카카오 로그인 응답에는 이름이 없으며, 기존 서버 응답과의 호환용으로만 허용한다.
   name?: string | null;
   accessToken: string | null;
@@ -245,11 +246,32 @@ export const authApi = {
   },
 
   signupKakao: async (signupToken: string, request: KakaoSignupRequest) => {
+    const {
+      name,
+      birthDate,
+      gender,
+      phoneNumber,
+      roadAddress,
+      detailAddress,
+      latitude,
+      longitude,
+      regionId,
+      wordSize,
+    } = request;
+
     await client.post<ApiResponse<unknown>>(
       '/signup/kakao',
       {
-        ...request,
-        phoneNumber: normalizePhoneNumber(request.phoneNumber),
+        name,
+        birthDate,
+        gender,
+        phoneNumber: normalizePhoneNumber(phoneNumber),
+        roadAddress,
+        detailAddress,
+        latitude,
+        longitude,
+        regionId,
+        wordSize,
       },
       {
         headers: { Authorization: `Bearer ${signupToken}` },

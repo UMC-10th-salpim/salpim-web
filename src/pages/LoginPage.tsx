@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { authApi, getLoginErrorMessage } from '@/apis/auth';
+import { authApi, getKakaoAuthorizeUrl, getLoginErrorMessage } from '@/apis/auth';
 import OnboardingButton from '@/features/onboarding/ui/OnboardingButton';
 import OnboardingInput from '@/features/onboarding/ui/OnboardingInput';
 import useUserStore from '@/store/userStore';
@@ -32,6 +32,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [kakaoLoginError, setKakaoLoginError] = useState('');
   const [landingScale, setLandingScale] = useState(getLandingScale);
   const setTokens = useUserStore((state) => state.setTokens);
   const setFontSize = useSettingsStore((state) => state.setFontSize);
@@ -61,12 +62,24 @@ const LoginPage = () => {
       const tokens = await authApi.loginLocal(phone, password);
       const serverFontSize = fromServerWordSize(tokens.wordSize);
       if (serverFontSize) setFontSize(serverFontSize);
-      setTokens(tokens.accessToken, tokens.refreshToken);
+      setTokens(tokens.accessToken, tokens.refreshToken, 'LOCAL');
       navigate('/recommendation', { replace: true });
     } catch (error) {
       setLoginError(getLoginErrorMessage(error, '로그인하지 못했어요. 다시 확인해 주세요.'));
     } finally {
       setIsLoggingIn(false);
+    }
+  };
+
+  const handleKakaoLogin = () => {
+    setKakaoLoginError('');
+
+    try {
+      window.location.href = getKakaoAuthorizeUrl();
+    } catch {
+      setKakaoLoginError(
+        '카카오 로그인 설정을 확인하지 못했어요. 잠시 후 다시 시도해 주세요.'
+      );
     }
   };
 
@@ -120,7 +133,7 @@ const LoginPage = () => {
               onClick={() => navigate('/password/find', { state: { phoneNumber: phone } })}
               className="min-h-12 rounded-full border-2 border-[#FFD29E] bg-white px-6 text-[24px] font-extrabold text-[#FF6B00] transition-colors hover:bg-[#FFF7ED]"
             >
-              비밀번호 찾기
+              비밀번호 바꾸기
             </button>
           </div>
 
@@ -170,17 +183,25 @@ const LoginPage = () => {
           <div className="absolute left-8 top-[516px] flex w-[310px] flex-col gap-2">
             <OnboardingButton
               className={landingButtonStyle}
-              onClick={() => navigate('/font-size?next=login')}
+              onClick={() => navigate('/?step=login')}
             >
               시작하기
             </OnboardingButton>
             <OnboardingButton
               className={`${landingButtonStyle} gap-2`}
-              onClick={() => navigate('/font-size?next=kakao')}
+              onClick={handleKakaoLogin}
             >
               <img src="/icons/kakaotalk.png" alt="" className="size-10" />
               카카오로 시작하기
             </OnboardingButton>
+            {kakaoLoginError && (
+              <p
+                role="alert"
+                className="mt-1 text-center text-[15px] font-semibold leading-5 text-red-500"
+              >
+                {kakaoLoginError}
+              </p>
+            )}
             <OnboardingButton
               className={landingButtonStyle}
               onClick={() => navigate('/font-size?next=signup')}

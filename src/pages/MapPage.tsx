@@ -3,7 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
 import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
-import { searchAllFacilities, searchFacilityByName } from '@/apis/facility';
+import {
+  isFacilityNameMatch,
+  searchAllFacilities,
+  searchFacilityByName,
+} from '@/apis/facility';
 import { mypageApi } from '@/apis/mypage';
 import { authApi } from '@/apis/auth';
 import CategoryFilterSheet from '@/features/map/CategoryFilterSheet';
@@ -162,10 +166,9 @@ const MapPage = () => {
 
   const fallbackFacility = useMemo(() => {
     if (!focusFacilityName) return null;
-    const normalizedTarget = focusFacilityName.replace(/\s+/g, '').toLowerCase();
     return (
       nearbyFacilities.find((facility) =>
-        facility.name.replace(/\s+/g, '').toLowerCase().includes(normalizedTarget)
+        isFacilityNameMatch(facility.name, focusFacilityName)
       ) ?? null
     );
   }, [focusFacilityName, nearbyFacilities]);

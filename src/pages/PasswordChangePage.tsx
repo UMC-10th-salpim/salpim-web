@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import HeaderBar from '@/components/common/HeaderBar/HeaderBar';
 import BottomNavigation from '@/components/common/BottomNavigation/BottomNavigation';
@@ -11,6 +11,7 @@ const PasswordChangePage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const logout = useUserStore((state) => state.logout);
+  const loginType = useUserStore((state) => state.loginType);
   const location = useLocation();
   const routeState = location.state as
     | { skipToNew?: boolean; recoveryAnswer?: string }
@@ -18,6 +19,14 @@ const PasswordChangePage = () => {
   const skipToNew = Boolean(routeState?.skipToNew && routeState.recoveryAnswer);
   const [step, setStep] = useState<'current' | 'new'>(skipToNew ? 'new' : 'current');
   const [currentPassword, setCurrentPassword] = useState('');
+
+  useEffect(() => {
+    if (loginType === 'KAKAO') {
+      navigate('/mypage', { replace: true });
+    }
+  }, [loginType, navigate]);
+
+  if (loginType === 'KAKAO') return null;
 
   return (
     <div className="mypage-screen mx-auto max-w-md">
