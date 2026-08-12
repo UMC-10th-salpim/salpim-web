@@ -160,7 +160,7 @@ const handleKakaoShare = async () => {
         {/*가까운 기관 안내*/}
         {!isOnline && source === 'survey' && (
           <div className="flex flex-col gap-2">
-            <span className="salpim-detail-share-title pl-4 font-bold text-[#613212]">우리 동네 복지관에서 도움받기</span>
+            <span className="salpim-detail-share-title pl-4 font-bold text-[#613212]">우리 동네 행정복지센터에서 도움받기</span>
             <div className="bg-[#FBE3BF] rounded-4xl p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="rounded-full bg-[#FAFAFA] w-16 h-16 flex items-center justift-center pl-3">
