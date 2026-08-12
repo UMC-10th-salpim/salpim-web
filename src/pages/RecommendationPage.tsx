@@ -155,6 +155,11 @@ const RecommendationPage = () => {
     refetchOnWindowFocus: false,
   });
   const welfareCenterName = welfareCenterInfo?.welfareCenter?.trim() ?? '';
+  const welfareCenterDisplayName = welfareCenterName
+    ? /행정복지센터$/.test(welfareCenterName)
+      ? welfareCenterName
+      : `${welfareCenterName} 행정복지센터`
+    : '';
   const deadlineCards = [
     { id: 'guide', benefit: undefined },
     ...(favoriteAlertEnabled ? favoriteDeadlineBenefits : []).slice(0, 2).map((benefit) => ({
@@ -317,7 +322,7 @@ const RecommendationPage = () => {
               <span className="salpim-home-card-title block font-semibold text-gray-900">
                 {isWelfareCenterLoading
                   ? '내 근처 복지관을 찾고 있어요'
-                  : welfareCenterName || '지도에서 가까운 시설 찾기'}
+                  : welfareCenterDisplayName || '지도에서 가까운 시설 찾기'}
               </span>
               <span className="salpim-home-card-body mt-1 block font-medium text-gray-500">
                 {welfareCenterName

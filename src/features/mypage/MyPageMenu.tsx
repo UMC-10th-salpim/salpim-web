@@ -60,6 +60,7 @@ const MyPageMenu = () => {
   const navigate = useNavigate();
   const logout = useUserStore((state) => state.logout);
   const accessToken = useUserStore((state) => state.accessToken);
+  const loginType = useUserStore((state) => state.loginType);
   const fontSize = useSettingsStore((state) => state.fontSize);
   const deadlineAlertEnabled = useSettingsStore((state) => state.deadlineAlertEnabled);
   const toggleDeadlineAlert = useSettingsStore((state) => state.toggleDeadlineAlert);
@@ -179,11 +180,13 @@ const MyPageMenu = () => {
           description="이름, 생년월일, 성별, 주소"
           onClick={() => navigate('/mypage/edit')}
         />
-        <MenuRow
-          icon="/icons/mypage/password.png"
-          title="비밀번호 변경"
-          onClick={() => navigate('/mypage/password')}
-        />
+        {loginType !== 'KAKAO' && (
+          <MenuRow
+            icon="/icons/mypage/password.png"
+            title="비밀번호 변경"
+            onClick={() => navigate('/mypage/password')}
+          />
+        )}
       </Section>
 
       <Section title="고객 지원">

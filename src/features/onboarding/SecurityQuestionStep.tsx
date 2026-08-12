@@ -10,10 +10,11 @@ const SECURITY_QUESTION = '내가 가장 좋아하는 음식은?';
 interface SecurityQuestionStepProps {
   value: SecurityData;
   onChange: (data: SecurityData) => void;
+  onBack: () => void;
   onNext: () => void;
 }
 
-const SecurityQuestionStep = ({ value, onChange, onNext }: SecurityQuestionStepProps) => {
+const SecurityQuestionStep = ({ value, onChange, onBack, onNext }: SecurityQuestionStepProps) => {
   const isValid = value.answer.trim() !== '';
 
   return (
@@ -46,7 +47,10 @@ const SecurityQuestionStep = ({ value, onChange, onNext }: SecurityQuestionStepP
         </div>
       </div>
 
-      <div className="-mx-0.5 flex shrink-0 pt-4">
+      <div className="-mx-0.5 flex shrink-0 gap-4 pt-4">
+        <button type="button" onClick={onBack} className={primaryButton}>
+          이전
+        </button>
         <button type="button" onClick={onNext} disabled={!isValid} className={primaryButton}>
           다음
         </button>
