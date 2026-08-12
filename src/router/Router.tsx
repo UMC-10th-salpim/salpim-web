@@ -44,7 +44,7 @@ const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const HelperPage = lazy(() => import('@/pages/HelperPage'));
 
 const withSuspense = (Component: React.ComponentType) => (
-  <Suspense fallback={<div className="flex min-h-[100svh] items-center justify-center">로딩중...</div>}>
+  <Suspense fallback={<div role="status" aria-live="polite" className="flex min-h-[100svh] items-center justify-center">로딩중...</div>}>
     <Component />
   </Suspense>
 );
