@@ -166,6 +166,7 @@ const BenefitPage = () => {
                       icon={getBenefitIcon(benefit.benefitCategory)}
                       title={benefit.benefitTitle}
                       className={roundedStyle}
+                      source={source}
                     />
                   );
                 })}

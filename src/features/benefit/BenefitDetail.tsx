@@ -21,9 +21,10 @@ interface BenefitDetailProps {
   url?: string;
   facilityName?: string;
   initialIsLiked?: boolean;
+  source?: 'survey' | 'search';
 }
 
-const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, easySummary, eligibility, benefitContent, targetPerson, url, facilityName, initialIsLiked = false}:BenefitDetailProps) => {
+const BenefitDetail = ({isOnline, id, category, title, deadline, ageLimit, easySummary, eligibility, benefitContent, targetPerson, url, facilityName, initialIsLiked = false, source}:BenefitDetailProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const isLiked = useBenefitStore((state) => state.isLiked(id));
@@ -138,7 +139,7 @@ const handleKakaoShare = async () => {
 
           <div>
             <span className="salpim-detail-section-title font-bold text-[#613212]">무엇을 받을 수 있을까?</span>
-            <div className="salpim-detail-section-button border border-[#FED7AA] border-4 rounded-2xl p-4 mt-1 text-center font-bold">{benefitContent}</div>
+            <div className="salpim-detail-section-button border border-[#FED7AA] border-4 rounded-2xl p-4 mt-1 text-center font-bold break-keep [overflow-wrap:anywhere] text-balance">{benefitContent}</div>
           </div>
 
           <div>
@@ -157,7 +158,7 @@ const handleKakaoShare = async () => {
       </div>
 
         {/*가까운 기관 안내*/}
-        {!isOnline && (
+        {!isOnline && source === 'survey' && (
           <div className="flex flex-col gap-2">
             <span className="salpim-detail-share-title pl-4 font-bold text-[#613212]">우리 동네 복지관에서 도움받기</span>
             <div className="bg-[#FBE3BF] rounded-4xl p-4 flex items-center justify-between">
@@ -175,7 +176,7 @@ const handleKakaoShare = async () => {
 
             <div
               className="flex items-center gap-1 cursor-pointer"
-              onClick={()=>navigate('/map' , { state: { focusFacilityName: facilityName} })}
+              onClick={()=>navigate('/map' , { state: { focusFacilityName: fullFacilityName} })}
             >
               <span className="salpim-detail-facility-link text-[#2B2B2B] font-medium">지도</span>
               <img src="/icons/path.png" className="w-10 h-10"/>
