@@ -139,6 +139,9 @@ body {
   --salpim-result-card-title: 18px;
   --salpim-result-card-button: 12px;
   --salpim-result-retry: 30px;
+
+  --salpim-empty-title: 24px;
+  --salpim-empty-guide: 20px;
 }
 
 [data-font-size='large'] {
@@ -204,6 +207,9 @@ body {
   --salpim-result-card-title: 28px;
   --salpim-result-card-button: 16px;
   --salpim-result-retry: 40px;
+
+  --salpim-empty-title: 32px;
+  --salpim-empty-guide: 28px;
 }
 
 .salpim-header-title {
@@ -528,6 +534,14 @@ body {
 
 .salpim-result-retry {
   font-size: var(--salpim-result-retry) !important;
+}
+
+.salpim-empty-title {
+  font-size: var(--salpim-empty-title) !important;
+}
+
+.salpim-empty-guide {
+  font-size: var(--salpim-empty-guide) !important;
 }
 
 button,

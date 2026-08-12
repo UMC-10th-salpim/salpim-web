@@ -26,19 +26,13 @@ const getAgeConditionText = (
   if (status === 'NO_RESTRICTION') return '나이 조건 없음';
   if (status === 'UNKNOWN') return '나이 조건 확인 필요';
 
+  if (minAge === null && maxAge === null) return '나이 조건 확인 필요';
   if (minAge !== null && maxAge !== null) return `나이 조건 (만 ${minAge}세 이상 ${maxAge}세 미만)`;
   if (minAge !== null) return `나이 조건 (만 ${minAge}세 이상)`;
-  if (maxAge !== null) return `나이 조건 (만 ${maxAge}세 미만)`;
-  return '나이 조건 확인 필요';
+  return `나이 조건 (만 ${maxAge}세 미만)`;
 };
 
-// 지역
-const getRegionText = (organization : string) => {
-  const parts = organization.trim().split(/\s+/);
-  return parts.slice(0,2).join(' ');
-}
-
-const BenefitHelper = ({isOnline, url, title, ageConditionStatus, minAge, maxAge, isAgeSatisfied, applicationEndDate, organization, isRegionSatisfied, userAge, userSido, userSigungu}:BenefitHelperProps) => {
+const BenefitHelper = ({isOnline, url, title, ageConditionStatus, minAge, maxAge, isAgeSatisfied, applicationEndDate, isRegionSatisfied, userAge, userSido, userSigungu}:BenefitHelperProps) => {
   // 나이 조건
   const ageHeaderText = getAgeConditionText(ageConditionStatus, minAge, maxAge);
   const ageStatusText = 
@@ -52,7 +46,6 @@ const BenefitHelper = ({isOnline, url, title, ageConditionStatus, minAge, maxAge
     const ageIcon = isAgeSatisfied === true ? '/icons/helper/success.png' : '/icons/helper/error.png';
 
     // 사는 곳
-    const regionText = getRegionText(organization);
     const regionStatusText = isRegionSatisfied ? `충족 · ${userSido} ${userSigungu}` : `미충족 · ${userSido} ${userSigungu}`;
     const regionStatusColor = isRegionSatisfied ? 'text-[#22C55E]' : 'text-[#EF4444]';
     const regionIcon = isRegionSatisfied ? '/icons/helper/success.png' : '/icons/helper/error.png';
@@ -69,7 +62,7 @@ const BenefitHelper = ({isOnline, url, title, ageConditionStatus, minAge, maxAge
         <div className="flex flex-col p-4 gap-7">
 
             {/*상단 안내 카드*/}
-            <div className="bg-[#FFF7ED] border-3 border-[#E8B16A] rounded-4xl flex items-center gap-1 mx-[16.5px] py-2">
+            <div className="bg-[#FFF7ED] border-3 border-[#E8B16A] rounded-4xl flex items-center gap-1 mx-[16.5px] py-2 px-2">
                 <img src="/characters/salpimi_Love.png" className="w-27 h-27 shrink-0"/>
                 <div className="flex flex-col gap-2 min-w-0 flex-1">
                     <span className="salpim-helper-title font-semibold text-[#613212] text-center break-keep text-balance">{title}</span>
@@ -99,7 +92,7 @@ const BenefitHelper = ({isOnline, url, title, ageConditionStatus, minAge, maxAge
                 <div className="bg-[#FFEDD5] p-[6px]">
                   <div className="flex items-center gap-1">
                     <img src={regionIcon} className="w-10 h-10"/>
-                    <span className="salpim-helper-condtion-label font-semibold">사는 곳 ({regionText})</span>
+                    <span className="salpim-helper-condtion-label font-semibold">사는 곳</span>
                   </div>
                   <span className={`salpim-helper-condtion-status text-[#22C55E] pl-[44px] ${regionStatusColor}`}>{regionStatusText}</span>
                 </div>
