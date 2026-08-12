@@ -120,7 +120,7 @@ const LoginPage = () => {
               onClick={() => navigate('/password/find', { state: { phoneNumber: phone } })}
               className="min-h-12 rounded-full border-2 border-[#FFD29E] bg-white px-6 text-[24px] font-extrabold text-[#FF6B00] transition-colors hover:bg-[#FFF7ED]"
             >
-              비밀번호 찾기
+              비밀번호 바꾸기
             </button>
           </div>
 
@@ -170,7 +170,7 @@ const LoginPage = () => {
           <div className="absolute left-8 top-[516px] flex w-[310px] flex-col gap-2">
             <OnboardingButton
               className={landingButtonStyle}
-              onClick={() => navigate('/font-size?next=login')}
+              onClick={() => navigate('/?step=login')}
             >
               시작하기
             </OnboardingButton>

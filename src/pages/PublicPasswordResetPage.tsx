@@ -147,7 +147,7 @@ const PublicPasswordResetPage = () => {
                   setRecoveryAnswer(event.target.value);
                   setError('');
                 }}
-                placeholder="회원가입 때 적은 답변을 입력해 주세요"
+                placeholder="가입 시 답변을 입력해주세요"
               />
             </div>
 

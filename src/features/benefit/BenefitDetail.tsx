@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import useBenefitStore from "@/store/benefitStore";
 import useUserStore from "@/store/userStore";
 import { useEffect } from "react"; 
-import { updateFavorite, getBenefitShareInfo } from "@/apis/benefit";
 import { useQueryClient } from "@tanstack/react-query";
+import { updateFavorite, getBenefitShareInfo } from "@/apis/benefit";
 
 interface BenefitDetailProps {
   isOnline : boolean;
