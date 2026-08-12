@@ -52,8 +52,8 @@ const SurveyForm = ({
       {/* 말풍선 */}
       <div className="flex items-center mb-2.5">
         <img src='/characters/salpimi_Dog.png' className='w-22 h-22 shrink-0'/>
-        <div className="bg-[#FFF3EB] rounded-[20px] rounded-bl-[1px] border border-[#FF913D] border-1 px-2.5 py-2.5">
-          <span className='salpim-survey-bubble font-regular text-[#613212] whitespace-pre-line'>{questionText}</span>
+        <div className="bg-[#FFF3EB] rounded-[20px] rounded-bl-[1px] border border-[#FF913D] border-1 px-2.5 py-2.5 w-fit max-w-[calc(100%-5rem)]">
+          <span className='salpim-survey-bubble font-regular text-[#613212] whitespace-pre-line text-center block'>{questionText}</span>
         </div>
       </div>
 

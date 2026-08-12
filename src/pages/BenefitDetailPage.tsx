@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { benefitApi, getBenefitDetail, type BenefitDetailResult, getBenefitIcon, getMyWelfareCenter} from "@/apis/benefit";
 import { getAgeLimitText, getDeadlineText } from "@/utils/benefitText";
@@ -10,6 +10,8 @@ import useUserStore from "@/store/userStore";
 
 const BenefitDetailPage = () => {
   const {id} = useParams();
+  const location = useLocation();
+  const source = (location.state as {source?: 'survey' | 'search'} | null)?.source;
   const [detail, setDetail] = useState<BenefitDetailResult | null>(null);
   const [welfareCenter, setWelfareCenter] = useState<string | undefined>(undefined);
   const [initialIsFavorite, setInitialIsFavorite] = useState(false);
@@ -86,6 +88,7 @@ const BenefitDetailPage = () => {
         url={detail.applicationUrl ?? undefined}
         facilityName={welfareCenter}
         initialIsLiked={initialIsFavorite}
+        source={source}
         />
       <ScrollMoreIndicator/>
       <BottomNavigation onBeforeNavigate={requireLoginBeforeNavigate}/>
