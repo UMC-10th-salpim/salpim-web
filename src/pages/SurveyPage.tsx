@@ -27,6 +27,7 @@ const SurveyPage = () => {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<SurveyAnswers>({});
   const [secondQuestion, setSecondQuestion] = useState<SurveyQuestion | null >(null);
+  const [secondQuestionError, setSecondQuestionError] = useState(false);
 
   const questions = secondQuestion
     ? [firstQuestion, secondQuestion]
@@ -46,6 +47,7 @@ const SurveyPage = () => {
       const categoryId = value as number;
       const requestId = ++latesRequestRef.current;
       setIsLoadingSecond(true);
+      setSecondQuestionError(false);
 
       try {
         const options = await surveyApi.getSecondQuestionOptions(categoryId);
@@ -64,7 +66,10 @@ const SurveyPage = () => {
         });
       } catch (error) {
         console.error('2단계 질문 조회 실패', error);
-        setSecondQuestion(SECOND_QUESTIONS[categoryId] ?? null);
+        if (requestId === latesRequestRef.current) {
+          setSecondQuestion(null);
+          setSecondQuestionError(true);
+        }
       } finally {
         if (requestId === latesRequestRef.current) {
           setIsLoadingSecond(false);
@@ -103,6 +108,11 @@ const SurveyPage = () => {
         onNext={handleNext}
         userName={userName ?? undefined}
       />
+      {secondQuestionError && (
+        <p className="text-center text-sm text-red-500 px-4">
+          선택지를 불러오지 못했어요. 다시 시도해 주세요.
+        </p>
+      )}
       <BottomNavigation/>
       <ScrollMoreIndicator/>
     </div>

@@ -113,7 +113,7 @@ const formatDistance = (meters: string): string => {
 };
 
 // "CU 구로보건소점" 처럼 편의점 지점명이 검색 키워드와 우연히 겹쳐 나오는 경우를 걸러낸다.
-const EXCLUDED_NAME_PREFIXES = ['CU', 'GS25', 'GS', '파리바게뜨'];
+const EXCLUDED_NAME_PREFIXES = ['CU', 'GS25', 'GS', '파리바게뜨', '이마트24'];
 
 const isExcludedFacilityName = (name: string) =>
   EXCLUDED_NAME_PREFIXES.some((prefix) => name.trim().toUpperCase().startsWith(prefix));

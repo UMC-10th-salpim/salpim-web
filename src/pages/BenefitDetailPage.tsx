@@ -16,6 +16,15 @@ const BenefitDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
   const accessToken = useUserStore((state) => state.accessToken);
+  
+  const requireLoginBeforeNavigate = () => {
+    if (!accessToken) {
+      alert('로그인이 필요한 기능이에요. 로그인 페이지로 이동할게요.');
+      window.location.href = 'https://salpim.me/';
+      return false;
+    }
+    return true;
+  };
 
   useEffect(()=>{
     if (!id) return;
@@ -79,7 +88,7 @@ const BenefitDetailPage = () => {
         initialIsLiked={initialIsFavorite}
         />
       <ScrollMoreIndicator/>
-      <BottomNavigation/>
+      <BottomNavigation onBeforeNavigate={requireLoginBeforeNavigate}/>
     </div>
   );
 };
