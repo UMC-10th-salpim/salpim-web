@@ -8,13 +8,14 @@ interface BenefitCardProps {
   icon : string; // 기관별 아모지
   title: string;
   className : string;
+  source?: 'survey' | 'search';
 }
 
-const BenefitCard = ({id, category, icon, title, className=''} : BenefitCardProps) => {
+const BenefitCard = ({id, category, icon, title, className='', source} : BenefitCardProps) => {
   const navigate = useNavigate();
 
   const handleDetailClick = () => {
-    navigate(`/benefits/${id}`);
+    navigate(`/benefits/${id}`, {state: {source} });
   };
 
   return (
