@@ -170,7 +170,7 @@ const LoginPage = () => {
           <div className="absolute left-8 top-[516px] flex w-[310px] flex-col gap-2">
             <OnboardingButton
               className={landingButtonStyle}
-              onClick={() => navigate('/font-size?next=login')}
+              onClick={() => navigate('/?step=login')}
             >
               시작하기
             </OnboardingButton>

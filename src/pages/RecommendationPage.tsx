@@ -118,9 +118,9 @@ const DeadlineCard = ({
       <button
         type="button"
         onClick={onDetail}
-        className="flex h-[33px] min-w-[115px] items-center justify-center gap-0.5 rounded-full bg-gray-200/80 px-2 text-base !font-semibold text-gray-500"
+        className="flex h-[33px] min-w-[115px] items-center justify-center gap-0.5 rounded-full bg-gray-200/80 px-3 text-base !font-semibold text-gray-500"
       >
-        자세히 보기 <ChevronRight />
+        {benefit ? '자세히 보기' : '찜한 혜택 보기'} <ChevronRight />
       </button>
     </div>
   </article>
@@ -140,6 +140,7 @@ const RecommendationPage = () => {
     queryFn: benefitApi.getFavoriteDeadlineSoon,
     enabled: Boolean(accessToken && favoriteAlertEnabled),
     retry: false,
+    refetchOnMount: 'always',
     refetchOnWindowFocus: false,
   });
   const {
@@ -246,7 +247,9 @@ const RecommendationPage = () => {
                   totalCards={deadlineCards.length}
                   expanded={isLargeFont}
                   onDetail={() =>
-                    navigate(card.benefit ? `/benefits/${card.benefit.benefitId}` : '/benefits')
+                    navigate(
+                      card.benefit ? `/benefits/${card.benefit.benefitId}` : '/mypage/liked'
+                    )
                   }
                 />
               ))}
