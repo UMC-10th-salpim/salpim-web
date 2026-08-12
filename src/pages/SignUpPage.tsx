@@ -67,7 +67,19 @@ const SignUpPage = () => {
   });
 
   const isKakaoSignup = Boolean(kakaoSignupToken);
-  const next = () => setStep((previous) => (isKakaoSignup && previous === 1 ? 4 : previous + 1));
+  const previous = () =>
+    setStep((current) => {
+      // 카카오 가입은 비밀번호와 복구 질문을 사용하지 않으므로 약관에서 주소 단계로 돌아간다.
+      if (isKakaoSignup && current === 4) return 1;
+      return Math.max(0, current - 1);
+    });
+  const next = () =>
+    setStep((previous) => {
+      // 카카오 계정은 카카오 인증이 비밀번호를 대신하므로
+      // 비밀번호 설정(2)과 비밀번호 복구 질문(3) 단계를 거치지 않는다.
+      if (isKakaoSignup && previous === 1) return 4;
+      return previous + 1;
+    });
 
   // 카카오 가입 화면을 벗어날 때(성공 소비 전 이탈) 남은 가입 토큰을 정리해 노출 시간을 최소화한다.
   // - 정상 완료: 리다이렉트 전에 이미 removeItem 되므로 여기서는 no-op.
@@ -132,7 +144,7 @@ const SignUpPage = () => {
       });
 
       const tokens = await authApi.loginLocal(info.phone, password.password);
-      setTokens(tokens.accessToken, tokens.refreshToken);
+      setTokens(tokens.accessToken, tokens.refreshToken, 'LOCAL');
       setName(signupProfile.name);
       setHomeLocation(signupProfile.latitude, signupProfile.longitude);
       navigate('/recommendation', { replace: true });
@@ -172,15 +184,32 @@ const SignUpPage = () => {
             onUseCurrentLocation={reverseGeocodeAddress}
           />
         )}
-        {step === 2 && <PasswordStep value={password} onChange={setPassword} onNext={next} />}
-        {step === 3 && (
-          <SecurityQuestionStep value={security} onChange={setSecurity} onNext={next} />
+        {!isKakaoSignup && step === 2 && (
+          <PasswordStep value={password} onChange={setPassword} onBack={previous} onNext={next} />
+        )}
+        {!isKakaoSignup && step === 3 && (
+          <SecurityQuestionStep
+            value={security}
+            onChange={setSecurity}
+            onBack={previous}
+            onNext={next}
+          />
         )}
         {step === 4 &&
           (isLarge ? (
-            <LargeTermsAgreement value={terms} onChange={setTerms} onSubmit={next} />
+            <LargeTermsAgreement
+              value={terms}
+              onChange={setTerms}
+              onBack={previous}
+              onSubmit={next}
+            />
           ) : (
-            <TermsAgreement value={terms} onChange={setTerms} onSubmit={next} />
+            <TermsAgreement
+              value={terms}
+              onChange={setTerms}
+              onBack={previous}
+              onSubmit={next}
+            />
           ))}
         {step === 5 && (
           <SummaryStep

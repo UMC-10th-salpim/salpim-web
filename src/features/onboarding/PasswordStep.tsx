@@ -8,12 +8,13 @@ export interface PasswordData {
 interface PasswordStepProps {
   value: PasswordData;
   onChange: (data: PasswordData) => void;
+  onBack: () => void;
   onNext: () => void;
 }
 
 const normalizePassword = (value: string) => value.replace(/\D/g, '').slice(0, 6);
 
-const PasswordStep = ({ value, onChange, onNext }: PasswordStepProps) => {
+const PasswordStep = ({ value, onChange, onBack, onNext }: PasswordStepProps) => {
   const meetsPasswordRule = /^\d{6}$/.test(value.password);
   const mismatch = value.confirm !== '' && value.password !== value.confirm;
   const isValid = meetsPasswordRule && value.password === value.confirm;
@@ -79,7 +80,10 @@ const PasswordStep = ({ value, onChange, onNext }: PasswordStepProps) => {
         </div>
       </div>
 
-      <div className="-mx-0.5 flex shrink-0 pt-4">
+      <div className="-mx-0.5 flex shrink-0 gap-4 pt-4">
+        <button type="button" onClick={onBack} className={primaryButton}>
+          이전
+        </button>
         <button type="button" onClick={onNext} disabled={!isValid} className={primaryButton}>
           다음
         </button>

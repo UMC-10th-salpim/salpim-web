@@ -123,6 +123,7 @@ const splitButtonStyle =
 const OnboardingPage = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
+  const isKakaoSignup = Boolean(sessionStorage.getItem('salpim-kakao-signup-token'));
 
   const current = slides[step];
   const isLast = step === slides.length - 1;
@@ -132,7 +133,7 @@ const OnboardingPage = () => {
   const handleNext = () => (isLast ? finish() : setStep((prev) => prev + 1));
   const handleBack = () => {
     if (step === 0) {
-      navigate('/font-size?next=signup');
+      navigate(isKakaoSignup ? '/font-size?next=kakao-signup' : '/font-size?next=signup');
       return;
     }
 

@@ -7,7 +7,7 @@ import FontSizeSettings from '@/features/mypage/FontSizeSettings';
 import useSettingsStore from '@/store/settingsStore';
 import type { FontSize } from '@/store/settingsStore';
 
-type NextPage = 'login' | 'kakao' | 'signup';
+type NextPage = 'login' | 'kakao' | 'kakao-signup' | 'signup';
 
 const FontSizePage = () => {
   const navigate = useNavigate();
@@ -21,6 +21,13 @@ const FontSizePage = () => {
   const next = searchParams.get('next') as NextPage | null;
   const isLarge = fontSize === 'large';
   const isMyPageRoute = location.pathname === '/mypage/font-size';
+
+  const handleBack = () => {
+    if (next === 'kakao-signup') {
+      sessionStorage.removeItem('salpim-kakao-signup-token');
+    }
+    navigate('/');
+  };
 
   if (!next) {
     return (
@@ -53,6 +60,17 @@ const FontSizePage = () => {
 
     if (next === 'signup') {
       sessionStorage.removeItem('salpim-kakao-signup-token');
+      navigate('/onboarding');
+      return;
+    }
+
+    if (next === 'kakao-signup') {
+      const signupToken = sessionStorage.getItem('salpim-kakao-signup-token');
+      if (!signupToken) {
+        navigate('/', { replace: true });
+        return;
+      }
+
       navigate('/onboarding');
       return;
     }
@@ -125,7 +143,7 @@ const FontSizePage = () => {
         <div className="absolute left-[22px] top-[684px] flex gap-4">
           <button
             type="button"
-            onClick={() => navigate('/')}
+            onClick={handleBack}
             className="h-20 w-[157px] rounded-xl bg-[#FF843D] !text-[30px] !font-semibold text-white"
           >
             이전

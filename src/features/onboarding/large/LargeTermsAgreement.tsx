@@ -13,6 +13,7 @@ const LARGE_TERMS: { key: TermKey; label: string }[] = [
 interface LargeTermsAgreementProps {
   value: TermsData;
   onChange: (data: TermsData) => void;
+  onBack: () => void;
   onSubmit: () => void;
 }
 
@@ -37,7 +38,7 @@ const LargeCheckBox = ({ checked }: { checked: boolean }) => (
   </span>
 );
 
-const LargeTermsAgreement = ({ value, onChange, onSubmit }: LargeTermsAgreementProps) => {
+const LargeTermsAgreement = ({ value, onChange, onBack, onSubmit }: LargeTermsAgreementProps) => {
   const [openTerm, setOpenTerm] = useState<TermKey | null>(null);
   const allChecked = LARGE_TERMS.every(({ key }) => value[key]);
 
@@ -50,6 +51,12 @@ const LargeTermsAgreement = ({ value, onChange, onSubmit }: LargeTermsAgreementP
     });
 
   const toggle = (key: keyof TermsData) => onChange({ ...value, [key]: !value[key] });
+
+  const closeTermAndAgree = () => {
+    if (!openTerm) return;
+    onChange({ ...value, [openTerm]: true });
+    setOpenTerm(null);
+  };
 
   return (
     <>
@@ -102,16 +109,25 @@ const LargeTermsAgreement = ({ value, onChange, onSubmit }: LargeTermsAgreementP
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={onSubmit}
-        disabled={!allChecked}
-        className="mt-4 flex min-h-[72px] w-full shrink-0 items-center justify-center rounded-[18px] bg-[#FF8A3D] text-[29px] font-extrabold text-white disabled:bg-[#DDDDDD]"
-      >
-        다음
-      </button>
+      <div className="mt-4 flex shrink-0 gap-4">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex min-h-[72px] flex-1 items-center justify-center rounded-[18px] bg-[#FF8A3D] text-[29px] font-extrabold text-white"
+        >
+          이전
+        </button>
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={!allChecked}
+          className="flex min-h-[72px] flex-1 items-center justify-center rounded-[18px] bg-[#FF8A3D] text-[29px] font-extrabold text-white disabled:bg-[#DDDDDD]"
+        >
+          다음
+        </button>
+      </div>
 
-      {openTerm && <TermsDetail termKey={openTerm} onClose={() => setOpenTerm(null)} />}
+      {openTerm && <TermsDetail termKey={openTerm} onClose={closeTermAndAgree} />}
     </>
   );
 };
