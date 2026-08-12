@@ -95,20 +95,24 @@ const LikedBenefits = () => {
           </div>
 
           <div className="mt-auto pt-8">
-            <button type="button" onClick={() => navigate('/benefits')} className="mypage-primary-action">
+            <button
+              type="button"
+              onClick={() => navigate('/benefits/search')}
+              className="mypage-primary-action"
+            >
               혜택 둘러보기
             </button>
           </div>
         </div>
       ) : (
         <>
-          <div className="mypage-card flex items-center gap-4 px-4 py-3.5">
+          <div className="flex items-center gap-3 rounded-[22px] border-2 border-[#F2B46B] bg-white px-3 py-3">
             <img
               src="/characters/salpimi_Love.png"
               alt="하트를 들고 있는 살피미"
-              className="h-[70px] w-[70px] shrink-0 object-contain"
+              className="h-[64px] w-[64px] shrink-0 object-contain"
             />
-            <p className="text-[19px] font-extrabold leading-7 text-[#613212]">
+            <p className="min-w-0 flex-1 break-keep text-center text-[18px] font-extrabold leading-6 text-[#613212]">
               찜해 둔 혜택 {totalCount}개예요!
               <br />
               마감일을 놓치지 마세요.
@@ -119,36 +123,39 @@ const LikedBenefits = () => {
             {likedBenefits.map((benefit) => (
               <article
                 key={benefit.benefitId}
-                className="flex flex-col gap-3 rounded-[20px] border-2 border-[#F4C78F] bg-[#FFE9CA] p-4 shadow-[0_3px_10px_rgba(97,50,18,0.06)]"
+                className="flex flex-col gap-2 rounded-[14px] bg-[#FFE4BA] px-3 py-2.5"
               >
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-white px-4 py-1 text-[15px] font-bold text-[#6B4423]">
+                    지원금
+                  </span>
                   <button
                     type="button"
                     onClick={() => navigate(`/benefits/${benefit.benefitId}`)}
-                    className="min-h-11 rounded-xl px-2 text-[15px] font-bold text-[#6F6258]"
+                    className="rounded-full bg-white px-3 py-1 text-[15px] font-bold text-[#6B4423]"
                   >
-                    자세히 보기 {'>'}
+                    자세히 보기 &gt;
                   </button>
                   <button
                     type="button"
                     aria-label="찜 해제"
                     onClick={() => void handleRemoveFavorite(benefit.benefitId)}
                     disabled={removingId === benefit.benefitId}
-                    className="flex h-11 w-11 items-center justify-center rounded-full bg-white disabled:opacity-50"
+                    className="ml-auto flex h-10 w-10 items-center justify-center disabled:opacity-50"
                   >
                     <img src="/icons/heart_fill.png" alt="" className="h-7 w-7" />
                   </button>
                 </div>
 
-                <h2 className="text-[21px] font-extrabold leading-7 text-[#613212]">
+                <h2 className="break-keep text-[20px] font-extrabold leading-7 text-[#613212]">
                   {benefit.title}
                 </h2>
 
                 <div className="flex flex-wrap gap-2">
-                  <span className="rounded-xl bg-[#FFB700] px-3 py-1.5 text-sm font-extrabold text-[#2B2B2B]">
+                  <span className="rounded-[10px] bg-[#FFB700] px-2.5 py-1.5 text-[14px] font-extrabold text-[#2B2B2B]">
                     {getDeadlineText(benefit.applicationEndDate)}
                   </span>
-                  <span className="rounded-xl bg-[#FFB700] px-3 py-1.5 text-sm font-extrabold text-[#2B2B2B]">
+                  <span className="rounded-[10px] bg-[#FFB700] px-2.5 py-1.5 text-[14px] font-extrabold text-[#2B2B2B]">
                     {benefit.minAge !== null ? `만 ${benefit.minAge}세 이상` : '나이 조건 확인 필요'}
                   </span>
                 </div>

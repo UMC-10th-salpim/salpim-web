@@ -16,7 +16,12 @@ import FilterBar from '@/features/map/FilterBar';
 import MapView from '@/features/map/MapView';
 import { getMockFacilitiesNear } from '@/features/map/mockFacilities';
 import { FACILITY_CATEGORY_GROUPS } from '@/features/map/types';
-import type { Facility, FacilityMainCategory, MapCenter } from '@/features/map/types';
+import type {
+  Facility,
+  FacilityMainCategory,
+  MapCenter,
+  MapRestoreState,
+} from '@/features/map/types';
 import useUserStore from '@/store/userStore';
 import useSettingsStore from '@/store/settingsStore';
 import LargeCategoryFilterSheet from '@/features/map/large/LargeCategoryFilterSheet';
@@ -37,23 +42,64 @@ const toMapCenter = (latitude?: number | null, longitude?: number | null): MapCe
     ? { lat: latitude as number, lng: longitude as number }
     : null;
 
+interface MapLocationState {
+  focusFacilityName?: string;
+  restoreMap?: MapRestoreState;
+}
+
+const MAP_RESTORE_STORAGE_KEY = 'salpim-map-restore-state';
+
+const readStoredMapRestore = (): MapRestoreState | null => {
+  try {
+    const stored = sessionStorage.getItem(MAP_RESTORE_STORAGE_KEY);
+    return stored ? (JSON.parse(stored) as MapRestoreState) : null;
+  } catch {
+    return null;
+  }
+};
+
+const storeMapRestore = (state: MapRestoreState) => {
+  try {
+    sessionStorage.setItem(MAP_RESTORE_STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // 세션 저장소를 사용할 수 없어도 시설 상세 이동은 계속한다.
+  }
+};
+
 const MapPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const focusFacilityName = (
-    location.state as { focusFacilityName?: string } | null
-  )?.focusFacilityName?.trim();
+  const routeState = location.state as MapLocationState | null;
+  const focusFacilityName = routeState?.focusFacilityName?.trim();
+  const [restoreMap] = useState<MapRestoreState | null>(
+    () => routeState?.restoreMap ?? readStoredMapRestore()
+  );
   const isLarge = useSettingsStore((state) => state.fontSize === 'large');
   const accessToken = useUserStore((state) => state.accessToken);
   const homeLatitude = useUserStore((state) => state.homeLatitude);
   const homeLongitude = useUserStore((state) => state.homeLongitude);
   const setHomeLocation = useUserStore((state) => state.setHomeLocation);
-  const [selectedSubCategories, setSelectedSubCategories] = useState<string[]>([]);
+  const [selectedSubCategories, setSelectedSubCategories] = useState<string[]>(
+    () => restoreMap?.selectedSubCategories ?? []
+  );
   const [openCategorySheet, setOpenCategorySheet] = useState<FacilityMainCategory | null>(null);
-  const [selectedFacilityId, setSelectedFacilityId] = useState<string | null>(null);
-  const [currentLocationCenter, setCurrentLocationCenter] = useState<MapCenter | null>(null);
+  const [selectedFacilityId, setSelectedFacilityId] = useState<string | null>(
+    () => restoreMap?.selectedFacilityId ?? null
+  );
+  const [currentLocationCenter, setCurrentLocationCenter] = useState<MapCenter | null>(
+    () => restoreMap?.currentLocationCenter ?? null
+  );
   const [isLocating, setIsLocating] = useState(false);
   const [locationError, setLocationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!restoreMap) return;
+    try {
+      sessionStorage.removeItem(MAP_RESTORE_STORAGE_KEY);
+    } catch {
+      // 저장소 정리에 실패해도 복원된 지도 사용에는 영향이 없다.
+    }
+  }, [restoreMap]);
 
   const { data: profile, isPending: isProfilePending } = useQuery({
     queryKey: ['mypage-summary', accessToken],
@@ -225,6 +271,16 @@ const MapPage = () => {
     setSelectedFacilityId((currentId) => (currentId === facility.id ? null : facility.id));
   };
 
+  const handleViewFacilityDetail = (facility: Facility) => {
+    const mapState: MapRestoreState = {
+      selectedFacilityId: facility.id,
+      selectedSubCategories,
+      currentLocationCenter,
+    };
+    storeMapRestore(mapState);
+    navigate(`/facility/${facility.id}`, { state: { facility, mapState } });
+  };
+
   return (
     <main className="flex h-[100svh] flex-col bg-gray-50">
       <HeaderBar title="주변 혜택 시설" className={isLarge ? '!h-14 [&_h1]:!text-[25px]' : ''} />
@@ -305,17 +361,13 @@ const MapPage = () => {
             <LargeFacilitySummarySheet
               facility={selectedFacility}
               onClose={() => setSelectedFacilityId(null)}
-              onViewDetail={(facility) =>
-                navigate(`/facility/${facility.id}`, { state: { facility } })
-              }
+              onViewDetail={handleViewFacilityDetail}
             />
           ) : (
             <FacilitySummarySheet
               facility={selectedFacility}
               onClose={() => setSelectedFacilityId(null)}
-              onViewDetail={(facility) =>
-                navigate(`/facility/${facility.id}`, { state: { facility } })
-              }
+              onViewDetail={handleViewFacilityDetail}
             />
           ))}
       </div>
