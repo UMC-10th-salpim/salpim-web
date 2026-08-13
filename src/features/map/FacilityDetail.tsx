@@ -23,6 +23,13 @@ interface FacilityNoticeProps {
   message: string;
 }
 
+const getRegionLabel = (region: string) => {
+  const normalizedRegion = region.trim();
+  return !normalizedRegion || normalizedRegion.toLowerCase() === 'nationwide'
+    ? '전국'
+    : normalizedRegion;
+};
+
 const FacilityNotice = ({ message }: FacilityNoticeProps) => (
   <div className="flex min-h-[112px] items-center rounded-[28px] border-[3px] border-[#E8B16A] bg-[#FFF7ED] px-3 py-2">
     <img
@@ -136,8 +143,8 @@ const FacilityDetail = ({
               >
                 <BenefitServiceIcon serviceName={benefit.serviceName} className="h-[52px] w-[52px]" />
                 <div className="min-w-0">
-                  <span className="inline-flex rounded-full bg-white px-3 py-0.5 text-[13px] font-bold text-[#76533C]">
-                    지원금
+                  <span className="inline-flex max-w-full break-keep rounded-full bg-white px-3 py-0.5 text-center text-[13px] font-bold leading-tight text-[#76533C]">
+                    {getRegionLabel(benefit.region)}
                   </span>
                   <h3 className="mt-1 line-clamp-2 break-keep text-[16px] font-extrabold leading-[1.2] text-[#613212]">
                     {benefit.serviceName}
