@@ -65,7 +65,7 @@ const BenefitHelper = ({isOnline, url, title, ageConditionStatus, minAge, maxAge
             <div className="bg-[#FFF7ED] border-3 border-[#E8B16A] rounded-4xl flex items-center gap-1 mx-[16.5px] py-2 px-2">
                 <img src="/characters/salpimi_Love.png" className="w-27 h-27 shrink-0"/>
                 <div className="flex flex-col gap-2 min-w-0 flex-1">
-                    <span className="salpim-helper-title font-semibold text-[#613212] text-center break-keep text-balance">{title}</span>
+                    <span className="salpim-helper-title font-semibold text-[#613212] text-center break-keep [overflow-wrap:anywhere] text-balance">{title}</span>
                     <span className="salpim-helper-guide text-[#FF8A3D] font-medium text-center">신청하기 전, <br/>아래 내용을 꼭 확인해 주세요! <br/>맨 밑에 신청하기 버튼이 있어요.</span>
                 </div>
             </div>

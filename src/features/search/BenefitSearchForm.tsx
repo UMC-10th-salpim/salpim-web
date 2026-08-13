@@ -138,7 +138,7 @@ const BenefitSearchForm = () => {
             <img src='/icons/interest.png' className='w-6 h-6'/>
             <span className='salpim-search-label font-semibold text-[#FF8A3D]'>관심 분야</span>
           </div>
-          <div className='grid grid-cols-3 gap-3 pt-2'>
+          <div className='grid grid-cols-3 gap-x-2 gap-y-3 pt-2'>
             {INTERESTS.map((interest)=> {
               const isSelected = interests.includes(interest);
               return (
@@ -146,7 +146,7 @@ const BenefitSearchForm = () => {
                   key={interest}
                   type='button'
                   onClick={()=> toggleInterest(interest)}
-                  className={`salpim-search-chip rounded-full border border-4 px-4 py-[14px] font-bold transition-colors ${
+                  className={`salpim-search-chip rounded-full border border-4 px-2 py-[14px] font-bold transition-colors ${
                     isSelected
                       ? 'border-[#FF8A3D] bg-[#FF8A3D] text-white'
                       : 'border-[#FFD7AA] bg-[#FAF8F3] text-[#613212]'
