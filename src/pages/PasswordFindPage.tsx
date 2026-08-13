@@ -22,7 +22,7 @@ const PasswordFindPage = () => {
 
   return (
     <div className="mypage-screen mx-auto max-w-md">
-      <HeaderBar title="비밀번호 바꾸기" />
+      <HeaderBar title="비밀번호 바꾸기" className="[&_h1]:!text-[26px]" />
 
       {step === 'question' ? (
         <FindPasswordQuestion

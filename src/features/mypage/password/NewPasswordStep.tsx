@@ -61,7 +61,7 @@ const NewPasswordStep = ({
 
   return (
     <main className="mypage-content gap-5">
-      <h2 className="text-center text-[20px] font-extrabold leading-7 text-[#43230F]">
+      <h2 className="text-center text-[26px] font-extrabold leading-[1.3] text-[#43230F]">
         {phase === 'new' ? (
           <>
             새로운 비밀번호 6자리를
@@ -74,7 +74,7 @@ const NewPasswordStep = ({
       </h2>
 
       <div aria-live="polite" className="min-h-6 text-center">
-        {error && <p className="text-[16px] font-bold text-red-500">{error}</p>}
+        {error && <p className="text-[20px] font-bold text-red-500">{error}</p>}
       </div>
 
       <Keypad
@@ -95,7 +95,7 @@ const NewPasswordStep = ({
         title="비밀번호가 변경되었어요!"
         confirmText="확인"
         onConfirm={onSaved}
-        onClose={() => setSaved(false)}
+        onClose={onSaved}
       >
         새 비밀번호로 로그인해 주세요.
       </Modal>

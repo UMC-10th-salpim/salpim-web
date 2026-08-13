@@ -61,7 +61,7 @@ const Keypad = ({
             type="button"
             onClick={() => handlePress(digit)}
             disabled={disabled}
-            className="flex h-[60px] w-[60px] items-center justify-center rounded-full border border-[#F3EEE8] bg-white text-[22px] font-bold text-[#613212] shadow-[0_3px_8px_rgba(73,45,24,0.10)] transition-colors hover:bg-[#FFF3E4] active:bg-[#FFE7C6] disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex h-[60px] w-[60px] items-center justify-center rounded-full border border-[#F3EEE8] bg-white text-[26px] font-bold text-[#613212] shadow-[0_3px_8px_rgba(73,45,24,0.10)] transition-colors hover:bg-[#FFF3E4] active:bg-[#FFE7C6] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {digit}
           </button>
@@ -72,7 +72,7 @@ const Keypad = ({
           onClick={handleBackspace}
           disabled={disabled}
           aria-label="지우기"
-          className="flex h-[60px] w-[60px] items-center justify-center rounded-full bg-[#F3F3F1] text-[16px] font-extrabold text-[#34302D] shadow-[0_3px_8px_rgba(73,45,24,0.08)] transition-colors hover:bg-[#EAE8E5] disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-[60px] w-[60px] items-center justify-center rounded-full bg-[#F3F3F1] text-[19px] font-extrabold text-[#34302D] shadow-[0_3px_8px_rgba(73,45,24,0.08)] transition-colors hover:bg-[#EAE8E5] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {backspaceLabel}
         </button>
@@ -81,7 +81,7 @@ const Keypad = ({
           type="button"
           onClick={() => handlePress('0')}
           disabled={disabled}
-          className="flex h-[60px] w-[60px] items-center justify-center rounded-full border border-[#F3EEE8] bg-white text-[22px] font-bold text-[#613212] shadow-[0_3px_8px_rgba(73,45,24,0.10)] transition-colors hover:bg-[#FFF3E4] active:bg-[#FFE7C6] disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-[60px] w-[60px] items-center justify-center rounded-full border border-[#F3EEE8] bg-white text-[26px] font-bold text-[#613212] shadow-[0_3px_8px_rgba(73,45,24,0.10)] transition-colors hover:bg-[#FFF3E4] active:bg-[#FFE7C6] disabled:cursor-not-allowed disabled:opacity-50"
         >
           0
         </button>
@@ -91,7 +91,7 @@ const Keypad = ({
           onClick={onSubmit}
           disabled={disabled || !isComplete}
           aria-label="확인"
-          className="flex h-[60px] w-[60px] items-center justify-center rounded-full bg-[#FF6F12] text-[17px] font-extrabold text-white shadow-[0_3px_8px_rgba(255,111,18,0.22)] transition-colors hover:bg-[#ED650D] disabled:cursor-not-allowed disabled:bg-[#F8C59F]"
+          className="flex h-[60px] w-[60px] items-center justify-center rounded-full bg-[#FF6F12] text-[20px] font-extrabold text-white shadow-[0_3px_8px_rgba(255,111,18,0.22)] transition-colors hover:bg-[#ED650D] disabled:cursor-not-allowed disabled:bg-[#F8C59F]"
         >
           {submitLabel}
         </button>

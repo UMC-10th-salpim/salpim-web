@@ -182,8 +182,8 @@ const LargeMyPageMenu = () => {
         {loginType !== 'KAKAO' && (
           <LargeMenuRow
             icon="/icons/mypage/password.png"
-            title="비밀번호 바꾸기"
-            onClick={() => navigate('/password/find', { state: { returnTo: '/mypage' } })}
+            title="비밀번호 변경"
+            onClick={() => navigate('/mypage/password')}
           />
         )}
       </LargeSection>
