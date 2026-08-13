@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import TermsDetail from '../TermsDetail';
 import type { TermsData } from '../TermsAgreement';
-import { toTermKey } from '../termsContent';
-import type { TermKey } from '../termsContent';
 import type { SignupTerm } from '@/apis/auth';
 
 interface LargeTermsAgreementProps {
@@ -47,7 +45,7 @@ const LargeTermsAgreement = ({
   isSubmitting = false,
   errorMessage = '',
 }: LargeTermsAgreementProps) => {
-  const [openTerm, setOpenTerm] = useState<TermKey | null>(null);
+  const [openTerm, setOpenTerm] = useState<SignupTerm | null>(null);
   const allChecked = terms.length > 0 && terms.every(({ termsVersionId }) => value[termsVersionId]);
   const requiredChecked =
     terms.length > 0 &&
@@ -65,8 +63,7 @@ const LargeTermsAgreement = ({
 
   const closeTermAndAgree = () => {
     if (!openTerm) return;
-    const openedTerm = terms.find(({ code }) => toTermKey(code) === openTerm);
-    if (openedTerm) onChange({ ...value, [openedTerm.termsVersionId]: true });
+    onChange({ ...value, [openTerm.termsVersionId]: true });
     setOpenTerm(null);
   };
 
@@ -94,8 +91,8 @@ const LargeTermsAgreement = ({
           </button>
 
           <div className="mt-9 overflow-hidden rounded-[18px] border-[3px] border-[#F2BD76] bg-white px-4">
-            {terms.map(({ code, termsVersionId, name, isRequired }, index) => {
-              const termKey = toTermKey(code);
+            {terms.map((term, index) => {
+              const { termsVersionId, name, isRequired } = term;
               return (
                 <div
                   key={termsVersionId}
@@ -113,8 +110,7 @@ const LargeTermsAgreement = ({
                   </button>
                   <button
                     type="button"
-                    onClick={() => termKey && setOpenTerm(termKey)}
-                    disabled={!termKey}
+                    onClick={() => setOpenTerm(term)}
                     className="shrink-0 rounded-full bg-[#FFE0B8] px-3 py-2 text-[17px] font-extrabold text-[#172033]"
                   >
                     보기 &gt;
@@ -153,7 +149,7 @@ const LargeTermsAgreement = ({
         </button>
       </div>
 
-      {openTerm && <TermsDetail termKey={openTerm} onClose={closeTermAndAgree} />}
+      {openTerm && <TermsDetail term={openTerm} onClose={closeTermAndAgree} />}
     </>
   );
 };
