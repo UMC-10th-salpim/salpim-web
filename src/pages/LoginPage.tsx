@@ -97,7 +97,7 @@ const LoginPage = () => {
           <img
             src="/assets/Salpimi/Notebook.png"
             alt="살피미"
-            className="mx-auto size-[184px] scale-x-[-1] object-contain"
+            className="mx-auto size-[184px] object-contain"
           />
           <h1 className="mt-2 text-center text-[28px] font-bold leading-[1.35] text-[#613212]">
             번호를 입력하면

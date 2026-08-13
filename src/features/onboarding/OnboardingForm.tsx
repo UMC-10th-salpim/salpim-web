@@ -22,9 +22,16 @@ interface OnboardingFormProps {
   onChange: (info: OnboardingInfo) => void;
   onNext: () => void;
   onBack: () => void;
+  externalErrorMessage?: string;
 }
 
-const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps) => {
+const OnboardingForm = ({
+  value,
+  onChange,
+  onNext,
+  onBack,
+  externalErrorMessage = '',
+}: OnboardingFormProps) => {
   // 문자 인증 상태 (발송 → 코드 입력 → 확인 → 완료)
   const [codeSent, setCodeSent] = useState(false);
   const [code, setCode] = useState('');
@@ -259,6 +266,11 @@ const OnboardingForm = ({ value, onChange, onNext, onBack }: OnboardingFormProps
                   }`}
                 >
                   {phoneMessage}
+                </p>
+              )}
+              {!phoneMessage && externalErrorMessage && (
+                <p role="alert" className="mt-2 text-sm font-bold text-red-500">
+                  {externalErrorMessage}
                 </p>
               )}
             </div>
