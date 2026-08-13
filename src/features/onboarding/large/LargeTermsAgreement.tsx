@@ -18,7 +18,7 @@ const LargeCheckBox = ({ checked }: { checked: boolean }) => (
   <span
     aria-hidden
     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[9px] border-[3px] transition-colors ${
-      checked ? 'border-[#FF8A3D] bg-[#FF8A3D]' : 'border-[#FFB16F] bg-white'
+      checked ? 'border-[#FF8A3D] bg-[#FF8A3D]' : 'border-gray-200 bg-gray-200'
     }`}
   >
     {checked && (
