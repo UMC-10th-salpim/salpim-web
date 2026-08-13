@@ -66,7 +66,7 @@ const CurrentPasswordStep = ({ onVerified }: CurrentPasswordStepProps) => {
         <p className="mb-2 text-[16px] font-semibold text-[#8A817A]">비밀번호를 잊으셨나요?</p>
         <button
           type="button"
-          onClick={() => navigate('/mypage/password/find')}
+          onClick={() => navigate('/password/find')}
           className="min-h-11 rounded-full border-2 border-[#FFD29E] bg-white px-5 text-[18px] font-extrabold text-[#FF7A32]"
         >
           비밀번호 바꾸기
