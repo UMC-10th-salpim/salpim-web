@@ -316,7 +316,7 @@ const RecommendationPage = () => {
                 state: welfareCenterName ? { focusFacilityName: welfareCenterName } : undefined,
               })
             }
-            className="flex h-[106px] w-full items-center justify-between rounded-[32px] bg-white px-5 py-4 !font-semibold shadow-sm"
+            className="flex h-[106px] w-full items-center justify-between rounded-[32px] bg-[#FCE7D6] px-5 py-4 !font-semibold shadow-sm"
           >
             <span className="min-w-0 text-left">
               <span className="salpim-home-card-title block font-semibold text-gray-900">

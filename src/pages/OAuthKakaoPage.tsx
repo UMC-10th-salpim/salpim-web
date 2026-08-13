@@ -4,11 +4,33 @@ import { authApi, getKakaoLoginErrorMessage } from '@/apis/auth';
 import { mypageApi } from '@/apis/mypage';
 import useUserStore from '@/store/userStore';
 import useSettingsStore, { fromServerWordSize } from '@/store/settingsStore';
+import type { SignupTermsAgreement } from '@/apis/auth';
 
 const PROFILE_LOAD_ERROR_MESSAGE =
   '로그인은 완료됐지만 회원 이름을 불러오지 못했습니다. 다시 시도해 주세요.';
+const KAKAO_PENDING_TERMS_KEY = 'salpim-kakao-pending-terms';
 
 const normalizeName = (name: unknown) => (typeof name === 'string' ? name.trim() : '');
+
+const getPendingTerms = (): SignupTermsAgreement[] => {
+  const savedTerms = sessionStorage.getItem(KAKAO_PENDING_TERMS_KEY);
+  if (!savedTerms) return [];
+
+  try {
+    const parsed = JSON.parse(savedTerms) as unknown;
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed.filter(
+      (agreement): agreement is SignupTermsAgreement =>
+        typeof agreement === 'object' &&
+        agreement !== null &&
+        typeof (agreement as SignupTermsAgreement).termsVersionId === 'number' &&
+        typeof (agreement as SignupTermsAgreement).agreed === 'boolean'
+    );
+  } catch {
+    return [];
+  }
+};
 
 const OAuthKakaoPage = () => {
   const [params] = useSearchParams();
@@ -53,6 +75,11 @@ const OAuthKakaoPage = () => {
         const serverFontSize = fromServerWordSize(result.wordSize);
         if (!serverFontSize) {
           throw new Error('서버에서 글자 크기 설정을 불러오지 못했습니다.');
+        }
+        const pendingTerms = getPendingTerms();
+        if (pendingTerms.length > 0) {
+          await authApi.submitSignupTerms(result.accessToken, pendingTerms);
+          sessionStorage.removeItem(KAKAO_PENDING_TERMS_KEY);
         }
         // 화면을 이동하기 전에 서버에 저장된 글자 크기를 로컬 설정과 UI에 동시에 반영한다.
         setFontSize(serverFontSize);

@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authApi, getKakaoAuthorizeUrl, getSignupErrorMessage } from '@/apis/auth';
+import {
+  authApi,
+  getKakaoAuthorizeUrl,
+  getSignupErrorMessage,
+  getSignupTermsErrorMessage,
+} from '@/apis/auth';
+import type { SignupTerm, SignupTermsAgreement, TokenResult } from '@/apis/auth';
+import { getApiErrorCode } from '@/apis/errorMessage';
 import {
   ensureAddressRegion,
   normalizeLocationCoordinates,
@@ -28,6 +35,14 @@ import LargeTermsAgreement from '@/features/onboarding/large/LargeTermsAgreement
 const LOCAL_TOTAL_STEPS = 4; // 진행 표시 점 개수 (약관 동의/요약 화면 제외)
 const KAKAO_TOTAL_STEPS = 2;
 const KAKAO_SIGNUP_TOKEN_KEY = 'salpim-kakao-signup-token';
+const KAKAO_PENDING_TERMS_KEY = 'salpim-kakao-pending-terms';
+
+interface PendingLocalCompletion {
+  tokens: TokenResult;
+  name: string;
+  latitude: number;
+  longitude: number;
+}
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -59,12 +74,13 @@ const SignUpPage = () => {
   });
   const [password, setPassword] = useState<PasswordData>({ password: '', confirm: '' });
   const [security, setSecurity] = useState<SecurityData>({ question: '', answer: '' });
-  const [terms, setTerms] = useState<TermsData>({
-    service: false,
-    privacy: false,
-    sensitive: false,
-    location: false,
-  });
+  const [terms, setTerms] = useState<TermsData>({});
+  const [signupTerms, setSignupTerms] = useState<SignupTerm[]>([]);
+  const [isTermsLoading, setIsTermsLoading] = useState(false);
+  const [termsError, setTermsError] = useState('');
+  const [phoneFlowError, setPhoneFlowError] = useState('');
+  const [pendingLocalCompletion, setPendingLocalCompletion] =
+    useState<PendingLocalCompletion | null>(null);
 
   const isKakaoSignup = Boolean(kakaoSignupToken);
   const previous = () =>
@@ -91,6 +107,55 @@ const SignUpPage = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (step !== 4) return;
+
+    let isActive = true;
+    setIsTermsLoading(true);
+
+    void authApi
+      .getSignupTerms()
+      .then((loadedTerms) => {
+        if (!isActive) return;
+        // 서비스 정책상 회원가입 약관은 서버의 선택 여부와 관계없이 모두 필수 동의로 처리한다.
+        const requiredTerms = loadedTerms.map((term) => ({ ...term, isRequired: true }));
+        setSignupTerms(requiredTerms);
+        setTerms((previousTerms) =>
+          Object.fromEntries(
+            requiredTerms.map(({ termsVersionId }) => [
+              termsVersionId,
+              previousTerms[termsVersionId] ?? false,
+            ])
+          )
+        );
+      })
+      .catch((error) => {
+        if (!isActive) return;
+        setTermsError(
+          getSignupTermsErrorMessage(error, '약관 정보를 불러오지 못했어요. 다시 시도해 주세요.')
+        );
+      })
+      .finally(() => {
+        if (isActive) setIsTermsLoading(false);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [step]);
+
+  const getSelectedTermAgreements = (): SignupTermsAgreement[] =>
+    signupTerms.map(({ termsVersionId }) => ({
+      termsVersionId,
+      agreed: Boolean(terms[termsVersionId]),
+    }));
+
+  const submitTerms = () => {
+    if (isTermsLoading || signupTerms.length === 0) return;
+    setTermsError('');
+    next();
+  };
+
   const finish = async () => {
     if (isSubmitting) return;
 
@@ -103,6 +168,22 @@ const SignUpPage = () => {
     setSubmitError('');
 
     try {
+      const agreements = getSelectedTermAgreements();
+
+      if (pendingLocalCompletion) {
+        await authApi.submitSignupTerms(pendingLocalCompletion.tokens.accessToken, agreements);
+        setTokens(
+          pendingLocalCompletion.tokens.accessToken,
+          pendingLocalCompletion.tokens.refreshToken,
+          'LOCAL'
+        );
+        setName(pendingLocalCompletion.name);
+        setHomeLocation(pendingLocalCompletion.latitude, pendingLocalCompletion.longitude);
+        setPendingLocalCompletion(null);
+        navigate('/recommendation', { replace: true });
+        return;
+      }
+
       const birthDate = `${info.birthYear}-${info.birthMonth.padStart(2, '0')}-${info.birthDay.padStart(2, '0')}`;
       const completeAddress = await ensureAddressRegion(address);
       const location = await authApi.geocodeAddress(address.roadAddress);
@@ -127,6 +208,7 @@ const SignUpPage = () => {
 
       if (kakaoSignupToken) {
         await authApi.signupKakao(kakaoSignupToken, signupProfile);
+        sessionStorage.setItem(KAKAO_PENDING_TERMS_KEY, JSON.stringify(agreements));
         setName(signupProfile.name);
         sessionStorage.setItem(
           'salpim-pending-home-location',
@@ -144,11 +226,48 @@ const SignUpPage = () => {
       });
 
       const tokens = await authApi.loginLocal(info.phone, password.password);
+      const localCompletion = {
+        tokens,
+        name: signupProfile.name,
+        latitude: signupProfile.latitude,
+        longitude: signupProfile.longitude,
+      };
+      setPendingLocalCompletion(localCompletion);
+      await authApi.submitSignupTerms(tokens.accessToken, agreements);
       setTokens(tokens.accessToken, tokens.refreshToken, 'LOCAL');
       setName(signupProfile.name);
       setHomeLocation(signupProfile.latitude, signupProfile.longitude);
+      setPendingLocalCompletion(null);
       navigate('/recommendation', { replace: true });
     } catch (error) {
+      const errorCode = getApiErrorCode(error);
+      if (
+        errorCode === 'AUTH400_VERIFICATION_EXPIRED' ||
+        errorCode === 'EXPIRED_VERIFICATION_CODE'
+      ) {
+        setSubmitError('');
+        setInfo((previousInfo) => ({ ...previousInfo, phoneVerified: false }));
+        setPhoneFlowError(
+          getSignupErrorMessage(
+            error,
+            '인증번호가 만료되었습니다. 휴대폰 인증을 다시 진행해 주세요.'
+          )
+        );
+        setStep(0);
+        return;
+      }
+
+      if (
+        errorCode === 'AUTH400_TERMS_AGREEMENT_NOT_SUBMITTED' ||
+        errorCode === 'AUTH400_TERMS_AGREEMENT_EXPIRED' ||
+        errorCode === 'AUTH400_TERMS_AGREEMENT_VERIFICATION'
+      ) {
+        setSubmitError('');
+        setTermsError(getSignupErrorMessage(error, '약관 동의를 다시 확인해 주세요.'));
+        setStep(4);
+        return;
+      }
+
       setSubmitError(
         getSignupErrorMessage(error, '회원가입을 완료하지 못했어요. 다시 시도해 주세요.')
       );
@@ -170,9 +289,13 @@ const SignUpPage = () => {
         {step === 0 && (
           <OnboardingForm
             value={info}
-            onChange={setInfo}
+            onChange={(nextInfo) => {
+              setInfo(nextInfo);
+              if (nextInfo.phoneVerified) setPhoneFlowError('');
+            }}
             onNext={next}
             onBack={() => navigate(-1)}
+            externalErrorMessage={phoneFlowError}
           />
         )}
         {step === 1 && (
@@ -199,16 +322,22 @@ const SignUpPage = () => {
           (isLarge ? (
             <LargeTermsAgreement
               value={terms}
+              terms={signupTerms}
               onChange={setTerms}
               onBack={previous}
-              onSubmit={next}
+              onSubmit={submitTerms}
+              isLoading={isTermsLoading}
+              errorMessage={termsError}
             />
           ) : (
             <TermsAgreement
               value={terms}
+              terms={signupTerms}
               onChange={setTerms}
               onBack={previous}
-              onSubmit={next}
+              onSubmit={submitTerms}
+              isLoading={isTermsLoading}
+              errorMessage={termsError}
             />
           ))}
         {step === 5 && (
