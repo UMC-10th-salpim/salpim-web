@@ -23,17 +23,15 @@ const CheckBox = ({ checked }: { checked: boolean }) => (
       checked ? 'border-brand-500 bg-brand-500' : 'border-gray-200 bg-gray-200'
     }`}
   >
-    {checked && (
-      <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
-        <path
-          d="M4 10l4 4 8-8"
-          stroke="white"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    )}
+    <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
+      <path
+        d="M4 10l4 4 8-8"
+        stroke="white"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   </span>
 );
 

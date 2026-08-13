@@ -25,7 +25,12 @@ const FindPasswordQuestion = ({ onVerified }: FindPasswordQuestionProps) => {
       }
       onVerified(answer.trim());
     } catch (requestError) {
-      setError(getApiErrorMessage(requestError, '답변을 확인하지 못했어요.'));
+      const message = getApiErrorMessage(requestError, '답변을 확인하지 못했어요.');
+      setError(
+        message
+          .replaceAll('비밀번호 찾기 답변', '답변')
+          .replaceAll('비밀번호 복구 답변', '답변')
+      );
     } finally {
       setVerifying(false);
     }
