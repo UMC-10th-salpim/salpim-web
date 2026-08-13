@@ -275,7 +275,7 @@ const MyPageMenu = () => {
         </button>
       </div>
 
-      {showTerms && <TermsDetail termKey="service" onClose={() => setShowTerms(false)} />}
+      {showTerms && <TermsDetail termCode="SERVICE" onClose={() => setShowTerms(false)} />}
 
       <Modal
         open={confirmModal !== null}
