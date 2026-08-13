@@ -3,6 +3,148 @@ import OnboardingHeaderBar from './ui/OnboardingHeaderBar';
 import { authApi, getApiErrorMessage } from '@/apis/auth';
 import type { SignupTerm, SignupTermDetail } from '@/apis/auth';
 
+type TermsContentBlock =
+  | { type: 'paragraph'; text: string }
+  | { type: 'list'; items: string[] }
+  | { type: 'table'; headers: string[]; rows: string[][] };
+
+const TABLE_DIVIDER_PATTERN = /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$/;
+
+const parseTableRow = (line: string) =>
+  line
+    .trim()
+    .replace(/^\|/, '')
+    .replace(/\|$/, '')
+    .split('|')
+    .map((cell) => cell.trim());
+
+const parseTermsContent = (content: string): TermsContentBlock[] => {
+  const lines = content.replace(/\r\n?/g, '\n').split('\n');
+  const blocks: TermsContentBlock[] = [];
+  let index = 0;
+
+  while (index < lines.length) {
+    if (!lines[index].trim()) {
+      index += 1;
+      continue;
+    }
+
+    if (
+      lines[index].trim().startsWith('|') &&
+      index + 1 < lines.length &&
+      TABLE_DIVIDER_PATTERN.test(lines[index + 1].trim())
+    ) {
+      const headers = parseTableRow(lines[index]);
+      const rows: string[][] = [];
+      index += 2;
+
+      while (index < lines.length && lines[index].trim().startsWith('|')) {
+        rows.push(parseTableRow(lines[index]));
+        index += 1;
+      }
+
+      blocks.push({ type: 'table', headers, rows });
+      continue;
+    }
+
+    if (/^-\s+/.test(lines[index].trim())) {
+      const items: string[] = [];
+      while (index < lines.length && /^-\s+/.test(lines[index].trim())) {
+        items.push(lines[index].trim().replace(/^-\s+/, ''));
+        index += 1;
+      }
+      blocks.push({ type: 'list', items });
+      continue;
+    }
+
+    const paragraphLines: string[] = [];
+    while (
+      index < lines.length &&
+      lines[index].trim() &&
+      !(
+        lines[index].trim().startsWith('|') &&
+        index + 1 < lines.length &&
+        TABLE_DIVIDER_PATTERN.test(lines[index + 1].trim())
+      ) &&
+      !/^-\s+/.test(lines[index].trim())
+    ) {
+      paragraphLines.push(lines[index]);
+      index += 1;
+    }
+    blocks.push({ type: 'paragraph', text: paragraphLines.join('\n') });
+  }
+
+  return blocks;
+};
+
+const TermsClauseContent = ({ content }: { content: string }) => (
+  <div className="space-y-4 text-base font-medium leading-7 text-gray-800">
+    {parseTermsContent(content).map((block, blockIndex) => {
+      if (block.type === 'table') {
+        return (
+          <div
+            key={`table-${blockIndex}`}
+            className="w-full overflow-hidden rounded-xl border-2 border-brand-200 bg-white"
+          >
+            <table className="w-full table-fixed border-collapse text-left text-[12px] sm:text-sm">
+              <colgroup>
+                <col className="w-[26%]" />
+                <col className="w-[48%]" />
+                <col className="w-[26%]" />
+              </colgroup>
+              <thead className="bg-brand-100">
+                <tr>
+                  {block.headers.map((header, headerIndex) => (
+                    <th
+                      key={`${header}-${headerIndex}`}
+                      scope="col"
+                      className="break-keep border-b-2 border-r border-brand-200 px-1.5 py-2.5 text-center font-bold leading-[1.35] text-gray-900 last:border-r-0 sm:px-3 sm:py-3 sm:leading-5"
+                    >
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {block.rows.map((row, rowIndex) => (
+                  <tr key={`row-${rowIndex}`} className="even:bg-brand-50/60">
+                    {block.headers.map((_, cellIndex) => (
+                      <td
+                        key={`cell-${rowIndex}-${cellIndex}`}
+                        className="break-words border-b border-r border-brand-100 px-1.5 py-2.5 align-top font-medium leading-[1.55] text-gray-800 last:border-r-0 sm:px-3 sm:py-3 sm:leading-6"
+                      >
+                        {row[cellIndex] ?? ''}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      }
+
+      if (block.type === 'list') {
+        return (
+          <ul key={`list-${blockIndex}`} className="space-y-2 pl-5">
+            {block.items.map((item, itemIndex) => (
+              <li key={`${item}-${itemIndex}`} className="list-disc pl-1">
+                {item}
+              </li>
+            ))}
+          </ul>
+        );
+      }
+
+      return (
+        <p key={`paragraph-${blockIndex}`} className="whitespace-pre-line">
+          {block.text}
+        </p>
+      );
+    })}
+  </div>
+);
+
 interface TermsDetailProps {
   term?: SignupTerm;
   termCode?: SignupTerm['code'];
@@ -124,9 +266,7 @@ const TermsDetail = ({ term, termCode, onClose }: TermsDetailProps) => {
             <h2 className="mb-2 text-lg font-bold text-gray-900">
               제{clause.clauseNo}조 ({clause.title})
             </h2>
-            <p className="whitespace-pre-line text-base font-medium leading-7 text-gray-800">
-              {clause.content}
-            </p>
+            <TermsClauseContent content={clause.content} />
           </section>
         ))}
       </div>
