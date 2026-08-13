@@ -56,6 +56,7 @@ const SIGNUP_TERMS_ERROR_MESSAGES: Record<string, string> = {
   AUTH400_VERIFICATION_EXPIRED: '인증번호가 만료되었습니다.',
   TERM404: '해당 약관을 찾을 수 없습니다.',
   TERM400_REQUIRED: '필수 약관에 동의해야 합니다.',
+  REQUIRED_TERM_NOT_AGREED: '필수 약관에 동의해야 합니다.',
 };
 
 const LOGIN_ERROR_MESSAGES: Record<string, string> = {
@@ -125,6 +126,22 @@ export interface SignupTerm {
 export interface SignupTermsAgreement {
   termsVersionId: number;
   agreed: boolean;
+}
+
+export interface SignupTermClause {
+  clauseNo: number;
+  title: string;
+  content: string;
+  displayOrder: number;
+}
+
+export interface SignupTermDetail {
+  termsTypeId: number;
+  code: SignupTerm['code'];
+  name: string;
+  termsVersionId: number;
+  version: string;
+  clauses: SignupTermClause[];
 }
 
 interface SignupProfile {
@@ -225,14 +242,26 @@ export const authApi = {
     return [...unwrap(data)].sort((a, b) => a.displayOrder - b.displayOrder);
   },
 
+  getSignupTermDetail: async (termsVersionId: number): Promise<SignupTermDetail> => {
+    const { data } = await client.get<ApiResponse<SignupTermDetail>>(
+      `/terms/${termsVersionId}`
+    );
+    const detail = unwrap(data);
+    return {
+      ...detail,
+      clauses: [...detail.clauses].sort((a, b) => a.displayOrder - b.displayOrder),
+    };
+  },
+
   submitSignupTerms: async (
-    phoneNumber: string,
+    accessToken: string,
     agreements: SignupTermsAgreement[]
   ): Promise<void> => {
-    await client.post<ApiResponse<null>>('/signup/terms', {
-      phoneNumber: normalizePhoneNumber(phoneNumber),
-      agreements,
-    });
+    await client.post<ApiResponse<SignupTermsAgreement[]>>(
+      '/terms/agreements',
+      { agreements },
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
   },
 
   geocodeAddress: async (roadAddress: string) => {
