@@ -112,14 +112,35 @@ const formatDistance = (meters: string): string => {
   return value >= 1000 ? `${(value / 1000).toFixed(1)}km` : `${value}m`;
 };
 
-// "CU 구로보건소점" 처럼 편의점 지점명이 검색 키워드와 우연히 겹쳐 나오는 경우를 걸러낸다.
+// "CU 구로보건소점"처럼 검색 키워드와 우연히 겹친 비복지시설을 걸러낸다.
 const EXCLUDED_NAME_PREFIXES = ['CU', 'GS25', 'GS', '파리바게뜨', '이마트24'];
+const EXCLUDED_NAME_KEYWORDS = [
+  '무인',
+  '주차장',
+  '주차타워',
+  '동물병원',
+  '동물의료센터',
+  '세븐일레븐',
+  '미니스톱',
+  '씨스페이스',
+  '스토리웨이',
+  '주유소',
+  '충전소',
+  '세차장',
+  '정비소',
+  '애견',
+  '펫샵',
+  '마트',
+  '카페',
+  '식당',
+  '택배',
+];
 
 const isExcludedFacilityName = (name: string) => {
-  const normalizedName = name.trim().toUpperCase();
+  const normalizedName = name.toUpperCase().replace(/[^0-9A-Z가-힣]/g, '');
   return (
     EXCLUDED_NAME_PREFIXES.some((prefix) => normalizedName.startsWith(prefix)) ||
-    normalizedName.includes('동물병원')
+    EXCLUDED_NAME_KEYWORDS.some((keyword) => normalizedName.includes(keyword))
   );
 };
 
