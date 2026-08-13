@@ -118,7 +118,7 @@ const PublicPasswordResetPage = () => {
           <main className="flex flex-1 flex-col gap-6 px-[18px] pb-8 pt-8">
             <div className="text-center">
               <img
-                src="/characters/salpimi_Search.png"
+                src="/assets/Salpimi/Search.png"
                 alt="돋보기를 든 살피미"
                 className="mx-auto w-[142px]"
               />
