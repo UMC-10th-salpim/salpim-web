@@ -124,13 +124,13 @@ const MyPageMenu = () => {
   return (
     <main className="mypage-content gap-7">
       {/* 인사 카드 */}
-      <div className="mypage-card flex min-h-[112px] items-center justify-center gap-3 px-4 py-4 text-center">
+      <div className="mypage-card relative flex min-h-[124px] items-center pl-[112px] pr-3">
         <img
           src="/characters/salpimi_Hi.png"
           alt="인사하는 살피미"
-          className="h-[72px] w-[72px] shrink-0 object-contain"
+          className="absolute left-0 top-2 h-[132px] w-[132px] object-contain"
         />
-        <div className="min-w-0 text-center">
+        <div className="z-10 w-full min-w-0 text-center">
           <p className="!text-center text-[22px] font-extrabold leading-8 text-[#3F2A1D]">
             안녕하세요,
             <br />

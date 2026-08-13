@@ -123,13 +123,13 @@ const LargeMyPageMenu = () => {
 
   return (
     <main className="flex w-full flex-1 flex-col gap-7 bg-[#FAF8F3] px-4 pb-7 pt-5">
-      <div className="flex min-h-[132px] items-center justify-center gap-3 rounded-[24px] border-[3px] border-[#F2BD76] bg-white px-3 py-4 text-center shadow-[0_3px_10px_rgba(97,50,18,0.06)]">
+      <div className="relative flex min-h-[138px] items-center rounded-[24px] border-[3px] border-[#F2BD76] bg-white pl-[128px] pr-3 shadow-[0_3px_10px_rgba(97,50,18,0.06)]">
         <img
           src="/characters/salpimi_Hi.png"
           alt="인사하는 살피미"
-          className="h-[76px] w-[76px] shrink-0 object-contain"
+          className="absolute -left-1 top-1 h-[150px] w-[150px] object-contain"
         />
-        <div className="min-w-0 text-center">
+        <div className="z-10 w-full min-w-0 text-center">
           <p className="break-keep !text-center text-[25px] font-extrabold leading-[1.25] text-[#3F2A1D]">
             안녕하세요,
             <br />

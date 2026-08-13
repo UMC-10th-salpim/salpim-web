@@ -134,27 +134,29 @@ const LargeFacilityDetail = ({
             {benefits.map((benefit) => (
               <article
                 key={benefit.benefitId}
-                className="grid min-h-[92px] grid-cols-[58px_minmax(0,1fr)_auto] items-center gap-2 border-b-[3px] border-white px-3 py-2.5 last:border-b-0"
+                className="grid min-h-[108px] grid-cols-[58px_minmax(0,1fr)] items-center gap-3 border-b-[3px] border-white px-3 py-3 last:border-b-0"
               >
                 <BenefitServiceIcon
                   serviceName={benefit.serviceName}
                   className="h-[58px] w-[58px]"
                 />
-                <div className="min-w-0">
-                  <span className="inline-flex rounded-full bg-white px-3 py-0.5 text-[15px] font-extrabold text-[#76533C]">
-                    지원금
-                  </span>
-                  <h3 className="mt-1 line-clamp-2 break-keep text-[18px] font-extrabold leading-[1.2] text-[#613212]">
+                <div className="min-w-0 py-0.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex shrink-0 rounded-full bg-white px-3 py-0.5 text-[15px] font-extrabold text-[#76533C]">
+                      지원금
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => onViewBenefit(benefit.benefitId)}
+                      className="shrink-0 whitespace-nowrap rounded-full bg-white px-2.5 py-2 text-[14px] font-extrabold text-[#613212]"
+                    >
+                      자세히 보기 &gt;
+                    </button>
+                  </div>
+                  <h3 className="mt-2 break-words text-[18px] font-extrabold leading-[1.25] text-[#613212] [overflow-wrap:anywhere]">
                     {benefit.serviceName}
                   </h3>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => onViewBenefit(benefit.benefitId)}
-                  className="whitespace-nowrap rounded-full bg-white px-2.5 py-2 text-[14px] font-extrabold text-[#613212]"
-                >
-                  자세히 보기 &gt;
-                </button>
               </article>
             ))}
             {hasNextPage && (

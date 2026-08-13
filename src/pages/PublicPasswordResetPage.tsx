@@ -44,7 +44,7 @@ const PublicPasswordResetPage = () => {
       setError(
         getApiErrorMessage(
           requestError,
-          '전화번호 또는 비밀번호 찾기 답변을 다시 확인해 주세요.'
+          '전화번호 또는 비밀번호 복구 답변을 다시 확인해 주세요.'
         )
       );
     } finally {
@@ -110,7 +110,7 @@ const PublicPasswordResetPage = () => {
     <div className="min-h-[100svh] w-full overflow-y-auto bg-brand-50">
       <div className="mx-auto flex min-h-[788px] w-full max-w-[375px] flex-col bg-brand-50">
         <HeaderBar
-          title={step === 'verify' ? '비밀번호 찾기' : '새 비밀번호 설정'}
+          title={step === 'verify' ? '비밀번호 바꾸기' : '새 비밀번호 설정'}
           onBack={handleBack}
         />
 
