@@ -69,7 +69,7 @@ const CurrentPasswordStep = ({ onVerified }: CurrentPasswordStepProps) => {
           onClick={() => navigate('/mypage/password/find')}
           className="min-h-11 rounded-full border-2 border-[#FFD29E] bg-white px-5 text-[18px] font-extrabold text-[#FF7A32]"
         >
-          비밀번호 찾기
+          비밀번호 바꾸기
         </button>
       </div>
     </main>
