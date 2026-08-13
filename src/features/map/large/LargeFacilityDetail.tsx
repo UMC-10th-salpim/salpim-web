@@ -19,6 +19,13 @@ interface LargeFacilityDetailProps {
   onViewBenefit: (benefitId: number) => void;
 }
 
+const getRegionLabel = (region: string) => {
+  const normalizedRegion = region.trim();
+  return !normalizedRegion || normalizedRegion.toLowerCase() === 'nationwide'
+    ? '전국'
+    : normalizedRegion;
+};
+
 const LargeNotice = ({ message }: { message: string }) => (
   <div className="flex min-h-[118px] items-center rounded-[24px] border-[3px] border-[#F1B66D] bg-[#FFF2DC] px-3 py-2">
     <img
@@ -141,9 +148,9 @@ const LargeFacilityDetail = ({
                   className="h-[58px] w-[58px]"
                 />
                 <div className="min-w-0 py-0.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="inline-flex shrink-0 rounded-full bg-white px-3 py-0.5 text-[15px] font-extrabold text-[#76533C]">
-                      지원금
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="inline-flex max-w-full break-keep rounded-full bg-white px-3 py-0.5 text-center text-[15px] font-extrabold leading-tight text-[#76533C]">
+                      {getRegionLabel(benefit.region)}
                     </span>
                     <button
                       type="button"
