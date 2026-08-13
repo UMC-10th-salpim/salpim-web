@@ -2,6 +2,15 @@
 
 export type TermKey = 'service' | 'privacy' | 'sensitive' | 'location';
 
+const TERM_CODE_TO_KEY: Record<string, TermKey> = {
+  SERVICE: 'service',
+  PRIVACY: 'privacy',
+  SENSITIVE_INFO: 'sensitive',
+  LOCATION: 'location',
+};
+
+export const toTermKey = (code: string): TermKey | null => TERM_CODE_TO_KEY[code] ?? null;
+
 interface Article {
   heading: string;
   paragraphs: string[];

@@ -1,20 +1,19 @@
 import { useState } from 'react';
 import TermsDetail from '../TermsDetail';
 import type { TermsData } from '../TermsAgreement';
+import { toTermKey } from '../termsContent';
 import type { TermKey } from '../termsContent';
-
-const LARGE_TERMS: { key: TermKey; label: string }[] = [
-  { key: 'service', label: '서비스 이용 약관' },
-  { key: 'privacy', label: '개인정보 수집 및 이용 동의' },
-  { key: 'sensitive', label: '민감정보 수집 및 이용 동의' },
-  { key: 'location', label: '위치정보 수집 및 이용 동의' },
-];
+import type { SignupTerm } from '@/apis/auth';
 
 interface LargeTermsAgreementProps {
   value: TermsData;
+  terms: SignupTerm[];
   onChange: (data: TermsData) => void;
   onBack: () => void;
   onSubmit: () => void;
+  isLoading?: boolean;
+  isSubmitting?: boolean;
+  errorMessage?: string;
 }
 
 const LargeCheckBox = ({ checked }: { checked: boolean }) => (
@@ -38,23 +37,36 @@ const LargeCheckBox = ({ checked }: { checked: boolean }) => (
   </span>
 );
 
-const LargeTermsAgreement = ({ value, onChange, onBack, onSubmit }: LargeTermsAgreementProps) => {
+const LargeTermsAgreement = ({
+  value,
+  terms,
+  onChange,
+  onBack,
+  onSubmit,
+  isLoading = false,
+  isSubmitting = false,
+  errorMessage = '',
+}: LargeTermsAgreementProps) => {
   const [openTerm, setOpenTerm] = useState<TermKey | null>(null);
-  const allChecked = LARGE_TERMS.every(({ key }) => value[key]);
+  const allChecked = terms.length > 0 && terms.every(({ termsVersionId }) => value[termsVersionId]);
+  const requiredChecked =
+    terms.length > 0 &&
+    terms
+      .filter(({ isRequired }) => isRequired)
+      .every(({ termsVersionId }) => value[termsVersionId]);
 
-  const toggleAll = () =>
-    onChange({
-      service: !allChecked,
-      privacy: !allChecked,
-      sensitive: !allChecked,
-      location: !allChecked,
-    });
+  const toggleAll = () => {
+    const nextValue = !allChecked;
+    onChange(Object.fromEntries(terms.map(({ termsVersionId }) => [termsVersionId, nextValue])));
+  };
 
-  const toggle = (key: keyof TermsData) => onChange({ ...value, [key]: !value[key] });
+  const toggle = (termsVersionId: number) =>
+    onChange({ ...value, [termsVersionId]: !value[termsVersionId] });
 
   const closeTermAndAgree = () => {
     if (!openTerm) return;
-    onChange({ ...value, [openTerm]: true });
+    const openedTerm = terms.find(({ code }) => toTermKey(code) === openTerm);
+    if (openedTerm) onChange({ ...value, [openedTerm.termsVersionId]: true });
     setOpenTerm(null);
   };
 
@@ -74,6 +86,7 @@ const LargeTermsAgreement = ({ value, onChange, onBack, onSubmit }: LargeTermsAg
           <button
             type="button"
             onClick={toggleAll}
+            disabled={isLoading || terms.length === 0}
             className="flex min-h-[78px] w-full items-center gap-4 rounded-[16px] border-[3px] border-[#F2BD76] bg-white px-5 text-left"
           >
             <LargeCheckBox checked={allChecked} />
@@ -81,31 +94,44 @@ const LargeTermsAgreement = ({ value, onChange, onBack, onSubmit }: LargeTermsAg
           </button>
 
           <div className="mt-9 overflow-hidden rounded-[18px] border-[3px] border-[#F2BD76] bg-white px-4">
-            {LARGE_TERMS.map(({ key, label }, index) => (
-              <div
-                key={key}
-                className={`flex min-h-[80px] items-center gap-3 ${index > 0 ? 'border-t border-[#E2E5E9]' : ''}`}
-              >
-                <button
-                  type="button"
-                  onClick={() => toggle(key)}
-                  className="flex min-w-0 flex-1 items-center gap-3 text-left"
+            {terms.map(({ code, termsVersionId, name, isRequired }, index) => {
+              const termKey = toTermKey(code);
+              return (
+                <div
+                  key={termsVersionId}
+                  className={`flex min-h-[80px] items-center gap-3 ${index > 0 ? 'border-t border-[#E2E5E9]' : ''}`}
                 >
-                  <LargeCheckBox checked={value[key]} />
-                  <span className="min-w-0 break-keep text-[18px] font-extrabold leading-[1.25] tracking-[-0.055em] text-[#172033]">
-                    [필수] {label}
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOpenTerm(key)}
-                  className="shrink-0 rounded-full bg-[#FFE0B8] px-3 py-2 text-[17px] font-extrabold text-[#172033]"
-                >
-                  보기 &gt;
-                </button>
-              </div>
-            ))}
+                  <button
+                    type="button"
+                    onClick={() => toggle(termsVersionId)}
+                    className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                  >
+                    <LargeCheckBox checked={Boolean(value[termsVersionId])} />
+                    <span className="min-w-0 break-keep text-[18px] font-extrabold leading-[1.25] tracking-[-0.055em] text-[#172033]">
+                      [{isRequired ? '필수' : '선택'}] {name}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => termKey && setOpenTerm(termKey)}
+                    disabled={!termKey}
+                    className="shrink-0 rounded-full bg-[#FFE0B8] px-3 py-2 text-[17px] font-extrabold text-[#172033]"
+                  >
+                    보기 &gt;
+                  </button>
+                </div>
+              );
+            })}
           </div>
+
+          {(isLoading || errorMessage) && (
+            <p
+              role={errorMessage ? 'alert' : undefined}
+              className={`mt-3 text-center text-[16px] font-bold ${errorMessage ? 'text-red-500' : 'text-[#7A8495]'}`}
+            >
+              {errorMessage || '약관 정보를 불러오고 있어요.'}
+            </p>
+          )}
         </div>
       </div>
 
@@ -120,10 +146,10 @@ const LargeTermsAgreement = ({ value, onChange, onBack, onSubmit }: LargeTermsAg
         <button
           type="button"
           onClick={onSubmit}
-          disabled={!allChecked}
+          disabled={!requiredChecked || isLoading || isSubmitting}
           className="flex min-h-[72px] flex-1 items-center justify-center rounded-[18px] bg-[#FF8A3D] text-[29px] font-extrabold text-white disabled:bg-[#DDDDDD]"
         >
-          다음
+          {isSubmitting ? '확인 중...' : '다음'}
         </button>
       </div>
 
