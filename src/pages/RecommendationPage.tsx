@@ -220,7 +220,7 @@ const RecommendationPage = () => {
           <img
             src="/assets/Salpimi/Hi.png"
             alt="살피미"
-            className="absolute -left-0.5 top-[31px] size-[130px] object-contain"
+            className="absolute -left-0.5 top-2 size-[155px] object-contain"
           />
           <div className="ml-[122px] flex h-full w-[calc(100%_-_132px)] flex-col items-center justify-center text-center">
             <p className="salpim-home-heading font-bold leading-[1.25] text-[#613212]">
