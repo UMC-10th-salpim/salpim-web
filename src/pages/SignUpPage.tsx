@@ -6,7 +6,7 @@ import {
   getSignupErrorMessage,
   getSignupTermsErrorMessage,
 } from '@/apis/auth';
-import type { SignupTerm, SignupTermsAgreement, TokenResult } from '@/apis/auth';
+import type { SignupTerm, SignupTermsAgreement } from '@/apis/auth';
 import { getApiErrorCode } from '@/apis/errorMessage';
 import {
   ensureAddressRegion,
@@ -35,14 +35,6 @@ import LargeTermsAgreement from '@/features/onboarding/large/LargeTermsAgreement
 const LOCAL_TOTAL_STEPS = 4; // 진행 표시 점 개수 (약관 동의/요약 화면 제외)
 const KAKAO_TOTAL_STEPS = 2;
 const KAKAO_SIGNUP_TOKEN_KEY = 'salpim-kakao-signup-token';
-const KAKAO_PENDING_TERMS_KEY = 'salpim-kakao-pending-terms';
-
-interface PendingLocalCompletion {
-  tokens: TokenResult;
-  name: string;
-  latitude: number;
-  longitude: number;
-}
 
 const SignUpPage = () => {
   const navigate = useNavigate();
@@ -77,10 +69,9 @@ const SignUpPage = () => {
   const [terms, setTerms] = useState<TermsData>({});
   const [signupTerms, setSignupTerms] = useState<SignupTerm[]>([]);
   const [isTermsLoading, setIsTermsLoading] = useState(false);
+  const [isTermsSubmitting, setIsTermsSubmitting] = useState(false);
   const [termsError, setTermsError] = useState('');
   const [phoneFlowError, setPhoneFlowError] = useState('');
-  const [pendingLocalCompletion, setPendingLocalCompletion] =
-    useState<PendingLocalCompletion | null>(null);
 
   const isKakaoSignup = Boolean(kakaoSignupToken);
   const previous = () =>
@@ -150,10 +141,46 @@ const SignUpPage = () => {
       agreed: Boolean(terms[termsVersionId]),
     }));
 
-  const submitTerms = () => {
-    if (isTermsLoading || signupTerms.length === 0) return;
+  const submitTerms = async () => {
+    if (isTermsLoading || isTermsSubmitting || signupTerms.length === 0) return;
+
+    const agreements = getSelectedTermAgreements();
+    if (agreements.some(({ agreed }) => !agreed)) {
+      setTermsError('모든 약관에 동의해 주세요.');
+      return;
+    }
+
+    setIsTermsSubmitting(true);
     setTermsError('');
-    next();
+
+    try {
+      // 전화번호 인증과 동일한 번호로 약관을 먼저 제출해야 회원가입 API를 호출할 수 있다.
+      await authApi.submitSignupTerms(info.phone, agreements);
+      next();
+    } catch (error) {
+      const errorCode = getApiErrorCode(error);
+      if (
+        errorCode === 'AUTH400_PHONE_NOT_VERIFIED' ||
+        errorCode === 'AUTH400_VERIFICATION_EXPIRED' ||
+        errorCode === 'EXPIRED_VERIFICATION_CODE'
+      ) {
+        setInfo((previousInfo) => ({ ...previousInfo, phoneVerified: false }));
+        setPhoneFlowError(
+          getSignupTermsErrorMessage(
+            error,
+            '휴대폰 인증이 만료되었습니다. 다시 인증해 주세요.'
+          )
+        );
+        setStep(0);
+        return;
+      }
+
+      setTermsError(
+        getSignupTermsErrorMessage(error, '약관 동의를 제출하지 못했어요. 다시 시도해 주세요.')
+      );
+    } finally {
+      setIsTermsSubmitting(false);
+    }
   };
 
   const finish = async () => {
@@ -168,22 +195,6 @@ const SignUpPage = () => {
     setSubmitError('');
 
     try {
-      const agreements = getSelectedTermAgreements();
-
-      if (pendingLocalCompletion) {
-        await authApi.submitSignupTerms(pendingLocalCompletion.tokens.accessToken, agreements);
-        setTokens(
-          pendingLocalCompletion.tokens.accessToken,
-          pendingLocalCompletion.tokens.refreshToken,
-          'LOCAL'
-        );
-        setName(pendingLocalCompletion.name);
-        setHomeLocation(pendingLocalCompletion.latitude, pendingLocalCompletion.longitude);
-        setPendingLocalCompletion(null);
-        navigate('/recommendation', { replace: true });
-        return;
-      }
-
       const birthDate = `${info.birthYear}-${info.birthMonth.padStart(2, '0')}-${info.birthDay.padStart(2, '0')}`;
       const completeAddress = await ensureAddressRegion(address);
       const location = await authApi.geocodeAddress(address.roadAddress);
@@ -208,7 +219,6 @@ const SignUpPage = () => {
 
       if (kakaoSignupToken) {
         await authApi.signupKakao(kakaoSignupToken, signupProfile);
-        sessionStorage.setItem(KAKAO_PENDING_TERMS_KEY, JSON.stringify(agreements));
         setName(signupProfile.name);
         sessionStorage.setItem(
           'salpim-pending-home-location',
@@ -226,18 +236,9 @@ const SignUpPage = () => {
       });
 
       const tokens = await authApi.loginLocal(info.phone, password.password);
-      const localCompletion = {
-        tokens,
-        name: signupProfile.name,
-        latitude: signupProfile.latitude,
-        longitude: signupProfile.longitude,
-      };
-      setPendingLocalCompletion(localCompletion);
-      await authApi.submitSignupTerms(tokens.accessToken, agreements);
       setTokens(tokens.accessToken, tokens.refreshToken, 'LOCAL');
       setName(signupProfile.name);
       setHomeLocation(signupProfile.latitude, signupProfile.longitude);
-      setPendingLocalCompletion(null);
       navigate('/recommendation', { replace: true });
     } catch (error) {
       const errorCode = getApiErrorCode(error);
@@ -327,6 +328,7 @@ const SignUpPage = () => {
               onBack={previous}
               onSubmit={submitTerms}
               isLoading={isTermsLoading}
+              isSubmitting={isTermsSubmitting}
               errorMessage={termsError}
             />
           ) : (
@@ -337,6 +339,7 @@ const SignUpPage = () => {
               onBack={previous}
               onSubmit={submitTerms}
               isLoading={isTermsLoading}
+              isSubmitting={isTermsSubmitting}
               errorMessage={termsError}
             />
           ))}

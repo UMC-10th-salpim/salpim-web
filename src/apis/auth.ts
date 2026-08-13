@@ -254,14 +254,13 @@ export const authApi = {
   },
 
   submitSignupTerms: async (
-    accessToken: string,
+    phoneNumber: string,
     agreements: SignupTermsAgreement[]
   ): Promise<void> => {
-    await client.post<ApiResponse<SignupTermsAgreement[]>>(
-      '/terms/agreements',
-      { agreements },
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    );
+    await client.post<ApiResponse<null>>('/signup/terms', {
+      phoneNumber: normalizePhoneNumber(phoneNumber),
+      agreements,
+    });
   },
 
   geocodeAddress: async (roadAddress: string) => {
