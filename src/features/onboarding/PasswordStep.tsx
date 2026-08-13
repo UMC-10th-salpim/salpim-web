@@ -68,7 +68,7 @@ const PasswordStep = ({ value, onChange, onBack, onNext }: PasswordStepProps) =>
                 onChange={(event) =>
                   onChange({ ...value, confirm: normalizePassword(event.target.value) })
                 }
-                placeholder="비밀번호를 한번 더 입력해 주세요"
+                placeholder="한번 더 입력해 주세요"
               />
               {mismatch && (
                 <p className="mt-2 text-sm font-semibold text-red-500">
