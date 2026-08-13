@@ -21,17 +21,15 @@ const LargeCheckBox = ({ checked }: { checked: boolean }) => (
       checked ? 'border-[#FF8A3D] bg-[#FF8A3D]' : 'border-gray-200 bg-gray-200'
     }`}
   >
-    {checked && (
-      <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5">
-        <path
-          d="M4 10l4 4 8-8"
-          stroke="white"
-          strokeWidth="2.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    )}
+    <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5">
+      <path
+        d="M4 10l4 4 8-8"
+        stroke="white"
+        strokeWidth="2.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   </span>
 );
 
