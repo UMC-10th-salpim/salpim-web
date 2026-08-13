@@ -8,13 +8,17 @@ import OnboardingInput from '@/features/onboarding/ui/OnboardingInput';
 import { primaryButton } from '@/features/onboarding/styles';
 import { SECURITY_QUESTION } from '@/apis/mypage';
 import { formatPhone } from '@/utils/phone';
+import useUserStore from '@/store/userStore';
+import { useQueryClient } from '@tanstack/react-query';
 
 type ResetStep = 'verify' | 'new' | 'confirm';
 
 const PublicPasswordResetPage = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const logout = useUserStore((state) => state.logout);
   const location = useLocation();
-  const routeState = location.state as { phoneNumber?: string } | null;
+  const routeState = location.state as { phoneNumber?: string; returnTo?: string } | null;
   const [phoneNumber, setPhoneNumber] = useState(() =>
     formatPhone(routeState?.phoneNumber ?? '')
   );
@@ -73,6 +77,8 @@ const PublicPasswordResetPage = () => {
 
     try {
       await authApi.resetPassword(passwordResetToken, password);
+      logout();
+      queryClient.clear();
       setSaved(true);
     } catch (requestError) {
       setError(getApiErrorMessage(requestError, '비밀번호를 변경하지 못했어요.'));
@@ -81,11 +87,7 @@ const PublicPasswordResetPage = () => {
     }
   };
 
-  const goToLogin = () =>
-    navigate('/login?step=login', {
-      replace: true,
-      state: { phoneNumber },
-    });
+  const goToLanding = () => navigate('/', { replace: true });
 
   const handleBack = () => {
     if (step === 'confirm') {
@@ -100,6 +102,11 @@ const PublicPasswordResetPage = () => {
       setPasswordResetToken('');
       setError('');
       setStep('verify');
+      return;
+    }
+
+    if (routeState?.returnTo) {
+      navigate(routeState.returnTo, { replace: true });
       return;
     }
 
@@ -200,8 +207,8 @@ const PublicPasswordResetPage = () => {
         title="비밀번호가 변경되었어요!"
         confirmText="로그인하기"
         cancelText="닫기"
-        onConfirm={goToLogin}
-        onClose={() => setSaved(false)}
+        onConfirm={goToLanding}
+        onClose={goToLanding}
       >
         새 비밀번호로 로그인해 주세요.
       </Modal>

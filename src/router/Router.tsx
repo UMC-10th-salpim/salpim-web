@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import ProtectedRoute from '@/router/ProtectedRoute';
 import LoginPage from '@/pages/LoginPage';
@@ -37,8 +37,6 @@ const MyPage = lazy(() => import('@/pages/MyPage'));
 const LikedBenefitsPage = lazy(() => import('@/pages/LikedBenefitsPage'));
 const EditProfilePage = lazy(() => import('@/pages/EditProfilePage'));
 const InquiryPage = lazy(() => import('@/pages/InquiryPage'));
-const PasswordChangePage = lazy(() => import('@/pages/PasswordChangePage'));
-const PasswordFindPage = lazy(() => import('@/pages/PasswordFindPage'));
 const PublicPasswordResetPage = lazy(() => import('@/pages/PublicPasswordResetPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const HelperPage = lazy(() => import('@/pages/HelperPage'));
@@ -80,8 +78,10 @@ const router = createBrowserRouter([
           { path: 'mypage/edit', element: withSuspense(EditProfilePage) },
           { path: 'mypage/font-size', element: <FontSizePage /> },
           { path: 'mypage/inquiry', element: withSuspense(InquiryPage) },
-          { path: 'mypage/password', element: withSuspense(PasswordChangePage) },
-          { path: 'mypage/password/find', element: withSuspense(PasswordFindPage) },
+          {
+            path: 'mypage/password',
+            element: <Navigate to="/password/find" replace state={{ returnTo: '/mypage' }} />,
+          },
           { path: 'survey', element: withSuspense(SurveyPage) },
           { path: 'helper/:id', element: withSuspense(HelperPage) },
         ],

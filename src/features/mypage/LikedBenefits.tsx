@@ -127,7 +127,7 @@ const LikedBenefits = () => {
               >
                 <div className="flex items-center gap-2">
                   <span className="rounded-full bg-white px-4 py-1 text-[15px] font-bold text-[#6B4423]">
-                    지원금
+                    {benefit.benefitCategory || benefit.welfareCategoryName || '혜택'}
                   </span>
                   <button
                     type="button"
