@@ -113,7 +113,7 @@ const handleKakaoShare = async () => {
           </button>
         </div>
 
-        <span className="salpim-detail-title font-bold text-[#613212]">{title}</span>
+        <span className="salpim-detail-title font-bold text-[#613212] break-keep [overflow-wrap:anywhere]">{title}</span>
         <div className="flex gap-[10px]">
           <span className="salpim-detail-badge bg-[#FFB700] text-[#2B2B2B] font-bold px-3 py-1 rounded-xl">{deadline}</span>
           <span className="salpim-detail-badge bg-[#FFB700] text-[#2B2B2B] font-bold px-3 py-1 rounded-xl">{ageLimit}</span>
@@ -162,7 +162,7 @@ const handleKakaoShare = async () => {
           <div className="flex flex-col gap-2">
             <span className="salpim-detail-share-title pl-4 font-bold text-[#613212]">우리 동네 행정복지센터에서 도움받기</span>
             <div className="bg-[#FBE3BF] rounded-4xl p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
+              <div className="flex flex-1 min-w-0 items-center gap-2">
                 <div className="rounded-full bg-[#FAFAFA] w-16 h-16 flex items-center justift-center pl-3">
                   <img src="/icons/building.png" className="w-10 h-10"/>
                 </div>
@@ -178,7 +178,7 @@ const handleKakaoShare = async () => {
               className="flex items-center gap-1 cursor-pointer"
               onClick={()=>navigate('/map' , { state: { focusFacilityName: fullFacilityName} })}
             >
-              <span className="salpim-detail-facility-link text-[#2B2B2B] font-medium">지도</span>
+              <span className="salpim-detail-facility-link text-[#2B2B2B] font-medium -mr-1">지도</span>
               <img src="/icons/path.png" className="w-10 h-10"/>
             </div>
           </div>
