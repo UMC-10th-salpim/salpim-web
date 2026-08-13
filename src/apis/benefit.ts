@@ -34,7 +34,6 @@ export interface FavoriteBenefit {
   benefitId: number;
   title: string;
   benefitCategory?: string;
-  welfareCategoryName?: string;
   applicationEndDate: string | null;
   minAge: number | null;
 }
