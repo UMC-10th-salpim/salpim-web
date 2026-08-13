@@ -42,14 +42,14 @@ const CurrentPasswordStep = ({ onVerified }: CurrentPasswordStepProps) => {
 
   return (
     <main className="mypage-content gap-5">
-      <h2 className="text-center text-[20px] font-extrabold leading-7 text-[#43230F]">
+      <h2 className="text-center text-[26px] font-extrabold leading-[1.3] text-[#43230F]">
         현재 비밀번호 6자리를
         <br />
         입력해 주세요.
       </h2>
 
       <div aria-live="polite" className="min-h-6 text-center">
-        {error && <p className="text-[16px] font-bold text-red-500">{error}</p>}
+        {error && <p className="text-[20px] font-bold text-red-500">{error}</p>}
       </div>
 
       <Keypad
@@ -63,11 +63,11 @@ const CurrentPasswordStep = ({ onVerified }: CurrentPasswordStepProps) => {
       />
 
       <div className="mt-auto border-t border-[#E8E0D8] pt-3 text-center">
-        <p className="mb-2 text-[16px] font-semibold text-[#8A817A]">비밀번호를 잊으셨나요?</p>
+        <p className="mb-2 text-[20px] font-semibold text-[#8A817A]">비밀번호를 잊으셨나요?</p>
         <button
           type="button"
-          onClick={() => navigate('/password/find')}
-          className="min-h-11 rounded-full border-2 border-[#FFD29E] bg-white px-5 text-[18px] font-extrabold text-[#FF7A32]"
+          onClick={() => navigate('/mypage/password/find')}
+          className="min-h-14 rounded-full border-2 border-[#FFD29E] bg-white px-7 text-[24px] font-extrabold text-[#FF7A32]"
         >
           비밀번호 바꾸기
         </button>

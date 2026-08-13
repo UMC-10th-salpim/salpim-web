@@ -30,7 +30,7 @@ const PasswordChangePage = () => {
 
   return (
     <div className="mypage-screen mx-auto max-w-md">
-      <HeaderBar title="비밀번호 변경" />
+      <HeaderBar title="비밀번호 변경" className="[&_h1]:!text-[26px]" />
 
       {step === 'current' ? (
         <CurrentPasswordStep
@@ -47,7 +47,7 @@ const PasswordChangePage = () => {
           onSaved={() => {
             logout();
             queryClient.clear();
-            navigate('/login', { replace: true });
+            navigate('/', { replace: true });
           }}
         />
       )}
