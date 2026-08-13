@@ -17,3 +17,8 @@ export const createErrorMessageGetter =
 
     return (response.code && messages[response.code]) || response.message || fallback;
   };
+
+export const getApiErrorCode = (error: unknown) => {
+  if (!axios.isAxiosError<ApiErrorResponse>(error)) return undefined;
+  return error.response?.data?.code;
+};

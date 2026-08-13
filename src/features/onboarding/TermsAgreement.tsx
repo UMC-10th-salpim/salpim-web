@@ -1,27 +1,21 @@
 import { useState } from 'react';
 import { primaryButton } from './styles';
 import TermsDetail from './TermsDetail';
+import { toTermKey } from './termsContent';
 import type { TermKey } from './termsContent';
+import type { SignupTerm } from '@/apis/auth';
 
-export interface TermsData {
-  service: boolean;
-  privacy: boolean;
-  sensitive: boolean;
-  location: boolean;
-}
-
-const TERMS: { key: TermKey; label: string }[] = [
-  { key: 'service', label: '서비스 이용 약관' },
-  { key: 'privacy', label: '개인정보 수집 및 이용 동의' },
-  { key: 'sensitive', label: '민감정보 수집 및 이용 동의' },
-  { key: 'location', label: '위치정보 수집 및 이용 동의' },
-];
+export type TermsData = Record<number, boolean>;
 
 interface TermsAgreementProps {
   value: TermsData;
+  terms: SignupTerm[];
   onChange: (data: TermsData) => void;
   onBack: () => void;
   onSubmit: () => void;
+  isLoading?: boolean;
+  isSubmitting?: boolean;
+  errorMessage?: string;
 }
 
 const CheckBox = ({ checked }: { checked: boolean }) => (
@@ -43,23 +37,36 @@ const CheckBox = ({ checked }: { checked: boolean }) => (
   </span>
 );
 
-const TermsAgreement = ({ value, onChange, onBack, onSubmit }: TermsAgreementProps) => {
+const TermsAgreement = ({
+  value,
+  terms,
+  onChange,
+  onBack,
+  onSubmit,
+  isLoading = false,
+  isSubmitting = false,
+  errorMessage = '',
+}: TermsAgreementProps) => {
   const [openTerm, setOpenTerm] = useState<TermKey | null>(null);
-  const allChecked = TERMS.every(({ key }) => value[key]);
+  const allChecked = terms.length > 0 && terms.every(({ termsVersionId }) => value[termsVersionId]);
+  const requiredChecked =
+    terms.length > 0 &&
+    terms
+      .filter(({ isRequired }) => isRequired)
+      .every(({ termsVersionId }) => value[termsVersionId]);
 
-  const toggleAll = () =>
-    onChange({
-      service: !allChecked,
-      privacy: !allChecked,
-      sensitive: !allChecked,
-      location: !allChecked,
-    });
+  const toggleAll = () => {
+    const nextValue = !allChecked;
+    onChange(Object.fromEntries(terms.map(({ termsVersionId }) => [termsVersionId, nextValue])));
+  };
 
-  const toggle = (key: keyof TermsData) => onChange({ ...value, [key]: !value[key] });
+  const toggle = (termsVersionId: number) =>
+    onChange({ ...value, [termsVersionId]: !value[termsVersionId] });
 
   const closeTermAndAgree = () => {
     if (!openTerm) return;
-    onChange({ ...value, [openTerm]: true });
+    const openedTerm = terms.find(({ code }) => toTermKey(code) === openTerm);
+    if (openedTerm) onChange({ ...value, [openedTerm.termsVersionId]: true });
     setOpenTerm(null);
   };
 
@@ -80,6 +87,7 @@ const TermsAgreement = ({ value, onChange, onBack, onSubmit }: TermsAgreementPro
           <button
             type="button"
             onClick={toggleAll}
+            disabled={isLoading || terms.length === 0}
             className="flex h-[78px] w-full items-center gap-3 rounded-[11px] border-[3px] border-brand-200 bg-white px-5 py-0 text-left !font-semibold"
           >
             <CheckBox checked={allChecked} />
@@ -88,36 +96,49 @@ const TermsAgreement = ({ value, onChange, onBack, onSubmit }: TermsAgreementPro
 
           {/* 개별 약관 */}
           <div className="mt-[50px] overflow-hidden rounded-[11px] border-[3px] border-brand-200 bg-white">
-            {TERMS.map(({ key, label }, index) => (
-              <div
-                key={key}
-                className={`relative flex h-20 items-center gap-3 px-3 ${
-                  index !== 0
-                    ? 'before:absolute before:inset-x-3 before:top-0 before:h-px before:bg-gray-200 before:content-[""]'
-                    : ''
-                }`}
-              >
-                <button
-                  type="button"
-                  onClick={() => toggle(key)}
-                  className="flex flex-1 items-center gap-3 text-left !font-semibold"
+            {terms.map(({ code, termsVersionId, name, isRequired }, index) => {
+              const termKey = toTermKey(code);
+              return (
+                <div
+                  key={termsVersionId}
+                  className={`relative flex h-20 items-center gap-3 px-3 ${
+                    index !== 0
+                      ? 'before:absolute before:inset-x-3 before:top-0 before:h-px before:bg-gray-200 before:content-[""]'
+                      : ''
+                  }`}
                 >
-                  <CheckBox checked={value[key]} />
-                  <span className="salpim-home-card-body flex min-w-0 flex-1 items-center gap-1 font-semibold leading-[1.25] tracking-[-0.06em] text-gray-800">
-                    <span className="shrink-0">[필수]</span>
-                    <span className="min-w-0 flex-1">{label}</span>
-                  </span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOpenTerm(key)}
-                  className="shrink-0 rounded-full bg-brand-200/70 px-3 py-1 !text-sm !font-semibold text-gray-900"
-                >
-                  보기 &gt;
-                </button>
-              </div>
-            ))}
+                  <button
+                    type="button"
+                    onClick={() => toggle(termsVersionId)}
+                    className="flex flex-1 items-center gap-3 text-left !font-semibold"
+                  >
+                    <CheckBox checked={Boolean(value[termsVersionId])} />
+                    <span className="salpim-home-card-body flex min-w-0 flex-1 items-center gap-1 font-semibold leading-[1.25] tracking-[-0.06em] text-gray-800">
+                      <span className="shrink-0">[{isRequired ? '필수' : '선택'}]</span>
+                      <span className="min-w-0 flex-1">{name}</span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => termKey && setOpenTerm(termKey)}
+                    disabled={!termKey}
+                    className="shrink-0 rounded-full bg-brand-200/70 px-3 py-1 !text-sm !font-semibold text-gray-900"
+                  >
+                    보기 &gt;
+                  </button>
+                </div>
+              );
+            })}
           </div>
+
+          {(isLoading || errorMessage) && (
+            <p
+              role={errorMessage ? 'alert' : undefined}
+              className={`mt-3 text-center text-sm font-semibold ${errorMessage ? 'text-red-500' : 'text-gray-500'}`}
+            >
+              {errorMessage || '약관 정보를 불러오고 있어요.'}
+            </p>
+          )}
         </div>
       </div>
 
@@ -125,8 +146,13 @@ const TermsAgreement = ({ value, onChange, onBack, onSubmit }: TermsAgreementPro
         <button type="button" onClick={onBack} className={primaryButton}>
           이전
         </button>
-        <button type="button" onClick={onSubmit} disabled={!allChecked} className={primaryButton}>
-          다음
+        <button
+          type="button"
+          onClick={onSubmit}
+          disabled={!requiredChecked || isLoading || isSubmitting}
+          className={primaryButton}
+        >
+          {isSubmitting ? '확인 중...' : '다음'}
         </button>
       </div>
 

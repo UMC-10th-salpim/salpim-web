@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authApi, getKakaoAuthorizeUrl, getSignupErrorMessage } from '@/apis/auth';
+import {
+  authApi,
+  getKakaoAuthorizeUrl,
+  getSignupErrorMessage,
+  getSignupTermsErrorMessage,
+} from '@/apis/auth';
+import type { SignupTerm } from '@/apis/auth';
+import { getApiErrorCode } from '@/apis/errorMessage';
 import {
   ensureAddressRegion,
   normalizeLocationCoordinates,
@@ -59,12 +66,12 @@ const SignUpPage = () => {
   });
   const [password, setPassword] = useState<PasswordData>({ password: '', confirm: '' });
   const [security, setSecurity] = useState<SecurityData>({ question: '', answer: '' });
-  const [terms, setTerms] = useState<TermsData>({
-    service: false,
-    privacy: false,
-    sensitive: false,
-    location: false,
-  });
+  const [terms, setTerms] = useState<TermsData>({});
+  const [signupTerms, setSignupTerms] = useState<SignupTerm[]>([]);
+  const [isTermsLoading, setIsTermsLoading] = useState(false);
+  const [isTermsSubmitting, setIsTermsSubmitting] = useState(false);
+  const [termsError, setTermsError] = useState('');
+  const [phoneFlowError, setPhoneFlowError] = useState('');
 
   const isKakaoSignup = Boolean(kakaoSignupToken);
   const previous = () =>
@@ -90,6 +97,77 @@ const SignUpPage = () => {
       sessionStorage.removeItem(KAKAO_SIGNUP_TOKEN_KEY);
     };
   }, []);
+
+  useEffect(() => {
+    if (step !== 4) return;
+
+    let isActive = true;
+    setIsTermsLoading(true);
+
+    void authApi
+      .getSignupTerms()
+      .then((loadedTerms) => {
+        if (!isActive) return;
+        setSignupTerms(loadedTerms);
+        setTerms((previousTerms) =>
+          Object.fromEntries(
+            loadedTerms.map(({ termsVersionId }) => [
+              termsVersionId,
+              previousTerms[termsVersionId] ?? false,
+            ])
+          )
+        );
+      })
+      .catch((error) => {
+        if (!isActive) return;
+        setTermsError(
+          getSignupTermsErrorMessage(error, '약관 정보를 불러오지 못했어요. 다시 시도해 주세요.')
+        );
+      })
+      .finally(() => {
+        if (isActive) setIsTermsLoading(false);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [step]);
+
+  const submitTerms = async () => {
+    if (isTermsLoading || isTermsSubmitting || signupTerms.length === 0) return;
+
+    setIsTermsSubmitting(true);
+    setTermsError('');
+
+    try {
+      await authApi.submitSignupTerms(
+        info.phone,
+        signupTerms.map(({ termsVersionId }) => ({
+          termsVersionId,
+          agreed: Boolean(terms[termsVersionId]),
+        }))
+      );
+      next();
+    } catch (error) {
+      if (getApiErrorCode(error) === 'AUTH400_VERIFICATION_EXPIRED') {
+        setInfo((previousInfo) => ({ ...previousInfo, phoneVerified: false }));
+        setPhoneFlowError(
+          getSignupTermsErrorMessage(
+            error,
+            '인증번호가 만료되었습니다. 휴대폰 인증을 다시 진행해 주세요.'
+          )
+        );
+        setStep(0);
+        return;
+      }
+
+      setTermsError(
+        getSignupTermsErrorMessage(error, '약관 동의를 제출하지 못했어요. 다시 시도해 주세요.')
+      );
+    } finally {
+      setIsTermsSubmitting(false);
+    }
+  };
 
   const finish = async () => {
     if (isSubmitting) return;
@@ -149,6 +227,34 @@ const SignUpPage = () => {
       setHomeLocation(signupProfile.latitude, signupProfile.longitude);
       navigate('/recommendation', { replace: true });
     } catch (error) {
+      const errorCode = getApiErrorCode(error);
+      if (
+        errorCode === 'AUTH400_VERIFICATION_EXPIRED' ||
+        errorCode === 'EXPIRED_VERIFICATION_CODE'
+      ) {
+        setSubmitError('');
+        setInfo((previousInfo) => ({ ...previousInfo, phoneVerified: false }));
+        setPhoneFlowError(
+          getSignupErrorMessage(
+            error,
+            '인증번호가 만료되었습니다. 휴대폰 인증을 다시 진행해 주세요.'
+          )
+        );
+        setStep(0);
+        return;
+      }
+
+      if (
+        errorCode === 'AUTH400_TERMS_AGREEMENT_NOT_SUBMITTED' ||
+        errorCode === 'AUTH400_TERMS_AGREEMENT_EXPIRED' ||
+        errorCode === 'AUTH400_TERMS_AGREEMENT_VERIFICATION'
+      ) {
+        setSubmitError('');
+        setTermsError(getSignupErrorMessage(error, '약관 동의를 다시 확인해 주세요.'));
+        setStep(4);
+        return;
+      }
+
       setSubmitError(
         getSignupErrorMessage(error, '회원가입을 완료하지 못했어요. 다시 시도해 주세요.')
       );
@@ -170,9 +276,13 @@ const SignUpPage = () => {
         {step === 0 && (
           <OnboardingForm
             value={info}
-            onChange={setInfo}
+            onChange={(nextInfo) => {
+              setInfo(nextInfo);
+              if (nextInfo.phoneVerified) setPhoneFlowError('');
+            }}
             onNext={next}
             onBack={() => navigate(-1)}
+            externalErrorMessage={phoneFlowError}
           />
         )}
         {step === 1 && (
@@ -199,16 +309,24 @@ const SignUpPage = () => {
           (isLarge ? (
             <LargeTermsAgreement
               value={terms}
+              terms={signupTerms}
               onChange={setTerms}
               onBack={previous}
-              onSubmit={next}
+              onSubmit={() => void submitTerms()}
+              isLoading={isTermsLoading}
+              isSubmitting={isTermsSubmitting}
+              errorMessage={termsError}
             />
           ) : (
             <TermsAgreement
               value={terms}
+              terms={signupTerms}
               onChange={setTerms}
               onBack={previous}
-              onSubmit={next}
+              onSubmit={() => void submitTerms()}
+              isLoading={isTermsLoading}
+              isSubmitting={isTermsSubmitting}
+              errorMessage={termsError}
             />
           ))}
         {step === 5 && (

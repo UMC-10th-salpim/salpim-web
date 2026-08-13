@@ -41,8 +41,21 @@ const SIGNUP_ERROR_MESSAGES: Record<string, string> = {
   ADDR004: '주소 변환 중 오류가 발생했습니다',
   MEMBER001: '필수 입력값이 누락되었습니다',
   KAKAO006: '유효하지 않은 회원가입 토큰입니다',
+  AUTH400_TERMS_AGREEMENT_NOT_SUBMITTED: '약관 동의 정보가 제출되지 않았습니다.',
+  AUTH400_TERMS_AGREEMENT_EXPIRED: '약관 동의가 만료되었습니다. 약관 동의를 다시 제출해 주세요.',
+  AUTH400_TERMS_AGREEMENT_VERIFICATION:
+    '약관 동의 정보를 확인할 수 없습니다. 약관 동의를 다시 제출해 주세요.',
+  AUTH400_VERIFICATION_EXPIRED: '인증번호가 만료되었습니다. 휴대폰 인증을 다시 진행해 주세요.',
+  EXPIRED_VERIFICATION_CODE: '인증번호가 만료되었습니다. 휴대폰 인증을 다시 진행해 주세요.',
   AUTH502_GEOCODING: '주소 좌표 조회에 실패했습니다',
   GL001: '서버 오류가 발생했습니다',
+};
+
+const SIGNUP_TERMS_ERROR_MESSAGES: Record<string, string> = {
+  AUTH400_PHONE_NOT_VERIFIED: '휴대폰 인증이 완료되지 않았습니다.',
+  AUTH400_VERIFICATION_EXPIRED: '인증번호가 만료되었습니다.',
+  TERM404: '해당 약관을 찾을 수 없습니다.',
+  TERM400_REQUIRED: '필수 약관에 동의해야 합니다.',
 };
 
 const LOGIN_ERROR_MESSAGES: Record<string, string> = {
@@ -98,6 +111,22 @@ export interface RegionResolveRequest {
   administrativeArea: string;
 }
 
+export interface SignupTerm {
+  termsTypeId: number;
+  code: 'SERVICE' | 'PRIVACY' | 'SENSITIVE_INFO' | 'LOCATION' | string;
+  name: string;
+  isRequired: boolean;
+  displayOrder: number;
+  termsVersionId: number;
+  version: string;
+  effectiveDate: string;
+}
+
+export interface SignupTermsAgreement {
+  termsVersionId: number;
+  agreed: boolean;
+}
+
 interface SignupProfile {
   name: string;
   birthDate: string;
@@ -125,6 +154,8 @@ export const getPhoneVerificationErrorMessage = createErrorMessageGetter(
 );
 
 export const getSignupErrorMessage = createErrorMessageGetter(SIGNUP_ERROR_MESSAGES);
+
+export const getSignupTermsErrorMessage = createErrorMessageGetter(SIGNUP_TERMS_ERROR_MESSAGES);
 
 export const getLoginErrorMessage = createErrorMessageGetter(LOGIN_ERROR_MESSAGES);
 
@@ -187,6 +218,21 @@ export const authApi = {
       verified: data.result.verified,
       message: data.message,
     };
+  },
+
+  getSignupTerms: async (): Promise<SignupTerm[]> => {
+    const { data } = await client.get<ApiResponse<SignupTerm[]>>('/terms');
+    return [...unwrap(data)].sort((a, b) => a.displayOrder - b.displayOrder);
+  },
+
+  submitSignupTerms: async (
+    phoneNumber: string,
+    agreements: SignupTermsAgreement[]
+  ): Promise<void> => {
+    await client.post<ApiResponse<null>>('/signup/terms', {
+      phoneNumber: normalizePhoneNumber(phoneNumber),
+      agreements,
+    });
   },
 
   geocodeAddress: async (roadAddress: string) => {
