@@ -195,21 +195,9 @@ export const reverseGeocodeAddress = async (
       if (roadAddress) return toAddressResult(roadAddress, document.address);
 
       const jibunAddress = document?.address;
-      if (jibunAddress) {
-        try {
-          const searchedRoadAddress = await searchRoadAddressByJibun(
-            key,
-            jibunAddress.address_name
-          );
-          if (searchedRoadAddress) return searchedRoadAddress;
-        } catch (error) {
-          console.warn('[address] 지번 주소의 도로명 주소 검색 실패, 지번 주소로 대체', error);
-        }
+      if (jibunAddress) return toJibunAddressResult(jibunAddress);
 
-        return toJibunAddressResult(jibunAddress);
-      }
-
-      throw new Error('현재 위치의 도로명 주소를 찾을 수 없습니다.');
+      throw new Error('현재 위치의 주소를 찾을 수 없습니다.');
     } catch (error) {
       restApiError = error;
     }
@@ -352,26 +340,6 @@ export const normalizeLocationCoordinates = (
   };
 };
 
-const searchRoadAddressByJibun = async (
-  key: string,
-  jibunAddress: string
-): Promise<AddressResult | null> => {
-  const params = new URLSearchParams({
-    query: jibunAddress,
-    size: '5',
-  });
-  const res = await fetch(`${KAKAO_LOCAL_URL}?${params.toString()}`, {
-    headers: { Authorization: `KakaoAK ${key}` },
-  });
-  if (!res.ok) throw new Error(`지번 주소 검색 실패 (${res.status})`);
-
-  const data: KakaoResponse = await res.json();
-  const document = data.documents.find((item) => item.road_address);
-  return document?.road_address
-    ? toAddressResult(document.road_address, document.address)
-    : null;
-};
-
 const loadKakaoMapServices = () => {
   if (typeof window === 'undefined') {
     return Promise.reject(new Error('브라우저에서만 위치 주소 변환을 사용할 수 있습니다.'));
@@ -444,30 +412,8 @@ const reverseGeocodeWithMapSdk = async (latitude: number, longitude: number): Pr
         region_3depth_h_name: jibunRegion.region_3depth_h_name,
       };
 
-      geocoder.addressSearch(jibunAddressName, (searchResult, searchStatus) => {
-        const searchedDocument =
-          searchStatus === window.kakao.maps.services.Status.OK
-            ? searchResult.find((item) => item.road_address)
-            : null;
-        const searchedRoadAddress = searchedDocument?.road_address;
-        if (!searchedRoadAddress) {
-          resolve(toJibunAddressResult(jibunAddress));
-          return;
-        }
-
-        resolve(
-          toAddressResult(
-            {
-              address_name: searchedRoadAddress.address_name,
-              building_name: searchedRoadAddress.building_name,
-              region_1depth_name: searchedRoadAddress.region_1depth_name,
-              region_2depth_name: searchedRoadAddress.region_2depth_name,
-              region_3depth_name: searchedRoadAddress.region_3depth_name,
-            },
-            searchedDocument.address
-          )
-        );
-      });
+      // 좌표 응답에 도로명 주소가 없을 때만 지번 주소를 최종 주소로 사용한다.
+      resolve(toJibunAddressResult(jibunAddress));
     });
   });
 };
