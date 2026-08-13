@@ -28,8 +28,8 @@ const FindPasswordQuestion = ({ onVerified }: FindPasswordQuestionProps) => {
       const message = getApiErrorMessage(requestError, '답변을 확인하지 못했어요.');
       setError(
         message
-          .replaceAll('비밀번호 찾기 답변', '답변')
-          .replaceAll('비밀번호 복구 답변', '답변')
+          .replace(/비밀번호 찾기 답변/g, '답변')
+          .replace(/비밀번호 복구 답변/g, '답변')
       );
     } finally {
       setVerifying(false);
